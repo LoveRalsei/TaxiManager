@@ -42,17 +42,17 @@ namespace TaxiManager
             {
                 if (DataLoader.Loaded && ! DataLoader.IsError)
                 {
-                    statusLabel.Text = "数据加载完成！(" + DataLoader.LoadedCount + '/' + DataLoader.DriversCount + ')';
+                    statusLabel.Text = $"数据加载完成！({DataLoader.LoadedCount}/{DataLoader.RawDriversCount} valid {DataLoader.DriversCount})";
                     statusTimer.Stop();
                 }
                 else if (DataLoader.IsError)
                 {
-                    statusLabel.Text = "数据加载出错！！！(" + DataLoader.LoadedCount + '/' + DataLoader.DriversCount + ')';
+                    statusLabel.Text = $"数据加载出错！！！({DataLoader.LoadedCount}/{DataLoader.RawDriversCount} valid {DataLoader.DriversCount})";
                     statusTimer.Stop();
                 }
                 else
                 {
-                    statusLabel.Text = "正在加载数据...(" + DataLoader.LoadedCount + '/' + DataLoader.DriversCount + ')';
+                    statusLabel.Text = $"正在加载数据...({DataLoader.LoadedCount}/{DataLoader.RawDriversCount} valid {DataLoader.DriversCount})";
                 }
             };
             statusTimer.Start();

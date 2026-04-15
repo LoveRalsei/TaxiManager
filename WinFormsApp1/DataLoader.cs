@@ -29,33 +29,51 @@ namespace TaxiManager
     }
     public class Driver
     {
-        public readonly int Id;
+        public int Id;
         public readonly List<PathNode> Nodes = [];
         public bool IsEmpty => Nodes.Count == 0;
-        public Driver(int id, List<PathNode> nodes) 
+        public Driver(List<PathNode> nodes) 
         {
-            Id = id;
             Nodes = nodes;
         }
-        public Driver(int id, PathSupplier pathSupplier) : this(id, pathSupplier()) { }
-        public Driver(ZipArchiveEntry entry) : this(int.Parse(Path.GetFileNameWithoutExtension(entry.Name)), new PathSupplier(() =>
+        public Driver(PathSupplier pathSupplier) : this(pathSupplier()) { }
+        public Driver(ZipArchiveEntry entry) : this(new PathSupplier(() =>
         {
-            List<PathNode> nodes = [];
+            LinkedList<PathNode> nodes = [];
             using (var stream = entry.Open())
             using (StreamReader reader = new(stream))
             {
+                const double dTolerance = 0.00005;// 约 5 米的容忍度，用于修正GPS误差和压缩不动的节点。
+                double lastX = 0, lastY = 0;
+                DateTime? ignoredTime = null;
                 for (var line = reader.ReadLine(); line != null && line.Length > 0; line = reader.ReadLine())
                 {
                     var splited = line.Split(',');
                     var date = DateTime.ParseExact(splited[1], PathNode.DateFormat, CultureInfo.InvariantCulture);
                     var x = double.Parse(splited[2]);
                     var y = double.Parse(splited[3]);
-                    var node = new PathNode(date, x, y);
-                    if (node.IsValid())
-                        nodes.Add(node);
+                    if (!Position.IsValid(x, y))
+                        continue;
+                    // 如果当前节点和上一个节点的位置相差大于容忍度，则认为是新的有效节点。
+                    if (Math.Abs(x - lastX) >= dTolerance || Math.Abs(y - lastY) >= dTolerance)
+                    {
+                        // 中间有节点被略过，需要插入一个节点。
+                        if (ignoredTime != null)
+                        {
+                            var tailNode = new PathNode(ignoredTime.Value, lastX, lastY);
+                            nodes.AddLast(tailNode);
+                        }
+                        lastX = x;
+                        lastY = y;
+                        var node = new PathNode(date, x, y);
+                        nodes.AddLast(node);
+                    } else
+                    {
+                        ignoredTime = date;
+                    }
                 }
             }
-            return nodes;
+            return [.. nodes];
         })) { }
 
         /// <summary>
@@ -65,7 +83,7 @@ namespace TaxiManager
         /// </summary>
         public Position? GetPosition(DateTime time)
         {
-            return getPosition(time, TimeTolerance.Default);
+            return GetPosition(time, TimeTolerance.Default);
         }
 
         /// <summary>
@@ -155,7 +173,9 @@ namespace TaxiManager
         {
             return Lerp(this, target, scale);
         }
-        public bool IsValid() => X >= MinX && X <= MaxX && Y >= MinY && Y <= MaxY;
+        public bool IsValid() => IsValid(this);
+        public static bool IsValid(Position? position) => position != null && IsValid(position.Value.X, position.Value.Y);
+        public static bool IsValid(double x, double y) => x >= MinX && x <= MaxX && y >= MinY && y <= MaxY;
         public static Position? Lerp(Position? from, Position? to, float scale)
         {
             if (from == null && to == null) return null;
@@ -198,7 +218,10 @@ namespace TaxiManager
                 return _drivers;
             }
         }
-        public static int DriversCount => _drivers.Length;
+        private static int _rawDriversCount;
+        public static int RawDriversCount => _rawDriversCount;
+        private static int _driversCount = 0;
+        public static int DriversCount => _driversCount;
         private static int _loadedCount;
         public static int LoadedCount => _loadedCount;
         private static Exception? _error;
@@ -238,13 +261,14 @@ namespace TaxiManager
                 using var zip = ZipFile.OpenRead(zipFile);
                 totalEntries += zip.Entries.Count;
             }
-            _drivers = new Driver[totalEntries];
+            _rawDriversCount = totalEntries;
 
             // 开独立线程用于加载数据，避免阻塞UI线程
             _loadTask = Task.Run(() =>
             {
                 try
                 {
+                    LinkedList<Driver> drivers = new();
                     var zipFiles = Directory.GetFiles(_dataPath, "*.zip");
                     foreach (var zipFile in zipFiles)
                     {
@@ -252,9 +276,15 @@ namespace TaxiManager
                         foreach (var entry in zip.Entries)
                         {
                             var driver = new Driver(entry);
-                            _drivers[driver.Id - 1] = driver;
+                            if (!driver.IsEmpty)
+                            {
+                                drivers.AddLast(driver);
+                                driver.Id = drivers.Count;
+                                _driversCount = drivers.Count;
+                            }
                             _loadedCount++;
                         }
+                        _drivers = drivers.ToArray();
                     }
                 }
                 catch (Exception error)
