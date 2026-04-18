@@ -21,70 +21,87 @@
         }
 
         #region Windows Form Designer generated code
-
+        //控件声明
+        private Button _enlargeButton;
+        private Button _shrinkButton;
+        private Button _regionSreachButton;
         /// <summary>
         ///  Required method for Designer support - do not modify
         ///  the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            enlargeButton = new Button();
-            shrinkButton = new Button();
-            regionSreachButton = new Button();
+            _enlargeButton = new Button();
+            _shrinkButton = new Button();
+            _regionSreachButton = new Button();
+            label1 = new Label();
             SuspendLayout();
             // 
-            // enlargeButton
+            // _enlargeButton
             // 
-            enlargeButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            enlargeButton.Font = new Font("Microsoft YaHei UI", 15F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            enlargeButton.Location = new Point(12, 464);
-            enlargeButton.Name = "enlargeButton";
-            enlargeButton.Size = new Size(40, 40);
-            enlargeButton.TabIndex = 0;
-            enlargeButton.Text = "+";
-            enlargeButton.UseVisualStyleBackColor = true;
-            enlargeButton.Click += enlargeButtonClick;
+            _enlargeButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _enlargeButton.BackColor = SystemColors.ButtonHighlight;
+            _enlargeButton.FlatAppearance.BorderColor = Color.White;
+            _enlargeButton.FlatAppearance.BorderSize = 0;
+            _enlargeButton.Font = new Font("Microsoft YaHei UI", 15F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            _enlargeButton.Location = new Point(847, 418);
+            _enlargeButton.Name = "_enlargeButton";
+            _enlargeButton.Size = new Size(40, 40);
+            _enlargeButton.TabIndex = 0;
+            _enlargeButton.Text = "+";
+            _enlargeButton.UseVisualStyleBackColor = false;
+            _enlargeButton.Click += _enlargeButtonClick;
             // 
-            // shrinkButton
+            // _shrinkButton
             // 
-            shrinkButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            shrinkButton.Font = new Font("Microsoft YaHei UI", 15F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            shrinkButton.Location = new Point(58, 464);
-            shrinkButton.Name = "shrinkButton";
-            shrinkButton.Size = new Size(40, 40);
-            shrinkButton.TabIndex = 1;
-            shrinkButton.Text = "-";
-            shrinkButton.UseVisualStyleBackColor = true;
-            shrinkButton.Click += shrinkButtonClick;
+            _shrinkButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _shrinkButton.Font = new Font("Microsoft YaHei UI", 15F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            _shrinkButton.Location = new Point(847, 464);
+            _shrinkButton.Name = "_shrinkButton";
+            _shrinkButton.Size = new Size(40, 40);
+            _shrinkButton.TabIndex = 1;
+            _shrinkButton.Text = "-";
+            _shrinkButton.UseVisualStyleBackColor = true;
+            _shrinkButton.Click += _shrinkButtonClick;
             // 
-            // button1
+            // _regionSreachButton
             // 
-            regionSreachButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            regionSreachButton.Location = new Point(104, 464);
-            regionSreachButton.Name = "button1";
-            regionSreachButton.Size = new Size(121, 40);
-            regionSreachButton.TabIndex = 2;
-            regionSreachButton.Text = "区域范围查找";
-            regionSreachButton.UseVisualStyleBackColor = true;
-            regionSreachButton.Click += regionSreachButtonClick;
+            _regionSreachButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _regionSreachButton.Location = new Point(720, 464);
+            _regionSreachButton.Name = "_regionSreachButton";
+            _regionSreachButton.Size = new Size(121, 40);
+            _regionSreachButton.TabIndex = 2;
+            _regionSreachButton.Text = "区域范围查找";
+            _regionSreachButton.UseVisualStyleBackColor = true;
+            _regionSreachButton.Click += _regionSreachButtonClick;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(407, 270);
+            label1.Name = "label1";
+            label1.Size = new Size(53, 20);
+            label1.TabIndex = 3;
+            label1.Text = "label1";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // MapForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(899, 545);
-            Controls.Add(regionSreachButton);
-            Controls.Add(shrinkButton);
-            Controls.Add(enlargeButton);
+            Controls.Add(label1);
+            Controls.Add(_regionSreachButton);
+            Controls.Add(_shrinkButton);
+            Controls.Add(_enlargeButton);
             Name = "MapForm";
             Text = "TaxiMap";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
-        //放大缩小按钮
-        private Button enlargeButton;
-        private Button shrinkButton;
-        private Button regionSreachButton;
+
+        private Label label1;
     }
 }

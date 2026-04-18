@@ -6,17 +6,14 @@ namespace TaxiManager
 {
     public partial class MapForm : Form
     {
+
         private GMapControl gmap;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel statusLabel;
 
-        private int oringinMinZoom = 3;
-        private int oringinMaxZoom = 18;
-        private bool lockZoom = false;
-        private bool isRegionSearching = false;
-        private List<PointLatLng> regionSearchPoints = new List<PointLatLng>();
-        private GMapOverlay regionSearchOverlay = new GMapOverlay("polygons");
-        
+        // sidebar fields
+        private LeftSidebar? leftSidebar;
+        private SidebarController? sidebarController;
 
         public MapForm()
         {
@@ -27,8 +24,8 @@ namespace TaxiManager
                 Dock = DockStyle.Fill,
                 MapProvider = AMapProvider.Instance,
                 Position = new PointLatLng(39.9042, 116.4074), // 北京坐标
-                MinZoom = oringinMinZoom,
-                MaxZoom = oringinMaxZoom,
+                MinZoom = _oringinMinZoom,
+                MaxZoom = _oringinMaxZoom,
                 Zoom = 12,     // 初始缩放级别
                 ShowCenter = false,
                 MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter,
@@ -70,74 +67,56 @@ namespace TaxiManager
                 }
             };
             statusTimer.Start();
-        }
 
-        private void enlargeButtonClick(object sender, EventArgs e)
-        {
-            if (lockZoom) return;
-            gmap.Zoom++;
-        }
-
-        private void shrinkButtonClick(object sender, EventArgs e)
-        {
-            if (lockZoom) return;
-            gmap.Zoom--;
-        }
-
-        private void regionSreachButtonClick(object sender, EventArgs e)
-        {
-            regionSreachButton.Text="区域选择中...";
-            if (isRegionSearching==false)
+            // 初始化左侧侧边栏并由 SidebarController 管理（不修改现有控件）
+            try
             {
-                isRegionSearching = true;
-                gmap.MouseClick += regionSreachClick;
-                regionSearchPoints.Clear();
+                leftSidebar = new LeftSidebar();
+                leftSidebar.Title = "筛选";
+                // 示例：处理侧边栏底部按钮点击 -> 调用区域分析并收回侧边栏
+                leftSidebar.BottomButton.Click += (s, e) =>
+                {
+                    try
+                    {
+                        // _regionSearchPoints 在同一 partial 类中定义（UI_RegionSreachButton.cs）
+                        _analyzeRegion(_regionSearchPoints, leftSidebar.StartDateString, leftSidebar.EndDateString);
+                    }
+                    catch
+                    {
+                        // 忽略调用时的异常，保证侧边栏能收回
+                    }
+
+                    // 将区域选择按钮恢复到初始状态：取消选择状态、清理 overlay、取消订阅鼠标事件并复位文本
+                    try
+                    {
+                        _isRegionSearching = false;
+                        _isRegionDragging = false;
+                        _regionSearchPoints.Clear();
+                        //_regionSearchOverlay.Polygons.Clear();
+                        //_regionSearchOverlay.Markers.Clear();
+
+                        // 取消订阅，以防尚未取消
+                        try { gmap.MouseDown -= _mapRegionMouseDown; } catch { }
+                        try { gmap.MouseMove -= _mapRegionMouseMove; } catch { }
+                        try { gmap.MouseUp -= _mapRegionMouseUp; } catch { }
+
+                        // 恢复按钮文本为设计时初始文本
+                        _regionSreachButton.Text = "区域范围查找";
+                    }
+                    catch { }
+
+                    sidebarController?.Hide();
+                };
+
+                sidebarController = new SidebarController(this, leftSidebar, expandedWidth: 280);
+                //sidebarController.Show();
+                // 窗体关闭时释放 controller
+                this.FormClosed += (s, e) => sidebarController?.Dispose();
             }
-            else
-            { 
-                isRegionSearching = false;
-                gmap.MouseClick -= regionSreachClick;
-            }
-        }
-
-        private void regionSreachClick(object sender, MouseEventArgs e)
-        {
-            // 只响应左键
-            if (e.Button != MouseButtons.Left) return;
-
-            // 把点击位置转为经纬度并加入点列表
-            var latlng = gmap.FromLocalToLatLng(e.X, e.Y);
-            regionSearchPoints.Add(latlng);
-
-            // 每次重绘前先清空 overlay 中的图形和标记，避免重复叠加
-            regionSearchOverlay.Polygons.Clear();
-            regionSearchOverlay.Markers.Clear();
-
-            // 为每个顶点添加一个标记，便于用户识别
-            for (int i = 0; i < regionSearchPoints.Count; i++)
+            catch
             {
-                var m = new GMap.NET.WindowsForms.Markers.GMarkerGoogle(regionSearchPoints[i], GMap.NET.WindowsForms.Markers.GMarkerGoogleType.blue_dot);
-                regionSearchOverlay.Markers.Add(m);
+                // 若初始化失败则忽略，保持程序可用
             }
-
-            // 当点数 >= 3 时绘制多边形；点数不足时只显示标记
-            if (regionSearchPoints.Count >= 3)
-            {
-                var polyPoints = new List<PointLatLng>(regionSearchPoints);
-                var regionSearchPolygon = new GMapPolygon(polyPoints, "区域选择多边形");
-                regionSearchPolygon.Fill = new SolidBrush(Color.FromArgb(80, Color.Red));
-                regionSearchPolygon.Stroke = new Pen(Color.Red, 2);
-                regionSearchOverlay.Polygons.Add(regionSearchPolygon);
-            }
-
-            // 确保 overlay 只被加入一次
-            if (!gmap.Overlays.Contains(regionSearchOverlay))
-            {
-                gmap.Overlays.Add(regionSearchOverlay);
-            }
-
-            // 更新按钮文本显示当前点数
-            regionSreachButton.Text = $"区域选择中...({regionSearchPoints.Count})";
         }
     }
 }
