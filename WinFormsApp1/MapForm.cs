@@ -1,6 +1,7 @@
 using GMap.NET.MapProviders;
 using GMap.NET;
 using GMap.NET.WindowsForms;
+using System;
 
 namespace TaxiManager
 {
@@ -12,8 +13,94 @@ namespace TaxiManager
         private ToolStripStatusLabel statusLabel;
 
         // sidebar fields
-        private LeftSidebar? leftSidebar;
+        private LeftSidebar_ChooseTimePeriod? leftSidebar;
         private SidebarController? sidebarController;
+        private EventHandler? _bottomButtonAnalyzeHandler;
+
+        // 用于侧边栏底部按钮绑定分析函数的辅助方法
+        private void BindBottomButtonToAnalysis(Action analyzeAction, Func<bool> hasEnoughRegions, Action cleanupAction)
+        {
+            // 先解绑之前的处理函数
+            try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
+
+            _bottomButtonAnalyzeHandler = (s, e) =>
+            {
+                leftSidebar.ErrorMessageVisible = false;
+
+                if (hasEnoughRegions())
+                {
+                    analyzeAction();
+                    cleanupAction();
+                    sidebarController?.Hide();
+
+                    // 分析完成后解绑
+                    try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
+                }
+                else
+                {
+                    leftSidebar.ErrorMessageVisible = true;
+                }
+            };
+
+            leftSidebar.BottomButton.Click += _bottomButtonAnalyzeHandler;
+        }
+
+        // 解绑底部按钮的分析函数
+        private void UnbindBottomButtonAnalysis()
+        {
+            try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
+            _bottomButtonAnalyzeHandler = null;
+            if (leftSidebar != null)
+                leftSidebar.ErrorMessageVisible = false;
+        }
+
+        // 区域范围查找的清理方法
+        private void CleanupRegionSearch()
+        {
+            _isRegionSearching = false;
+            _isRegionDragging = false;
+            _regionSearchPoints.Clear();
+            try { gmap.MouseDown -= _mapRegionMouseDown; } catch { }
+            try { gmap.MouseMove -= _mapRegionMouseMove; } catch { }
+            try { gmap.MouseUp -= _mapRegionMouseUp; } catch { }
+            _regionSreachButton.Text = "区域范围查找";
+        }
+
+        // 区域关联分析1的清理方法
+        private void CleanupRegionCorrelation1()
+        {
+            _isRegionCorrelation1Analyzing = false;
+            _isRegionCorrelation1Dragging = false;
+            _correlation1RegionPoints.Clear();
+            try { gmap.MouseDown -= _mapCorrelation1RegionMouseDown; } catch { }
+            try { gmap.MouseMove -= _mapCorrelation1RegionMouseMove; } catch { }
+            try { gmap.MouseUp -= _mapCorrelation1RegionMouseUp; } catch { }
+            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+        }
+
+        // 区域关联分析2的清理方法
+        private void CleanupRegionCorrelation2()
+        {
+            _isRegionCorrelation2Analyzing = false;
+            _isRegionCorrelation2Dragging = false;
+            _correlation2RegionPoints.Clear();
+            try { gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
+            try { gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
+            try { gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
+            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+        }
+
+        // 频繁路径分析2的清理方法
+        private void CleanupFrequentPath2()
+        {
+            _isFrequentPath2Analyzing = false;
+            _isFrequentPath2Dragging = false;
+            _frequentPath2RegionPoints.Clear();
+            try { gmap.MouseDown -= _mapFrequentPath2RegionMouseDown; } catch { }
+            try { gmap.MouseMove -= _mapFrequentPath2RegionMouseMove; } catch { }
+            try { gmap.MouseUp -= _mapFrequentPath2RegionMouseUp; } catch { }
+            _frequentPathAnalysis2Button.Text = "频繁路径分析2";
+        }
 
         public MapForm()
         {
@@ -40,6 +127,9 @@ namespace TaxiManager
             statusStrip.Items.Add(statusLabel);
             statusStrip.Dock = DockStyle.Bottom;
             this.Controls.Add(statusStrip);
+            statusStrip.BringToFront();
+            // 将 statusStrip 设置为最后一个（最上层显示）
+            this.Controls.SetChildIndex(statusStrip, this.Controls.Count - 1);
 
             statusLabel.Text = "正在加载数据...";
             var statusTimer = new System.Windows.Forms.Timer();
@@ -71,42 +161,8 @@ namespace TaxiManager
             // 初始化左侧侧边栏并由 SidebarController 管理（不修改现有控件）
             try
             {
-                leftSidebar = new LeftSidebar();
+                leftSidebar = new LeftSidebar_ChooseTimePeriod();
                 leftSidebar.Title = "筛选";
-                // 示例：处理侧边栏底部按钮点击 -> 调用区域分析并收回侧边栏
-                leftSidebar.BottomButton.Click += (s, e) =>
-                {
-                    try
-                    {
-                        // _regionSearchPoints 在同一 partial 类中定义（UI_RegionSreachButton.cs）
-                        _analyzeRegion(_regionSearchPoints, leftSidebar.StartDateString, leftSidebar.EndDateString);
-                    }
-                    catch
-                    {
-                        // 忽略调用时的异常，保证侧边栏能收回
-                    }
-
-                    // 将区域选择按钮恢复到初始状态：取消选择状态、清理 overlay、取消订阅鼠标事件并复位文本
-                    try
-                    {
-                        _isRegionSearching = false;
-                        _isRegionDragging = false;
-                        _regionSearchPoints.Clear();
-                        //_regionSearchOverlay.Polygons.Clear();
-                        //_regionSearchOverlay.Markers.Clear();
-
-                        // 取消订阅，以防尚未取消
-                        try { gmap.MouseDown -= _mapRegionMouseDown; } catch { }
-                        try { gmap.MouseMove -= _mapRegionMouseMove; } catch { }
-                        try { gmap.MouseUp -= _mapRegionMouseUp; } catch { }
-
-                        // 恢复按钮文本为设计时初始文本
-                        _regionSreachButton.Text = "区域范围查找";
-                    }
-                    catch { }
-
-                    sidebarController?.Hide();
-                };
 
                 sidebarController = new SidebarController(this, leftSidebar, expandedWidth: 280);
                 //sidebarController.Show();

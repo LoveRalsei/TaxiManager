@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -77,41 +78,11 @@ namespace TaxiManager
                 }
             }
         }
-        //
-        public void Toggle()
-        {
-            if (_timer.Enabled) return; // prevent re-entrance
 
-            // If currently expanded, start collapsing
-            if (IsExpanded)
-            {
-                // disable child controls immediately for UX
-                _sidebar.SetExpanded(false);
-                _expanding = false;
-                _timer.Start();
-            }
-            else
-            {
-                // ensure sidebar visible and start expanding
-                _expanding = true;
-                // ensure it's visible
-                _sidebar.Visible = true;
-                _sidebar.BringToFront();
-                // If animation step is large enough, just expand immediately to avoid visual issues
-                if (_animationStep >= _expandedWidth)
-                {
-                    _sidebar.Width = _expandedWidth;
-                    IsExpanded = true;
-                    _sidebar.SetExpanded(true);
-                    return;
-                }
-                _timer.Start();
-            }
-        }
-        //
         public void Show()
         {
-            if (IsExpanded) return;
+            Debug.WriteLine("Try Show");
+            //if (IsExpanded) return;
             _expanding = true;
             _sidebar.Visible = true;
             _sidebar.BringToFront();
@@ -122,15 +93,16 @@ namespace TaxiManager
                 _sidebar.SetExpanded(true);
                 return;
             }
-            _timer.Start();
+            _timer.Start();Debug.WriteLine("Show");
         }
 
         public void Hide()
         {
-            if (!IsExpanded) return;
+            Debug.WriteLine("Try Hide");
+            if (IsExpanded == false) return;
             _expanding = false;
             _sidebar.SetExpanded(false);
-            _timer.Start();
+            _timer.Start();Debug.WriteLine("Hide");
         }
 
         protected virtual void Dispose(bool disposing)
