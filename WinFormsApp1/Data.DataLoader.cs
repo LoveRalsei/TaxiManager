@@ -121,6 +121,7 @@ namespace TaxiManager
                                     }
                                     lastLongitude = longitude;
                                     lastLatitude = latitude;
+                                    ignoredTime = null;
                                     var node = new PathNode(date, longitude, latitude);
                                     nodes.Add(node);
                                 }

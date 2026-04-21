@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public readonly struct PositionRange
+    public readonly record struct PositionRange
     {
         public readonly Position min, max;
         private PositionRange(Position min, Position max)
@@ -24,7 +24,7 @@ namespace TaxiManager
         }
         public readonly bool IsIn(Position pos)
         {
-            return (pos.X >= min.X && pos.X <= max.X && pos.Y >= min.Y && pos.Y <= max.Y);
+            return (pos.X >= min.X && pos.X < max.X && pos.Y >= min.Y && pos.Y < max.Y);
         }
     }
 }

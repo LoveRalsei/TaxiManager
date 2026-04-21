@@ -9,7 +9,7 @@ namespace TaxiManager
     /// <summary>
     /// 以1米（等价于1e5经纬度）为一单位的坐标
     /// </summary>
-    public readonly struct Position
+    public readonly record struct Position
     {
         public const double MinLongitude = 115.3, MaxLongitude = 117.6, MinLatitude = 39.4, MaxLatitude = 41.1;
         public const uint MinX = 11530000, MaxX = 11760000, MinY = 3940000, MaxY = 4110000;
@@ -36,11 +36,12 @@ namespace TaxiManager
                 );
         }
         public static Position MakeFromRaw(double longitude, double latitude) => new(longitude, latitude);
-        public static Position MakeFromRaw(PositionRaw raw)
-        {
-            return MakeFromRaw(raw.Longitude, raw.Latitude);
-        }
+        public static Position MakeFromRaw(PositionRaw raw) => MakeFromRaw(raw.Longitude, raw.Latitude);
         public static Position Make(uint x, uint y) => new(x, y);
         public PositionRaw ToRaw() => PositionRaw.Make(X*1e-5, Y*1e-5);
+        public Tile GetTile(byte size = 1)
+        {
+            return Tile.Make(size, this);
+        }
     }
 }
