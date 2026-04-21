@@ -41,7 +41,7 @@ namespace TaxiManager
                 );
             }
         }
-        private Tile(byte size, uint x, uint y)
+        public Tile(byte size, uint x, uint y)
         {
             Size = size;
             X = x;

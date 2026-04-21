@@ -9,7 +9,7 @@ namespace TaxiManager
     public readonly record struct PositionRange
     {
         public readonly Position min, max;
-        private PositionRange(Position min, Position max)
+        public PositionRange(Position min, Position max)
         {
             this.min = min;
             this.max = max;

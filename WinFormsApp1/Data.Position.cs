@@ -15,8 +15,7 @@ namespace TaxiManager
         public const uint MinX = 11530000, MaxX = 11760000, MinY = 3940000, MaxY = 4110000;
         public readonly uint X;
         public readonly uint Y;
-        private Position(uint x, uint y) : this() { X = x; Y = y; }
-        private Position(double longitude, double latitude) : this((uint)Math.Round(longitude * 1e5), (uint)Math.Round(latitude * 1e5)) { }
+        public Position(uint x, uint y) : this() { X = x; Y = y; }
         public Position? Lerp(Position? target, float scale)
         {
             return Lerp(this, target, scale);
@@ -35,9 +34,12 @@ namespace TaxiManager
                 from.Value.Y + (to.Value.Y - from.Value.Y) * scale
                 );
         }
-        public static Position MakeFromRaw(double longitude, double latitude) => new(longitude, latitude);
+        public static Position MakeFromRaw(double longitude, double latitude) => new((uint)Math.Round(longitude * 1e5), (uint)Math.Round(latitude * 1e5));
         public static Position MakeFromRaw(PositionRaw raw) => MakeFromRaw(raw.Longitude, raw.Latitude);
         public static Position Make(uint x, uint y) => new(x, y);
+        /// <summary>
+        /// 转换成经纬度格式
+        /// </summary>
         public PositionRaw ToRaw() => PositionRaw.Make(X*1e-5, Y*1e-5);
         public Tile GetTile(byte size = 1)
         {

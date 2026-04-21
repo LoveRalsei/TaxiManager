@@ -13,7 +13,7 @@ namespace TaxiManager
     {
         public readonly double Longitude;
         public readonly double Latitude;
-        private PositionRaw(double longitude, double latitude)
+        public PositionRaw(double longitude, double latitude)
         {
             Longitude = longitude;
             Latitude = latitude;
@@ -23,9 +23,6 @@ namespace TaxiManager
         /// <summary>
         /// 转换为米单位的格式
         /// </summary>
-        public Position ToMeter()
-        {
-            return Position.MakeFromRaw(this);
-        }
+        public Position ToMeter() => Position.MakeFromRaw(this);
     }
 }
