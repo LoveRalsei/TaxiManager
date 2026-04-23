@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public partial class MapForm : Form
+    public partial class UI_RegionCorrelation1AnalyzingButton : UI_Button
     {
+        private Button _regionalCorrelationAnalysis1Button;
+
         private bool _isRegionCorrelation1Analyzing = false;
         private bool _isRegionCorrelation1Dragging = false;
         private List<List<PointLatLng>> _correlation1RegionPoints = new List<List<PointLatLng>>();
@@ -19,13 +21,34 @@ namespace TaxiManager
         private Point _correlation1DragCurrentLocal;
         private readonly Color[] _correlation1RegionColors = new Color[] { Color.Green, Color.Orange };
 
+        public UI_RegionCorrelation1AnalyzingButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
+        {
+        }
+
+        public override void Initialize()
+        {
+            _regionalCorrelationAnalysis1Button = new Button();
+
+            _regionalCorrelationAnalysis1Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _regionalCorrelationAnalysis1Button.Location = new Point(593, 464);
+            _regionalCorrelationAnalysis1Button.Name = "_regionalCorrelationAnalysis1Button";
+            _regionalCorrelationAnalysis1Button.Size = new Size(121, 40);
+            _regionalCorrelationAnalysis1Button.TabIndex = 3;
+            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+            _regionalCorrelationAnalysis1Button.UseVisualStyleBackColor = true;
+            _regionalCorrelationAnalysis1Button.Click += _regionalCorrelationAnalysis1ButtonClick;
+
+            _mapForm.Controls.Add(_regionalCorrelationAnalysis1Button);
+            _regionalCorrelationAnalysis1Button.BringToFront();
+        }
+
         private void _regionalCorrelationAnalysis1ButtonClick(object sender, EventArgs e)
         {
             if (_isRegionCorrelation1Analyzing == false)
             {
-                _resetAllButton();
+                _mapForm._resetAllButton();
                 _isRegionCorrelation1Analyzing = true;
-                InitializeMultiRegionSelection(
+                SelectRegion.InitializeMultiRegionSelection(
                     _correlation1RegionOverlay,
                     _correlation1RegionPoints,
                     _mapCorrelation1RegionMouseDown,
@@ -33,24 +56,35 @@ namespace TaxiManager
                     _mapCorrelation1RegionMouseUp);
                 _regionalCorrelationAnalysis1Button.Text = "选择区域中";
                 BindBottomButtonToAnalysis(
-                    () => _analyze1RegionCorrelation(_correlation1RegionPoints, leftSidebar.StartDateString, leftSidebar.EndDateString),
+                    () => _analyze1RegionCorrelation(_correlation1RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
                     () => _correlation1RegionPoints.Count >= 2,
                     CleanupRegionCorrelation1);
-                sidebarController?.Show();
+                _mapForm.sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
                 _resetCorrelationAnalysis1Button();
-                sidebarController?.Hide();
+                _mapForm.sidebarController?.Hide();
             }
         }
 
-        private void _resetCorrelationAnalysis1Button()
+        private void CleanupRegionCorrelation1()
         {
             _isRegionCorrelation1Analyzing = false;
             _isRegionCorrelation1Dragging = false;
-            ResetMultiRegionSelection(
+            _correlation1RegionPoints.Clear();
+            try { _gmap.MouseDown -= _mapCorrelation1RegionMouseDown; } catch { }
+            try { _gmap.MouseMove -= _mapCorrelation1RegionMouseMove; } catch { }
+            try { _gmap.MouseUp -= _mapCorrelation1RegionMouseUp; } catch { }
+            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+        }
+
+        public void _resetCorrelationAnalysis1Button()
+        {
+            _isRegionCorrelation1Analyzing = false;
+            _isRegionCorrelation1Dragging = false;
+            SelectRegion.ResetMultiRegionSelection(
                 _correlation1RegionOverlay,
                 _correlation1RegionPoints,
                 _mapCorrelation1RegionMouseDown,
@@ -61,7 +95,7 @@ namespace TaxiManager
 
         private void _mapCorrelation1RegionMouseDown(object sender, MouseEventArgs e)
         {
-            HandleMultiRegionMouseDown(
+            SelectRegion.HandleMultiRegionMouseDown(
                 _isRegionCorrelation1Analyzing,
                 _correlation1RegionPoints.Count,
                 2,
@@ -77,7 +111,7 @@ namespace TaxiManager
 
         private void _mapCorrelation1RegionMouseMove(object sender, MouseEventArgs e)
         {
-            HandleMultiRegionMouseMove(
+            SelectRegion.HandleMultiRegionMouseMove(
                 _isRegionCorrelation1Analyzing,
                 _isRegionCorrelation1Dragging,
                 ref _correlation1DragCurrentLocal,
@@ -90,7 +124,7 @@ namespace TaxiManager
 
         private void _mapCorrelation1RegionMouseUp(object sender, MouseEventArgs e)
         {
-            if (HandleMultiRegionMouseUp(
+            if (SelectRegion.HandleMultiRegionMouseUp(
                 _isRegionCorrelation1Analyzing,
                 _isRegionCorrelation1Dragging,
                 _correlation1DragStartLocal,
@@ -110,7 +144,7 @@ namespace TaxiManager
                 else
                 {
                     _regionalCorrelationAnalysis1Button.Text = "已选2个区域";
-                    StopMultiRegionSelection(
+                    SelectRegion.StopMultiRegionSelection(
                         _mapCorrelation1RegionMouseDown,
                         _mapCorrelation1RegionMouseMove,
                         _mapCorrelation1RegionMouseUp);

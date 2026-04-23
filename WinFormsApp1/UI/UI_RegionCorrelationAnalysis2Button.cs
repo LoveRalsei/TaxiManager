@@ -7,11 +7,14 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TaxiManager
 {
-    public partial class MapForm : Form
+    public class UI_RegionCorrelation2AnalyzingButton : UI_Button
     {
+        private Button _regionalCorrelationAnalysis2Button;
+
         // 区域关联分析2相关的成员变量
         private bool _isRegionCorrelation2Analyzing = false;
         private bool _isRegionCorrelation2Dragging = false;
@@ -20,39 +23,71 @@ namespace TaxiManager
         private Point _correlation2DragStartLocal;
         private Point _correlation2DragCurrentLocal;
 
+        public UI_RegionCorrelation2AnalyzingButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
+        {
+        }
+
+        public override void Initialize()
+        {
+            _regionalCorrelationAnalysis2Button = new Button();
+
+            _regionalCorrelationAnalysis2Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _regionalCorrelationAnalysis2Button.Location = new Point(466, 464);
+            _regionalCorrelationAnalysis2Button.Name = "_regionalCorrelationAnalysis2Button";
+            _regionalCorrelationAnalysis2Button.Size = new Size(121, 40);
+            _regionalCorrelationAnalysis2Button.TabIndex = 4;
+            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+            _regionalCorrelationAnalysis2Button.UseVisualStyleBackColor = true;
+            _regionalCorrelationAnalysis2Button.Click += _regionalCorrelationAnalysis2ButtonClick;
+
+            _mapForm.Controls.Add(_regionalCorrelationAnalysis2Button);
+        }
+
         // 区域关联分析2按钮点击事件
         private void _regionalCorrelationAnalysis2ButtonClick(object sender, EventArgs e)
         {
             if (_isRegionCorrelation2Analyzing == false)
             {
-                _resetAllButton();
+                _mapForm._resetAllButton();
                 _isRegionCorrelation2Analyzing = true;
-                InitializeSingleRegionSelection(
+                SelectRegion.InitializeSingleRegionSelection(
                     _correlation2RegionOverlay,
                     _mapCorrelation2RegionMouseDown,
                     _mapCorrelation2RegionMouseMove,
                     _mapCorrelation2RegionMouseUp);
                 _regionalCorrelationAnalysis2Button.Text = "区域选择中...";
                 BindBottomButtonToAnalysis(
-                    () => _analyze2RegionCorrelation(_correlation2RegionPoints, leftSidebar.StartDateString, leftSidebar.EndDateString),
+                    () => _analyze2RegionCorrelation(_correlation2RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
                     () => _correlation2RegionPoints.Count >= 4,
                     CleanupRegionCorrelation2);
-                sidebarController?.Show();
+                _mapForm.sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
                 _resetCorrelationAnalysis2Button();
-                sidebarController?.Hide();
+                _mapForm.sidebarController?.Hide();
             }
         }
-        // 重置区域关联分析2按钮到初始状态（供其他按钮调用）
-        private void _resetCorrelationAnalysis2Button()
+
+        private void CleanupRegionCorrelation2()
         {
             _isRegionCorrelation2Analyzing = false;
             _isRegionCorrelation2Dragging = false;
             _correlation2RegionPoints.Clear();
-            ResetSingleRegionSelection(
+            try { _gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
+            try { _gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
+            try { _gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
+            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+        }
+
+        // 重置区域关联分析2按钮到初始状态（供其他按钮调用）
+        public void _resetCorrelationAnalysis2Button()
+        {
+            _isRegionCorrelation2Analyzing = false;
+            _isRegionCorrelation2Dragging = false;
+            _correlation2RegionPoints.Clear();
+            SelectRegion.ResetSingleRegionSelection(
                 _correlation2RegionOverlay,
                 _mapCorrelation2RegionMouseDown,
                 _mapCorrelation2RegionMouseMove,
@@ -63,7 +98,7 @@ namespace TaxiManager
         // 鼠标按下：开始拖拽
         private void _mapCorrelation2RegionMouseDown(object sender, MouseEventArgs e)
         {
-            HandleSingleRegionMouseDown(
+            SelectRegion.HandleSingleRegionMouseDown(
                 _isRegionCorrelation2Analyzing,
                 _isRegionCorrelation2Dragging,
                 out _isRegionCorrelation2Dragging,
@@ -77,7 +112,7 @@ namespace TaxiManager
         // 鼠标移动：更新临时矩形显示
         private void _mapCorrelation2RegionMouseMove(object sender, MouseEventArgs e)
         {
-            HandleSingleRegionMouseMove(
+            SelectRegion.HandleSingleRegionMouseMove(
                 _isRegionCorrelation2Analyzing,
                 _isRegionCorrelation2Dragging,
                 ref _correlation2DragCurrentLocal,
@@ -90,7 +125,7 @@ namespace TaxiManager
         // 鼠标抬起：结束拖拽，固定图形
         private void _mapCorrelation2RegionMouseUp(object sender, MouseEventArgs e)
         {
-            if (HandleSingleRegionMouseUp(
+            if (SelectRegion.HandleSingleRegionMouseUp(
                 _isRegionCorrelation2Analyzing,
                 _isRegionCorrelation2Dragging,
                 _correlation2DragStartLocal,
@@ -99,7 +134,7 @@ namespace TaxiManager
                 out _correlation2RegionPoints,
                 e))
             {
-                _regionalCorrelationAnalysis2Button.Text = GetSingleRegionButtonText(_isRegionCorrelation2Analyzing, "区域关联分析2", _correlation2RegionPoints);
+                _regionalCorrelationAnalysis2Button.Text = SelectRegion.GetSingleRegionButtonText(_isRegionCorrelation2Analyzing, "区域关联分析2", _correlation2RegionPoints);
             }
         }
 

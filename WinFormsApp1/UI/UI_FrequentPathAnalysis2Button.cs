@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public partial class MapForm : Form
+    public partial class UI_FrequentPathAnalysis2Button: UI_Button
     {
+        private Button _frequentPathAnalysis2Button;
+
         // 频繁路径分析2相关的成员变量
         private bool _isFrequentPath2Analyzing = false;
         private bool _isFrequentPath2Dragging = false;
@@ -20,14 +22,34 @@ namespace TaxiManager
         private Point _frequentPath2DragCurrentLocal;
         private readonly Color[] _frequentPath2RegionColors = new Color[] { Color.Green, Color.Orange };
 
+        public UI_FrequentPathAnalysis2Button(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
+        {
+        }
+
+        public override void Initialize()
+        {
+            _frequentPathAnalysis2Button = new Button();
+
+            _frequentPathAnalysis2Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _frequentPathAnalysis2Button.Location = new Point(339, 464);
+            _frequentPathAnalysis2Button.Name = "_frequentPathAnalysis2Button";
+            _frequentPathAnalysis2Button.Size = new Size(121, 40);
+            _frequentPathAnalysis2Button.TabIndex = 5;
+            _frequentPathAnalysis2Button.Text = "频繁路径分析2";
+            _frequentPathAnalysis2Button.UseVisualStyleBackColor = true;
+            _frequentPathAnalysis2Button.Click += _frequentPathAnalysis2ButtonClick;
+
+            _mapForm.Controls.Add(_frequentPathAnalysis2Button);
+        }
+
         // 频繁路径分析2按钮点击事件
         private void _frequentPathAnalysis2ButtonClick(object sender, EventArgs e)
         {
             if (_isFrequentPath2Analyzing == false)
             {
-                _resetAllButton();
+                _mapForm._resetAllButton();
                 _isFrequentPath2Analyzing = true;
-                InitializeMultiRegionSelection(
+                SelectRegion.InitializeMultiRegionSelection(
                     _frequentPath2RegionOverlay,
                     _frequentPath2RegionPoints,
                     _mapFrequentPath2RegionMouseDown,
@@ -35,26 +57,37 @@ namespace TaxiManager
                     _mapFrequentPath2RegionMouseUp);
                 _frequentPathAnalysis2Button.Text = "选择区域中";
                 BindBottomButtonToAnalysis(
-                    () => _analyze2FrequentPath(_frequentPath2RegionPoints, leftSidebar.StartDateString, leftSidebar.EndDateString),
+                    () => _analyze2FrequentPath(_frequentPath2RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
                     () => _frequentPath2RegionPoints.Count >= 2,
                     CleanupFrequentPath2);
-                sidebarController?.Show();
+                _mapForm.sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
                 _resetFrequentPathAnalysis2Button();
-                sidebarController?.Hide();
+                _mapForm.sidebarController?.Hide();
             }
         }
 
-        // 重置频繁路径分析2按钮到初始状态
-        private void _resetFrequentPathAnalysis2Button()
+        private void CleanupFrequentPath2()
         {
             _isFrequentPath2Analyzing = false;
             _isFrequentPath2Dragging = false;
             _frequentPath2RegionPoints.Clear();
-            ResetMultiRegionSelection(
+            try { _gmap.MouseDown -= _mapFrequentPath2RegionMouseDown; } catch { }
+            try { _gmap.MouseMove -= _mapFrequentPath2RegionMouseMove; } catch { }
+            try { _gmap.MouseUp -= _mapFrequentPath2RegionMouseUp; } catch { }
+            _frequentPathAnalysis2Button.Text = "频繁路径分析2";
+        }
+
+        // 重置频繁路径分析2按钮到初始状态
+        public void _resetFrequentPathAnalysis2Button()
+        {
+            _isFrequentPath2Analyzing = false;
+            _isFrequentPath2Dragging = false;
+            _frequentPath2RegionPoints.Clear();
+            SelectRegion.ResetMultiRegionSelection(
                 _frequentPath2RegionOverlay,
                 _frequentPath2RegionPoints,
                 _mapFrequentPath2RegionMouseDown,
@@ -66,7 +99,7 @@ namespace TaxiManager
         // 鼠标按下：开始拖拽
         private void _mapFrequentPath2RegionMouseDown(object sender, MouseEventArgs e)
         {
-            HandleMultiRegionMouseDown(
+            SelectRegion.HandleMultiRegionMouseDown(
                 _isFrequentPath2Analyzing,
                 _frequentPath2RegionPoints.Count,
                 2,
@@ -83,7 +116,7 @@ namespace TaxiManager
         // 鼠标移动：更新临时矩形显示
         private void _mapFrequentPath2RegionMouseMove(object sender, MouseEventArgs e)
         {
-            HandleMultiRegionMouseMove(
+            SelectRegion.HandleMultiRegionMouseMove(
                 _isFrequentPath2Analyzing,
                 _isFrequentPath2Dragging,
                 ref _frequentPath2DragCurrentLocal,
@@ -97,7 +130,7 @@ namespace TaxiManager
         // 鼠标抬起：结束拖拽，固定图形
         private void _mapFrequentPath2RegionMouseUp(object sender, MouseEventArgs e)
         {
-            if (HandleMultiRegionMouseUp(
+            if (SelectRegion.HandleMultiRegionMouseUp(
                 _isFrequentPath2Analyzing,
                 _isFrequentPath2Dragging,
                 _frequentPath2DragStartLocal,
@@ -117,7 +150,7 @@ namespace TaxiManager
                 else
                 {
                     _frequentPathAnalysis2Button.Text = "已选2个区域";
-                    StopMultiRegionSelection(
+                    SelectRegion.StopMultiRegionSelection(
                         _mapFrequentPath2RegionMouseDown,
                         _mapFrequentPath2RegionMouseMove,
                         _mapFrequentPath2RegionMouseUp);

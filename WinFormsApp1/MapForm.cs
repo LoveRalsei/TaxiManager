@@ -8,99 +8,16 @@ namespace TaxiManager
     public partial class MapForm : Form
     {
 
-        private GMapControl gmap;
-        private StatusStrip statusStrip;
-        private ToolStripStatusLabel statusLabel;
+        public GMapControl gmap { get;private set; }
+        public StatusStrip statusStrip { get; private set; }
+        public ToolStripStatusLabel statusLabel { get; private set; }
 
         // sidebar fields
-        private LeftSidebar_ChooseTimePeriod? leftSidebar;
-        private SidebarController? sidebarController;
-        private EventHandler? _bottomButtonAnalyzeHandler;
-
-        // 用于侧边栏底部按钮绑定分析函数的辅助方法
-        private void BindBottomButtonToAnalysis(Action analyzeAction, Func<bool> hasEnoughRegions, Action cleanupAction)
-        {
-            // 先解绑之前的处理函数
-            try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
-
-            _bottomButtonAnalyzeHandler = (s, e) =>
-            {
-                leftSidebar.ErrorMessageVisible = false;
-
-                if (hasEnoughRegions())
-                {
-                    analyzeAction();
-                    cleanupAction();
-                    sidebarController?.Hide();
-
-                    // 分析完成后解绑
-                    try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
-                }
-                else
-                {
-                    leftSidebar.ErrorMessageVisible = true;
-                }
-            };
-
-            leftSidebar.BottomButton.Click += _bottomButtonAnalyzeHandler;
-        }
-
-        // 解绑底部按钮的分析函数
-        private void UnbindBottomButtonAnalysis()
-        {
-            try { leftSidebar.BottomButton.Click -= _bottomButtonAnalyzeHandler; } catch { }
-            _bottomButtonAnalyzeHandler = null;
-            if (leftSidebar != null)
-                leftSidebar.ErrorMessageVisible = false;
-        }
-
-        // 区域范围查找的清理方法
-        private void CleanupRegionSearch()
-        {
-            _isRegionSearching = false;
-            _isRegionDragging = false;
-            _regionSearchPoints.Clear();
-            try { gmap.MouseDown -= _mapRegionMouseDown; } catch { }
-            try { gmap.MouseMove -= _mapRegionMouseMove; } catch { }
-            try { gmap.MouseUp -= _mapRegionMouseUp; } catch { }
-            _regionSreachButton.Text = "区域范围查找";
-        }
-
-        // 区域关联分析1的清理方法
-        private void CleanupRegionCorrelation1()
-        {
-            _isRegionCorrelation1Analyzing = false;
-            _isRegionCorrelation1Dragging = false;
-            _correlation1RegionPoints.Clear();
-            try { gmap.MouseDown -= _mapCorrelation1RegionMouseDown; } catch { }
-            try { gmap.MouseMove -= _mapCorrelation1RegionMouseMove; } catch { }
-            try { gmap.MouseUp -= _mapCorrelation1RegionMouseUp; } catch { }
-            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
-        }
-
-        // 区域关联分析2的清理方法
-        private void CleanupRegionCorrelation2()
-        {
-            _isRegionCorrelation2Analyzing = false;
-            _isRegionCorrelation2Dragging = false;
-            _correlation2RegionPoints.Clear();
-            try { gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
-            try { gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
-            try { gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
-            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
-        }
-
-        // 频繁路径分析2的清理方法
-        private void CleanupFrequentPath2()
-        {
-            _isFrequentPath2Analyzing = false;
-            _isFrequentPath2Dragging = false;
-            _frequentPath2RegionPoints.Clear();
-            try { gmap.MouseDown -= _mapFrequentPath2RegionMouseDown; } catch { }
-            try { gmap.MouseMove -= _mapFrequentPath2RegionMouseMove; } catch { }
-            try { gmap.MouseUp -= _mapFrequentPath2RegionMouseUp; } catch { }
-            _frequentPathAnalysis2Button.Text = "频繁路径分析2";
-        }
+        public LeftSidebar_ChooseTimePeriod? leftSidebar { get; private set; }
+        public SidebarController? sidebarController { get; private set; }
+        public EventHandler? _bottomButtonAnalyzeHandler;//公开以便 UI_Button 可以访问
+        private int _oringinMinZoom = 3;
+        public int _oringinMaxZoom = 18;
 
         public MapForm()
         {
@@ -119,6 +36,7 @@ namespace TaxiManager
                 CanDragMap = true
             };
             this.Controls.Add(gmap);
+
 
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
 
@@ -173,6 +91,8 @@ namespace TaxiManager
             {
                 // 若初始化失败则忽略，保持程序可用
             }
+
+            SelectRegion.SetGMapControl(gmap);
         }
     }
 }

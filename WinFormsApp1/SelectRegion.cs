@@ -7,8 +7,14 @@ using System.Linq;
 
 namespace TaxiManager
 {
-    public partial class MapForm : Form
+    public static class SelectRegion
     {
+        private static GMapControl _gmap;
+
+        public static void SetGMapControl(GMapControl gmap)
+        {
+            _gmap = gmap;
+        }
         #region 单区域选择辅助方法
 
         /// <summary>
@@ -18,7 +24,7 @@ namespace TaxiManager
         /// <param name="onMouseDown">鼠标按下事件处理</param>
         /// <param name="onMouseMove">鼠标移动事件处理</param>
         /// <param name="onMouseUp">鼠标抬起事件处理</param>
-        protected void InitializeSingleRegionSelection(
+        public static void InitializeSingleRegionSelection(
             GMapOverlay overlay,
             MouseEventHandler onMouseDown,
             MouseEventHandler onMouseMove,
@@ -27,18 +33,18 @@ namespace TaxiManager
             overlay.Polygons.Clear();
             overlay.Markers.Clear();
 
-            gmap.MouseDown += onMouseDown;
-            gmap.MouseMove += onMouseMove;
-            gmap.MouseUp += onMouseUp;
+            _gmap.MouseDown += onMouseDown;
+            _gmap.MouseMove += onMouseMove;
+            _gmap.MouseUp += onMouseUp;
 
-            if (!gmap.Overlays.Contains(overlay))
-                gmap.Overlays.Add(overlay);
+            if (!_gmap.Overlays.Contains(overlay))
+                _gmap.Overlays.Add(overlay);
         }
 
         /// <summary>
         /// 重置单区域选择状态
         /// </summary>
-        protected void ResetSingleRegionSelection(
+        public static void ResetSingleRegionSelection(
             GMapOverlay overlay,
             MouseEventHandler onMouseDown,
             MouseEventHandler onMouseMove,
@@ -47,15 +53,15 @@ namespace TaxiManager
             overlay.Polygons.Clear();
             overlay.Markers.Clear();
 
-            try { gmap.MouseDown -= onMouseDown; } catch { }
-            try { gmap.MouseMove -= onMouseMove; } catch { }
-            try { gmap.MouseUp -= onMouseUp; } catch { }
+            try { _gmap.MouseDown -= onMouseDown; } catch { }
+            try { _gmap.MouseMove -= onMouseMove; } catch { }
+            try { _gmap.MouseUp -= onMouseUp; } catch { }
         }
 
         /// <summary>
         /// 处理单区域选择的鼠标按下事件
         /// </summary>
-        protected bool HandleSingleRegionMouseDown(
+        public static bool HandleSingleRegionMouseDown(
             bool isAnalyzing,
             bool isDragging,
             out bool newIsDragging,
@@ -90,7 +96,7 @@ namespace TaxiManager
         /// <summary>
         /// 处理单区域选择的鼠标移动事件
         /// </summary>
-        protected bool HandleSingleRegionMouseMove(
+        public static bool HandleSingleRegionMouseMove(
             bool isAnalyzing,
             bool isDragging,
             ref Point dragCurrentLocal,
@@ -108,7 +114,7 @@ namespace TaxiManager
         /// <summary>
         /// 处理单区域选择的鼠标抬起事件
         /// </summary>
-        protected bool HandleSingleRegionMouseUp(
+        public static bool HandleSingleRegionMouseUp(
             bool isAnalyzing,
             bool isDragging,
             Point dragStartLocal,
@@ -135,7 +141,7 @@ namespace TaxiManager
         /// <summary>
         /// 初始化多区域选择状态
         /// </summary>
-        protected void InitializeMultiRegionSelection(
+        public static void InitializeMultiRegionSelection(
             GMapOverlay overlay,
             List<List<PointLatLng>> regionPointsList,
             MouseEventHandler onMouseDown,
@@ -146,18 +152,18 @@ namespace TaxiManager
             overlay.Polygons.Clear();
             overlay.Markers.Clear();
 
-            gmap.MouseDown += onMouseDown;
-            gmap.MouseMove += onMouseMove;
-            gmap.MouseUp += onMouseUp;
+            _gmap.MouseDown += onMouseDown;
+            _gmap.MouseMove += onMouseMove;
+            _gmap.MouseUp += onMouseUp;
 
-            if (!gmap.Overlays.Contains(overlay))
-                gmap.Overlays.Add(overlay);
+            if (!_gmap.Overlays.Contains(overlay))
+                _gmap.Overlays.Add(overlay);
         }
 
         /// <summary>
         /// 重置多区域选择状态
         /// </summary>
-        protected void ResetMultiRegionSelection(
+        public static void ResetMultiRegionSelection(
             GMapOverlay overlay,
             List<List<PointLatLng>> regionPointsList,
             MouseEventHandler onMouseDown,
@@ -168,28 +174,28 @@ namespace TaxiManager
             overlay.Polygons.Clear();
             overlay.Markers.Clear();
 
-            try { gmap.MouseDown -= onMouseDown; } catch { }
-            try { gmap.MouseMove -= onMouseMove; } catch { }
-            try { gmap.MouseUp -= onMouseUp; } catch { }
+            try { _gmap.MouseDown -= onMouseDown; } catch { }
+            try { _gmap.MouseMove -= onMouseMove; } catch { }
+            try { _gmap.MouseUp -= onMouseUp; } catch { }
         }
 
         /// <summary>
         /// 停止多区域选择（不清理数据和overlay，只取消鼠标事件订阅）
         /// </summary>
-        protected void StopMultiRegionSelection(
+        public static void StopMultiRegionSelection(
             MouseEventHandler onMouseDown,
             MouseEventHandler onMouseMove,
             MouseEventHandler onMouseUp)
         {
-            try { gmap.MouseDown -= onMouseDown; } catch { }
-            try { gmap.MouseMove -= onMouseMove; } catch { }
-            try { gmap.MouseUp -= onMouseUp; } catch { }
+            try { _gmap.MouseDown -= onMouseDown; } catch { }
+            try { _gmap.MouseMove -= onMouseMove; } catch { }
+            try { _gmap.MouseUp -= onMouseUp; } catch { }
         }
 
         /// <summary>
         /// 处理多区域选择的鼠标按下事件
         /// </summary>
-        protected bool HandleMultiRegionMouseDown(
+        public static bool HandleMultiRegionMouseDown(
             bool isAnalyzing,
             int currentRegionCount,
             int maxRegions,
@@ -225,7 +231,7 @@ namespace TaxiManager
         /// <summary>
         /// 处理多区域选择的鼠标移动事件
         /// </summary>
-        protected bool HandleMultiRegionMouseMove(
+        public static bool HandleMultiRegionMouseMove(
             bool isAnalyzing,
             bool isDragging,
             ref Point dragCurrentLocal,
@@ -258,7 +264,7 @@ namespace TaxiManager
             // 把控件坐标转为经纬度
             var polyPoints = new List<PointLatLng>();
             foreach (var p in cornersLocal)
-                polyPoints.Add(gmap.FromLocalToLatLng(p.X, p.Y));
+                polyPoints.Add(_gmap.FromLocalToLatLng(p.X, p.Y));
 
             // 先清除临时的多边形（保留已选定的区域）
             RemoveTempPolygonsAndMarkers(overlay);
@@ -278,8 +284,8 @@ namespace TaxiManager
                 overlay.Markers.Add(marker);
             }
 
-            if (!gmap.Overlays.Contains(overlay))
-                gmap.Overlays.Add(overlay);
+            if (!_gmap.Overlays.Contains(overlay))
+                _gmap.Overlays.Add(overlay);
 
             return true;
         }
@@ -287,7 +293,7 @@ namespace TaxiManager
         /// <summary>
         /// 处理多区域选择的鼠标抬起事件
         /// </summary>
-        protected bool HandleMultiRegionMouseUp(
+        public static bool HandleMultiRegionMouseUp(
             bool isAnalyzing,
             bool isDragging,
             Point dragStartLocal,
@@ -354,7 +360,7 @@ namespace TaxiManager
         /// <summary>
         /// 更新临时矩形显示
         /// </summary>
-        protected bool UpdateTemporaryRectangle(
+        public static bool UpdateTemporaryRectangle(
             Point dragStartLocal,
             Point dragCurrentLocal,
             GMapOverlay overlay,
@@ -378,7 +384,7 @@ namespace TaxiManager
             // 把控件坐标转为经纬度
             var polyPoints = new List<PointLatLng>();
             foreach (var p in cornersLocal)
-                polyPoints.Add(gmap.FromLocalToLatLng(p.X, p.Y));
+                polyPoints.Add(_gmap.FromLocalToLatLng(p.X, p.Y));
 
             // 重建 overlay（清除旧的临时图形）
             overlay.Polygons.Clear();
@@ -399,8 +405,8 @@ namespace TaxiManager
             }
 
             // 确保 overlay 已经在 gmap 上
-            if (!gmap.Overlays.Contains(overlay))
-                gmap.Overlays.Add(overlay);
+            if (!_gmap.Overlays.Contains(overlay))
+                _gmap.Overlays.Add(overlay);
 
             return true;
         }
@@ -408,7 +414,7 @@ namespace TaxiManager
         /// <summary>
         /// 计算区域四个角的经纬度
         /// </summary>
-        protected List<PointLatLng> CalculateRegionCorners(Point dragStartLocal, Point dragCurrentLocal)
+        public static List<PointLatLng> CalculateRegionCorners(Point dragStartLocal, Point dragCurrentLocal)
         {
             int left = Math.Min(dragStartLocal.X, dragCurrentLocal.X);
             int right = Math.Max(dragStartLocal.X, dragCurrentLocal.X);
@@ -425,7 +431,7 @@ namespace TaxiManager
 
             var regionPoints = new List<PointLatLng>();
             foreach (var p in cornersLocal)
-                regionPoints.Add(gmap.FromLocalToLatLng(p.X, p.Y));
+                regionPoints.Add(_gmap.FromLocalToLatLng(p.X, p.Y));
 
             return regionPoints;
         }
@@ -433,7 +439,7 @@ namespace TaxiManager
         /// <summary>
         /// 清除临时多边形和标记
         /// </summary>
-        protected void RemoveTempPolygonsAndMarkers(GMapOverlay overlay)
+        public static void RemoveTempPolygonsAndMarkers(GMapOverlay overlay)
         {
             var tempPolygons = overlay.Polygons
                 .Where(p => p.Name.StartsWith("temp_"))
@@ -451,7 +457,7 @@ namespace TaxiManager
         /// <summary>
         /// 获取单区域选择的按钮文本
         /// </summary>
-        protected string GetSingleRegionButtonText(bool isAnalyzing, string baseText, List<PointLatLng> regionPoints)
+        public static string GetSingleRegionButtonText(bool isAnalyzing, string baseText, List<PointLatLng> regionPoints)
         {
             if (!isAnalyzing) return baseText;
             if (regionPoints.Count == 0) return "区域选择中...";
@@ -461,7 +467,7 @@ namespace TaxiManager
         /// <summary>
         /// 获取多区域选择的按钮文本
         /// </summary>
-        protected string GetMultiRegionButtonText(bool isAnalyzing, string baseText, List<List<PointLatLng>> regionPointsList, int maxRegions)
+        public static string GetMultiRegionButtonText(bool isAnalyzing, string baseText, List<List<PointLatLng>> regionPointsList, int maxRegions)
         {
             if (!isAnalyzing) return baseText;
             if (regionPointsList.Count == 0) return "选择区域中";
