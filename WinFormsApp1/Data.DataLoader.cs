@@ -16,6 +16,9 @@ namespace TaxiManager
 {
     public class DataLoader
     {
+        // 约 5 米的容忍度，用于修正GPS误差和压缩不动的节点。
+        public const double DistanceTolerance = 5e-5;
+
         private static Driver[] _drivers = [];
         public static Driver[] Drivers
         {
@@ -71,7 +74,7 @@ namespace TaxiManager
                         List<PathNode> nodes = [];
                         using (StreamReader reader = new(stream))
                         {
-                            const double dTolerance = 0.00005;// 约 5 米的容忍度，用于修正GPS误差和压缩不动的节点。
+                            const double dTolerance = DistanceTolerance;
                             double lastLongitude = 0, lastLatitude = 0;
                             DateTime? ignoredTime = null;
                             for (var line = reader.ReadLine(); line != null && line.Length > 0; line = reader.ReadLine())
@@ -116,13 +119,13 @@ namespace TaxiManager
                                     // 中间有节点被略过，需要插入一个节点。
                                     if (ignoredTime != null)
                                     {
-                                        var tailNode = new PathNode(ignoredTime.Value, lastLongitude, lastLatitude);
+                                        var tailNode = new PathNode(ignoredTime.Value, Position.FromRaw(lastLongitude, lastLatitude));
                                         nodes.Add(tailNode);
                                     }
                                     lastLongitude = longitude;
                                     lastLatitude = latitude;
                                     ignoredTime = null;
-                                    var node = new PathNode(date, longitude, latitude);
+                                    var node = new PathNode(date, Position.FromRaw(longitude, latitude));
                                     nodes.Add(node);
                                 }
                                 else

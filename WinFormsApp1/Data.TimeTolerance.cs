@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public readonly struct TimeTolerance
+    public readonly struct TimeTolerance(long tolerance)
     {
         // 15 minutes tolerance by default.
         public const long Default = 1000 * 60 * 15;
-        public readonly long MillisecondsTolerance;
-        public TimeTolerance(long tolerance) : this() { MillisecondsTolerance = tolerance; }
-        public static TimeTolerance Make(long tolerance) => new(tolerance);
-        public static TimeTolerance Seconds(long tolerance) => Make(tolerance * 1000);
+        public readonly long MillisecondsTolerance = tolerance;
+        public TimeTolerance() : this(Default) { }
+        public static TimeTolerance From(long tolerance) => new(tolerance);
+        public static TimeTolerance Seconds(long tolerance) => From(tolerance * 1000);
         public static TimeTolerance Minutes(long tolerance) => Seconds(60 * tolerance);
         public static TimeTolerance Hours(long tolerance) => Minutes(60 * tolerance);
         public static TimeTolerance Days(long tolerance) => Hours(24 * tolerance);
         public override string ToString() => $"{MillisecondsTolerance}ms";
         public static implicit operator long(TimeTolerance tolerance) => tolerance.MillisecondsTolerance;
-        public static implicit operator TimeTolerance(long tolerance) => Make(tolerance);
+        public static implicit operator TimeTolerance(long tolerance) => From(tolerance);
     };
 }

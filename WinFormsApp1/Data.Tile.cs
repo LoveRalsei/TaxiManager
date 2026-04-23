@@ -17,49 +17,68 @@ namespace TaxiManager
         private uint _data = 0;
         public byte Size {
             readonly get => (byte)(_data >> 24);
-            init => _data = (_data & 0x00ffffff) | (((uint) value) << 24);
+            set => _data = (_data & 0x00ffffff) | (((uint) value) << 24);
         }
         public readonly uint SizeMeter => ((uint)Size) * 100;
         public uint X
         {
             readonly get => (ushort)((_data >> 12) & 0xFFF);
-            init => _data = (_data & 0xff000fff) | ((value & 0xfff) << 12);
+            set => _data = (_data & 0xff000fff) | ((value & 0xfff) << 12);
         }
         public uint Y
         {
             readonly get => (ushort)(_data & 0xFFF);
-            init => _data = (_data & 0xfffff000) | (value & 0xfff);
+            set => _data = (_data & 0xfffff000) | (value & 0xfff);
         }
         public readonly PositionRange Range
         {
             get
             {
                 uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
-                return PositionRange.Make(
-                    Position.Make(x, y),
-                    Position.Make(x + length, y + length)
+                return PositionRange.From(
+                    Position.From(x, y),
+                    Position.From(x + length, y + length)
                 );
             }
         }
         public Tile(byte size, uint x, uint y)
         {
+            if (size == 0)
+                throw new ArgumentException("The size of Tile can't be zero!");
             Size = size;
             X = x;
             Y = y;
         }
-        public static Tile Make(byte size, uint x, uint y)
-        {
-            return new(size, x, y);
-        }
-        public static Tile Make(uint x, uint y)
-        {
-            return Make(1, x, y);
-        }
-        public static Tile Make(byte size, Position position)
+        public static Tile From(byte size, uint x, uint y) => new(size, x, y);
+        public static Tile From(uint x, uint y) => From(1, x, y);
+        
+        public static Tile From(byte size, Position position)
         {
             uint length = (uint)(size * 100);
             if (length == 0) throw new ArgumentException("The size of Tile can't be zero!");
-            return Tile.Make(size, (position.X - Position.MinX) / length, (position.Y - Position.MinY) / length);
+            return Tile.From(size, (position.X - Position.MinX) / length, (position.Y - Position.MinY) / length);
+        }
+
+        public static List<Tile> GetTilesIn(byte tileSize, PositionRange range)
+        {
+            List<Tile> list = [];
+            
+            uint length = (uint)(tileSize * 100);
+
+            uint startX = (range.Min.X - Position.MinX) / length;
+            uint endX = (range.Max.X - Position.MinX) / length;
+            uint startY = (range.Min.Y - Position.MinY) / length;
+            uint endY = (range.Max.Y - Position.MinY) / length;
+
+            for (uint x = startX; x <= endX; x++)
+            {
+                for (uint y = startY; y <= endY; y++)
+                {
+                    list.Add(Tile.From(tileSize, x, y));
+                }
+            }
+
+            return list;
         }
     }
 }

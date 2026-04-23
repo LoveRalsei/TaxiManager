@@ -6,20 +6,12 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public readonly struct PathNode
+    public readonly struct PathNode(DateTime time, Position position)
     {
         public static readonly string DateFormat = new("yyyy-MM-dd HH:mm:ss");
-        public readonly DateTime Time;
-        public readonly Position Position;
-
-        public PathNode(DateTime date, double x, double y) : this()
-        {
-            Date = date;
-            Position = Position.MakeFromRaw(x, y);
-        }
+        public readonly DateTime Time = time;
+        public readonly Position Position = position;
 
         public bool IsValid() => Position.IsValid();
-
-        public DateTime Date { get; }
     }
 }
