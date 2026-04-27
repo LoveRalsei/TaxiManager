@@ -1,3 +1,5 @@
+using TaxiManager.UI;
+
 namespace TaxiManager
 {
     partial class MapForm
@@ -24,10 +26,12 @@ namespace TaxiManager
         //控件声明
         private UI_EnlargeZoomButton _enlargeButton;
         private UI_ShrinkZoomButton _shrinkButton;
+        private UI_ShowTrackButton _showTrackButton;
         private UI_RegionSreachButton _regionSreachButton;
         private UI_RegionCorrelation1AnalyzingButton _regionalCorrelationAnalysis1Button;
         private UI_RegionCorrelation2AnalyzingButton _regionalCorrelationAnalysis2Button;
         private UI_FrequentPathAnalysis2Button _frequentPathAnalysis2Button;
+
 
         /// <summary>
         ///  Required method for Designer support - do not modify
@@ -40,7 +44,9 @@ namespace TaxiManager
             _enlargeButton.Initialize();
             _shrinkButton=new UI_ShrinkZoomButton(gmap, this);
             _shrinkButton.Initialize();
-            _regionSreachButton=new UI_RegionSreachButton(gmap, this);
+            _showTrackButton=new UI_ShowTrackButton(gmap, this);
+            _showTrackButton.Initialize();
+            _regionSreachButton =new UI_RegionSreachButton(gmap, this);
             _regionSreachButton.Initialize();
             _regionalCorrelationAnalysis1Button=new UI_RegionCorrelation1AnalyzingButton(gmap, this);
             _regionalCorrelationAnalysis1Button.Initialize();

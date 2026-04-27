@@ -12,8 +12,6 @@ namespace TaxiManager
 {
     public partial class UI_RegionSreachButton: UI_Button
     {
-        private MapForm _mapForm;
-
         private Button _regionSreachButton;
 
         private bool _isRegionSearching = false;

@@ -83,7 +83,7 @@ namespace TaxiManager
             }
 
             newIsDragging = true;
-            dragStartLocal = new Point(e.X, e.Y);
+            dragStartLocal = SnapToMeterGrid(_gmap, e.X, e.Y);
             dragCurrentLocal = dragStartLocal;
 
             // 清理上一次绘制
@@ -107,7 +107,8 @@ namespace TaxiManager
         {
             if (!isAnalyzing || !isDragging) return false;
 
-            dragCurrentLocal = new Point(e.X, e.Y);
+            /*dragCurrentLocal = new Point(e.X, e.Y);*/
+            dragCurrentLocal = SnapToMeterGrid(_gmap, e.X, e.Y);
             return UpdateTemporaryRectangle(dragStartLocal, dragCurrentLocal, overlay, regionColor, "选择矩形");
         }
 
@@ -221,7 +222,8 @@ namespace TaxiManager
             }
 
             newIsDragging = true;
-            dragStartLocal = new Point(e.X, e.Y);
+            /*dragStartLocal = new Point(e.X, e.Y);*/
+            dragStartLocal = SnapToMeterGrid(_gmap, e.X, e.Y);
             dragCurrentLocal = dragStartLocal;
 
             // 清理当前正在拖拽区域的临时绘制（不清除已选定的区域）
@@ -243,7 +245,8 @@ namespace TaxiManager
         {
             if (!isAnalyzing || !isDragging) return false;
 
-            dragCurrentLocal = new Point(e.X, e.Y);
+            /*dragCurrentLocal = new Point(e.X, e.Y);*/
+            dragCurrentLocal = SnapToMeterGrid(_gmap, e.X, e.Y);
             int regionIndex = regionPointsList.Count;
             Color regionColor = regionColors[regionIndex % regionColors.Length];
 
@@ -431,7 +434,14 @@ namespace TaxiManager
 
             var regionPoints = new List<PointLatLng>();
             foreach (var p in cornersLocal)
-                regionPoints.Add(_gmap.FromLocalToLatLng(p.X, p.Y));
+            {
+                var latLng = _gmap.FromLocalToLatLng(p.X, p.Y);
+                // 取整到1e-5的整数倍
+                double snappedLat = Math.Round(latLng.Lat * 1e5) / 1e5;
+                double snappedLng = Math.Round(latLng.Lng * 1e5) / 1e5;
+                regionPoints.Add(new PointLatLng(snappedLat, snappedLng));
+            }
+            /*regionPoints.Add(_gmap.FromLocalToLatLng(p.X, p.Y));*/
 
             return regionPoints;
         }
@@ -476,5 +486,22 @@ namespace TaxiManager
         }
 
         #endregion
+        /// <summary>
+        /// 将像素坐标取整到1e-5经纬度的整数倍（对应约1米）
+        /// </summary>
+        public static Point SnapToMeterGrid(GMapControl gmap, int x, int y)
+        {
+            // 像素坐标转经纬度
+            var latLng = gmap.FromLocalToLatLng(x, y);
+
+            // 经纬度取整到1e-5的整数倍
+            double snappedLat = Math.Floor(latLng.Lat * 1e5) / 1e5;
+            double snappedLng = Math.Floor(latLng.Lng * 1e5) / 1e5;
+
+            // 经纬度转回像素坐标
+            var snappedPoint = gmap.FromLatLngToLocal(new PointLatLng(snappedLat, snappedLng));
+
+            return new Point((int)snappedPoint.X, (int)snappedPoint.Y);
+        }
     }
 }
