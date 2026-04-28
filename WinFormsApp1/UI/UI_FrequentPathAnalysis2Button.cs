@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public partial class UI_FrequentPathAnalysis2Button: UI_Button
+    public partial class UI_FrequentPathAnalysis2Button: UI_HaveChooseTimePeriodLeftSidebarButton
     {
         private Button _frequentPathAnalysis2Button;
 
@@ -57,16 +57,16 @@ namespace TaxiManager
                     _mapFrequentPath2RegionMouseUp);
                 _frequentPathAnalysis2Button.Text = "选择区域中";
                 BindBottomButtonToAnalysis(
-                    () => _analyze2FrequentPath(_frequentPath2RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
+                    () => _analyze2FrequentPath(_frequentPath2RegionPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
                     () => _frequentPath2RegionPoints.Count >= 2,
                     CleanupFrequentPath2);
-                _mapForm.sidebarController?.Show();
+                _sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
-                _resetFrequentPathAnalysis2Button();
-                _mapForm.sidebarController?.Hide();
+                ResetFrequentPathAnalysis2Button();
+                _sidebarController?.Hide();
             }
         }
 
@@ -82,7 +82,7 @@ namespace TaxiManager
         }
 
         // 重置频繁路径分析2按钮到初始状态
-        public void _resetFrequentPathAnalysis2Button()
+        public void ResetFrequentPathAnalysis2Button()
         {
             _isFrequentPath2Analyzing = false;
             _isFrequentPath2Dragging = false;
@@ -94,6 +94,8 @@ namespace TaxiManager
                 _mapFrequentPath2RegionMouseMove,
                 _mapFrequentPath2RegionMouseUp);
             _frequentPathAnalysis2Button.Text = "频繁路径分析2";
+
+            HideSidebar();
         }
 
         // 鼠标按下：开始拖拽

@@ -13,8 +13,9 @@ namespace TaxiManager
         public ToolStripStatusLabel statusLabel { get; private set; }
 
         // sidebar fields
-        public LeftSidebar_ChooseTimePeriod? leftSidebar { get; private set; }
-        public SidebarController? sidebarController { get; private set; }
+        //public LeftSidebar_ChooseTimePeriod? LeftSidebar_ChooseTimePeriod { get; private set; }
+        //public LeftSideBar_ChooseCars LeftSideBar_ChooseCars { get; private set; }
+        //public SidebarController? sidebarController { get; private set; }
         public EventHandler? _bottomButtonAnalyzeHandler;//公开以便 UI_Button 可以访问
         private int _oringinMinZoom = 3;
         public int _oringinMaxZoom = 18;
@@ -79,13 +80,14 @@ namespace TaxiManager
             // 初始化左侧侧边栏并由 SidebarController 管理（不修改现有控件）
             try
             {
-                leftSidebar = new LeftSidebar_ChooseTimePeriod();
-                leftSidebar.Title = "筛选";
+                /*LeftSidebar_ChooseTimePeriod = new LeftSidebar_ChooseTimePeriod();
+                LeftSidebar_ChooseTimePeriod.Title = "筛选";
+                
 
-                sidebarController = new SidebarController(this, leftSidebar, expandedWidth: 280);
+                sidebarController = new SidebarController(this, LeftSidebar_ChooseTimePeriod, expandedWidth: 280);
                 //sidebarController.Show();
                 // 窗体关闭时释放 controller
-                this.FormClosed += (s, e) => sidebarController?.Dispose();
+                this.FormClosed += (s, e) => sidebarController?.Dispose();*/
             }
             catch
             {

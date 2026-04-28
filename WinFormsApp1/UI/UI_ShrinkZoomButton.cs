@@ -29,7 +29,7 @@ namespace TaxiManager
 
         private void _shrinkButtonClick(object sender, EventArgs e)
         {
-            _gmap.Zoom--;
+            _mapForm.gmap.Zoom--;
         }
     }
 }

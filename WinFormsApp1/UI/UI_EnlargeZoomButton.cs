@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace TaxiManager
 {
-    public partial class UI_EnlargeZoomButton : UI_Button
+    public class UI_EnlargeZoomButton : UI_Button
     {
         private Button _enlargeButton;
 
@@ -33,7 +33,7 @@ namespace TaxiManager
 
         private void _enlargeButtonClick(object sender, EventArgs e)
         {
-            _gmap.Zoom++;
+            _mapForm.gmap.Zoom++;
         }
 
         

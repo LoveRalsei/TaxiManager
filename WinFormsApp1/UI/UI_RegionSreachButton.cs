@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TaxiManager
 {
-    public partial class UI_RegionSreachButton: UI_Button
+    public partial class UI_RegionSreachButton: UI_HaveChooseTimePeriodLeftSidebarButton
     {
         private Button _regionSreachButton;
 
@@ -55,16 +55,16 @@ namespace TaxiManager
                     _mapRegionMouseUp);
                 _regionSreachButton.Text = "区域选择中...";
                 BindBottomButtonToAnalysis(
-                    () => _analyzeRegion(_regionSearchPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
+                    () => _analyzeRegion(_regionSearchPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
                     () => _regionSearchPoints.Count >= 1,
                     CleanupRegionSearch);
-                _mapForm.sidebarController?.Show();
+                _sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
-                _resetRegionSearchButton();
-                _mapForm.sidebarController?.Hide();
+                ResetRegionSearchButton();
+                _sidebarController?.Hide();
             }
         }
 
@@ -79,7 +79,7 @@ namespace TaxiManager
             _regionSreachButton.Text = "区域范围查找";
         }
 
-        public void _resetRegionSearchButton()
+        public void ResetRegionSearchButton()
         {
             _isRegionSearching = false;
             _isRegionDragging = false;
@@ -90,6 +90,8 @@ namespace TaxiManager
                 _mapRegionMouseMove,
                 _mapRegionMouseUp);
             _regionSreachButton.Text = "区域范围查找";
+
+            HideSidebar();
         }
 
         private void _mapRegionMouseDown(object sender, MouseEventArgs e)

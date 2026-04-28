@@ -93,16 +93,16 @@ namespace TaxiManager
                 _sidebar.SetExpanded(true);
                 return;
             }
-            _timer.Start();Debug.WriteLine("Show");
+            _timer.Start();//Debug.WriteLine("Show");
         }
 
         public void Hide()
         {
-            Debug.WriteLine("Try Hide");
+            //Debug.WriteLine("Try Hide");
             if (IsExpanded == false) return;
             _expanding = false;
             _sidebar.SetExpanded(false);
-            _timer.Start();Debug.WriteLine("Hide");
+            _timer.Start();//Debug.WriteLine("Hide");
         }
 
         protected virtual void Dispose(bool disposing)

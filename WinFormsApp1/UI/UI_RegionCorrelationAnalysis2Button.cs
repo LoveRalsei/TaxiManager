@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace TaxiManager
 {
-    public class UI_RegionCorrelation2AnalyzingButton : UI_Button
+    public class UI_RegionCorrelation2AnalyzingButton : UI_HaveChooseTimePeriodLeftSidebarButton
     {
         private Button _regionalCorrelationAnalysis2Button;
 
@@ -57,16 +57,16 @@ namespace TaxiManager
                     _mapCorrelation2RegionMouseUp);
                 _regionalCorrelationAnalysis2Button.Text = "区域选择中...";
                 BindBottomButtonToAnalysis(
-                    () => _analyze2RegionCorrelation(_correlation2RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
+                    () => _analyze2RegionCorrelation(_correlation2RegionPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
                     () => _correlation2RegionPoints.Count >= 4,
                     CleanupRegionCorrelation2);
-                _mapForm.sidebarController?.Show();
+                _sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
-                _resetCorrelationAnalysis2Button();
-                _mapForm.sidebarController?.Hide();
+                ResetCorrelationAnalysis2Button();
+                _sidebarController?.Hide();
             }
         }
 
@@ -82,7 +82,7 @@ namespace TaxiManager
         }
 
         // 重置区域关联分析2按钮到初始状态（供其他按钮调用）
-        public void _resetCorrelationAnalysis2Button()
+        public void ResetCorrelationAnalysis2Button()
         {
             _isRegionCorrelation2Analyzing = false;
             _isRegionCorrelation2Dragging = false;
@@ -93,6 +93,8 @@ namespace TaxiManager
                 _mapCorrelation2RegionMouseMove,
                 _mapCorrelation2RegionMouseUp);
             _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+
+            HideSidebar();
         }
 
         // 鼠标按下：开始拖拽

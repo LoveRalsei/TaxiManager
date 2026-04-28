@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TaxiManager
 {
-    public partial class UI_RegionCorrelation1AnalyzingButton : UI_Button
+    public partial class UI_RegionCorrelation1AnalyzingButton : UI_HaveChooseTimePeriodLeftSidebarButton
     {
         private Button _regionalCorrelationAnalysis1Button;
 
@@ -56,16 +56,16 @@ namespace TaxiManager
                     _mapCorrelation1RegionMouseUp);
                 _regionalCorrelationAnalysis1Button.Text = "选择区域中";
                 BindBottomButtonToAnalysis(
-                    () => _analyze1RegionCorrelation(_correlation1RegionPoints, _mapForm.leftSidebar.StartDateString, _mapForm.leftSidebar.EndDateString),
+                    () => _analyze1RegionCorrelation(_correlation1RegionPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
                     () => _correlation1RegionPoints.Count >= 2,
                     CleanupRegionCorrelation1);
-                _mapForm.sidebarController?.Show();
+                _sidebarController?.Show();
             }
             else
             {
                 UnbindBottomButtonAnalysis();
-                _resetCorrelationAnalysis1Button();
-                _mapForm.sidebarController?.Hide();
+                ResetCorrelationAnalysis1Button();
+                _sidebarController?.Hide();
             }
         }
 
@@ -80,7 +80,7 @@ namespace TaxiManager
             _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
         }
 
-        public void _resetCorrelationAnalysis1Button()
+        public void ResetCorrelationAnalysis1Button()
         {
             _isRegionCorrelation1Analyzing = false;
             _isRegionCorrelation1Dragging = false;
@@ -91,6 +91,8 @@ namespace TaxiManager
                 _mapCorrelation1RegionMouseMove,
                 _mapCorrelation1RegionMouseUp);
             _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+
+            HideSidebar();
         }
 
         private void _mapCorrelation1RegionMouseDown(object sender, MouseEventArgs e)

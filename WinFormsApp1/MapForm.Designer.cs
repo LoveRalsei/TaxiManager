@@ -72,18 +72,18 @@ namespace TaxiManager
         public void _resetAllButton()
         {
             // 解绑底部按钮的分析函数
-            _enlargeButton.UnbindBottomButtonAnalysis();
+            //_enlargeButton.UnbindBottomButtonAnalysis();
+            _showTrackButton.ResetShowTrackButton();
+            _regionSreachButton.ResetRegionSearchButton();
+            _regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
+            _regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
+            _frequentPathAnalysis2Button.ResetFrequentPathAnalysis2Button();
 
-            _regionSreachButton._resetRegionSearchButton();
-            _regionalCorrelationAnalysis1Button._resetCorrelationAnalysis1Button();
-            _regionalCorrelationAnalysis2Button._resetCorrelationAnalysis2Button();
-            _frequentPathAnalysis2Button._resetFrequentPathAnalysis2Button();
-
-            try
+            /*try
             {
                 sidebarController?.Hide();
             }
-            catch { }
+            catch { }*/
         }
 
     }
