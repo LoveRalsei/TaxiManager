@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +40,27 @@ namespace TaxiManager
                     Position.From(x, y),
                     Position.From(x + length, y + length)
                 );
+            }
+        }
+        public readonly List<Tile> SubTiles
+        {
+            get
+            {
+                var size = Size;
+                if (size == 0)
+                    throw new ArgumentException("The size of Tile can't be zero!");
+                if (size == 1)
+                    return [this];
+                var list = new List<Tile>();
+                uint x = X * size, y = Y * size;
+                for (uint i=0; i<size; i++)
+                {
+                    for (uint j=0; j<size; j++)
+                    {
+                        list.Add(Tile.From(x+i, y+j));
+                    }
+                }
+                return list;
             }
         }
         public Tile(byte size, uint x, uint y)
