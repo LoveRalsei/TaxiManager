@@ -10,12 +10,35 @@ using System.Threading.Tasks;
 namespace TaxiManager
 {
     using PathSupplier = Func<List<PathNode>>;
-    public class Driver(List<PathNode> nodes)
+    public class Driver
     {
+        /// <summary>
+        /// 用于剪枝判断存在范围的瓦片HashSet中，每个瓦片的大小
+        /// </summary>
+        public const byte ExistTileSize = 10;
         public int Id;
-        public readonly List<PathNode> Nodes = nodes;
+        public readonly List<PathNode> Nodes;
+        /// <summary>
+        /// 用于剪枝减少对不存在范围中的节点的计算，Tile的Size为ExistTileSize
+        /// </summary>
+        public readonly HashSet<Tile> TilesExist = [];
+        public readonly DateTime MinExist = DateTime.MinValue;
+        public readonly DateTime MaxExist = DateTime.MaxValue;
         public bool IsEmpty => Nodes.Count == 0;
-
+        public Driver(List<PathNode> nodes)
+        {
+            this.Nodes = nodes;
+            foreach (var node in Nodes)
+            {
+                TilesExist.Add(node.Position.GetTile(ExistTileSize));
+            }
+            TilesExist.TrimExcess();
+            if (Nodes.Count > 0)
+            {
+                MinExist = Nodes.First().Time;
+                MaxExist = Nodes.Last().Time;
+            }
+        }
         public Driver(PathSupplier pathSupplier) : this(pathSupplier()) { }
         
         /// <summary>
@@ -28,6 +51,7 @@ namespace TaxiManager
         public (uint indexLeft, uint indexRight, Position position)?
             GetPositionIndex(DateTime time, TimeTolerance tolerance = default)
         {
+            if (time < MinExist || time > MaxExist) return null;
             if (IsEmpty) return null;
 
             // 二分查找找到第一个 >= time 的节点
@@ -73,7 +97,7 @@ namespace TaxiManager
                             float scale = (float)(diffLeft * 1.0 / diff);
                             return (
                                 (uint)index - 1, (uint)index, 
-                                Position.Lerp(leftNode.Position, rightNode.Position, scale)
+                                Position.Lerp(leftNode.Position, rightNode.Position, scale)!.Value
                                 );
                         }
                     }
@@ -121,5 +145,16 @@ namespace TaxiManager
             routes.Add(curr);
             return routes;
         }
+        public bool IsExist(DateTime from, DateTime to)
+        {
+            if (from > to)
+                throw new ArgumentException("The arg from should not be greater than the arg to.");
+            return from >= MinExist && to <= MaxExist;
+        }
+        public bool IsExist(PositionRange range) => IsExist(range.GetTiles(ExistTileSize).ToHashSet());
+        /// <summary>
+        /// 此处传入的Tile，其Size应为ExistTileSize，否则无效
+        /// </summary>
+        public bool IsExist(HashSet<Tile> tiles) => TilesExist.Overlaps(tiles);
     }
 }
