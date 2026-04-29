@@ -8,7 +8,7 @@ namespace TaxiManager
 {
     public interface IServiceF3
     {
-        public static IServiceF3 Instance => throw new NotImplementedException();
+        public static IServiceF3 Instance => ServiceF3.Instance;
         public abstract uint CountDrivers(PositionRange range, DateTime from, DateTime to);
     }
 }

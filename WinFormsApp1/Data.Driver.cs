@@ -24,6 +24,9 @@ namespace TaxiManager
         /// 如果不存在误差内的位置信息，则返回null。
         /// </summary>
         public Position? GetPosition(DateTime time, TimeTolerance tolerance = default)
+            => GetPositionIndex(time, tolerance)?.position;
+        public (uint indexLeft, uint indexRight, Position position)?
+            GetPositionIndex(DateTime time, TimeTolerance tolerance = default)
         {
             if (IsEmpty) return null;
 
@@ -57,7 +60,7 @@ namespace TaxiManager
                 if (diffRight <= toleranceMs)
                 {
                     // 如果正好在目标时间点上
-                    if (diffRight == 0) return rightNode.Position;
+                    if (diffRight == 0) return ((uint)index, (uint)index, rightNode.Position);
 
                     // 如果左侧有节点，尝试插值
                     if (index > 0)
@@ -68,12 +71,15 @@ namespace TaxiManager
                         {
                             long diffLeft = (long)(time - leftNode.Time).TotalMilliseconds;
                             float scale = (float)(diffLeft * 1.0 / diff);
-                            return Position.Lerp(leftNode.Position, rightNode.Position, scale);
+                            return (
+                                (uint)index - 1, (uint)index, 
+                                Position.Lerp(leftNode.Position, rightNode.Position, scale)
+                                );
                         }
                     }
 
                     // 无法插值但右侧在容差内
-                    return rightNode.Position;
+                    return ((uint)index, (uint)index, rightNode.Position);
                 }
             }
 
@@ -84,7 +90,7 @@ namespace TaxiManager
                 long diffLeft = (long)(time - leftNode.Time).TotalMilliseconds;
                 if (diffLeft <= toleranceMs)
                 {
-                    return leftNode.Position;
+                    return ((uint)index - 1, (uint)index - 1, leftNode.Position);
                 }
             }
 
