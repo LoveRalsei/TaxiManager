@@ -35,6 +35,11 @@ namespace TaxiManager
         public static int RawDriversCount => _rawDriversCount;
         private static int _driversCount = 0;
         public static int DriversCount => _driversCount;
+        private static DateTime _timeMin = DateTime.MinValue;
+        private static DateTime _timeMax = DateTime.MaxValue;
+        public static DateTime TimeMin => _timeMin;
+        public static DateTime TimeMax => _timeMax;
+
         private static int _loadedCount;
         public static int LoadedCount => _loadedCount;
         private static Exception? _error;
@@ -201,16 +206,28 @@ namespace TaxiManager
                     _loadDiskMs = (long)(DateTime.Now - firstTime).TotalMilliseconds;
                     Task.WhenAll(entryLoaders);
                     int index = 0;
+                    DateTime minTime = DateTime.MaxValue, maxTime = DateTime.MinValue;
                     foreach (var task in entryLoaders)
                     {
                         if (task.Result == null)
                             continue;
                         index++;
                         task.Result.Id = index;
-                        drivers.Add(task.Result);
+                        var driver = task.Result;
+                        if (driver.Nodes.Count == 0)
+                            continue;
+                        if (driver.Nodes.First().Time < minTime)
+                            minTime = driver.Nodes.First().Time;
+                        if (driver.Nodes.Last().Time > maxTime)
+                            maxTime = driver.Nodes.Last().Time;
+                        drivers.Add(driver);
                     }
                     // 转换为数组
                     _drivers = drivers.ToArray();
+                    if (minTime == DateTime.MaxValue || maxTime == DateTime.MinValue)
+                        throw new Exception("Does not have valid node.");
+                    _timeMin = minTime;
+                    _timeMax = maxTime;
                     _loadTotalMs = (long)(DateTime.Now - firstTime).TotalMilliseconds;
                 }
                 catch (Exception error)
