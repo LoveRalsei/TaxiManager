@@ -15,7 +15,7 @@ namespace TaxiManager
         /// <summary>
         /// 用于剪枝判断存在范围的瓦片HashSet中，每个瓦片的大小
         /// </summary>
-        public const byte ExistTileSize = 10;
+        public const byte ExistTileSize = 1;
         public int Id;
         public readonly List<PathNode> Nodes;
         /// <summary>

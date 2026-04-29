@@ -25,7 +25,7 @@ namespace TaxiManager
             get
             {
                 // 未完成加载时，等待加载完成
-                while (!Loaded) { }
+                _loadTask?.Wait();
                 if (Error != null)
                     throw Error;
                 return _drivers;
@@ -189,31 +189,28 @@ namespace TaxiManager
                 {
                     var firstTime = DateTime.Now;
                     List<Driver> drivers = [];
-                    LinkedList<Task<Driver?>> entryLoaders = [];
-                    var zipFiles = Directory.GetFiles(_dataPath, "*.zip");
+                    List<Task<Driver?>> entryLoaders = [];
                     foreach (var zipFile in zipFiles)
                     {
                         using var zip = ZipFile.OpenRead(zipFile);
                         foreach (var entry in zip.Entries)
                         {
-                            var entryStream = new MemoryStream();
+                            var entryStream = new MemoryStream((int)entry.Length);
                             using var rawEntryStream = entry.Open();
                             rawEntryStream.CopyTo(entryStream);
                             entryStream.Position = 0;
-                            entryLoaders.AddLast(Task.Run(_getEntryStreamHandler(entryStream)));
+                            entryLoaders.Add(Task.Run(_getEntryStreamHandler(entryStream)));
                         }
                     }
                     _loadDiskMs = (long)(DateTime.Now - firstTime).TotalMilliseconds;
-                    Task.WhenAll(entryLoaders);
+                    Task.WhenAll(entryLoaders).Wait();
                     int index = 0;
                     DateTime minTime = DateTime.MaxValue, maxTime = DateTime.MinValue;
                     foreach (var task in entryLoaders)
                     {
-                        if (task.Result == null)
-                            continue;
-                        index++;
-                        task.Result.Id = index;
                         var driver = task.Result;
+                        if (driver == null) continue;
+                        driver.Id = ++index;
                         if (driver.Nodes.Count == 0)
                             continue;
                         if (driver.Nodes.First().Time < minTime)
