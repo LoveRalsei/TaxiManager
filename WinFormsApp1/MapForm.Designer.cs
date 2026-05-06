@@ -32,6 +32,8 @@ namespace TaxiManager
         private UI_RegionCorrelation2AnalyzingButton _regionalCorrelationAnalysis2Button;
         private UI_FrequentPathAnalysis2Button _frequentPathAnalysis2Button;
 
+        private UI_DebugShowGMapButton _debugShowGMapButton;
+
 
         /// <summary>
         ///  Required method for Designer support - do not modify
@@ -40,50 +42,51 @@ namespace TaxiManager
         private void InitializeComponent()
         {
             SuspendLayout();
-            _enlargeButton=new UI_EnlargeZoomButton(gmap, this);
-            _enlargeButton.Initialize();
-            _shrinkButton=new UI_ShrinkZoomButton(gmap, this);
-            _shrinkButton.Initialize();
-            _showTrackButton=new UI_ShowTrackButton(gmap, this);
-            _showTrackButton.Initialize();
-            _regionSreachButton =new UI_RegionSreachButton(gmap, this);
-            _regionSreachButton.Initialize();
-            _regionalCorrelationAnalysis1Button=new UI_RegionCorrelation1AnalyzingButton(gmap, this);
-            _regionalCorrelationAnalysis1Button.Initialize();
-            _regionalCorrelationAnalysis2Button=new UI_RegionCorrelation2AnalyzingButton(gmap, this);
-            _regionalCorrelationAnalysis2Button.Initialize();
-            _frequentPathAnalysis2Button=new UI_FrequentPathAnalysis2Button(gmap, this);
-            _frequentPathAnalysis2Button.Initialize();
-            // 
-            // MapForm
-            // 
+            InitialiazeCustomButtons();          
+
             AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(899, 545);
-            
+
             Name = "MapForm";
             Text = "TaxiMap";
             ResumeLayout(false);
 
-            
+
+        }
+
+        private void InitialiazeCustomButtons()
+        {
+            //初始化按钮
+            _enlargeButton = new UI_EnlargeZoomButton(gmap, this);
+            _enlargeButton.Initialize();
+            _shrinkButton = new UI_ShrinkZoomButton(gmap, this);
+            _shrinkButton.Initialize();
+            _showTrackButton = new UI_ShowTrackButton(gmap, this);
+            _showTrackButton.Initialize();
+            _regionSreachButton = new UI_RegionSreachButton(gmap, this);
+            _regionSreachButton.Initialize();
+            _regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(gmap, this);
+            _regionalCorrelationAnalysis1Button.Initialize();
+            _regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(gmap, this);
+            _regionalCorrelationAnalysis2Button.Initialize();
+            _frequentPathAnalysis2Button = new UI_FrequentPathAnalysis2Button(gmap, this);
+            _frequentPathAnalysis2Button.Initialize();
+#if DEBUG
+            _debugShowGMapButton = new UI_DebugShowGMapButton(gmap, this);
+            _debugShowGMapButton.Initialize();
+#endif
         }
 
         #endregion
         public void _resetAllButton()
         {
             // 解绑底部按钮的分析函数
-            //_enlargeButton.UnbindBottomButtonAnalysis();
             _showTrackButton.ResetShowTrackButton();
             _regionSreachButton.ResetRegionSearchButton();
             _regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
             _regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
             _frequentPathAnalysis2Button.ResetFrequentPathAnalysis2Button();
-
-            /*try
-            {
-                sidebarController?.Hide();
-            }
-            catch { }*/
         }
 
     }

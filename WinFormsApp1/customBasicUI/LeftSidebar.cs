@@ -72,6 +72,7 @@ namespace TaxiManager
                 Text = "确定",
                 Height = 36,
                 Width = 236,
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
                 BackColor = Color.FromArgb(200, 230, 255),
                 ForeColor = Color.FromArgb(10, 70, 140),
                 FlatStyle = FlatStyle.Flat,

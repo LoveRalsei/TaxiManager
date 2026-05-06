@@ -25,7 +25,7 @@ namespace TaxiManager
 
             // place sidebar on the left: dock it so layout with other docked controls works
             sidebar.Width = 0;
-            sidebar.Height = parent.ClientSize.Height;
+            sidebar.Height = parent.ClientSize.Height-25;//减去25像素的底部间距，使侧边栏高度不与窗口底部贴边。
             sidebar.Dock = DockStyle.Left;
             sidebar.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom;
             sidebar.Visible = true;
@@ -42,7 +42,8 @@ namespace TaxiManager
 
         private void _parentResize(object? sender, EventArgs e)
         {
-            _sidebar.Height = _parent.ClientSize.Height;
+            _sidebar.Height = _parent.ClientSize.Height-25;//减去25像素的底部间距，使侧边栏高度不与窗口底部贴边。
+
         }
 
         private void _timerTick(object? sender, EventArgs e)
