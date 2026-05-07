@@ -28,7 +28,7 @@ namespace TaxiManager
             Rectangle? screen = (Screen.PrimaryScreen?.WorkingArea) ?? throw new Exception("Without window(form)!");
             double meterWidthPixel = viewArea.WidthLng * 1e5 / screen.Value.Width;
             double meterHeightPixel = viewArea.HeightLat * 1e5 / screen.Value.Height;
-            if (meterWidthPixel >= 10 || meterHeightPixel >= 10)
+            if (meterWidthPixel >= 30 && meterHeightPixel >= 30)
                 return F1RenderMode.Tiles;
             return F1RenderMode.Points;
         }
@@ -51,7 +51,7 @@ namespace TaxiManager
             Rectangle? screen = (Screen.PrimaryScreen?.WorkingArea) ?? throw new Exception("Without window(form)!");
             double meterWidthPixel = viewArea.WidthLng * 1e5 / screen.Value.Width;
             double meterHeightPixel = viewArea.HeightLat * 1e5 / screen.Value.Height;
-            return (byte)Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 10 / 100);
+            return (byte)Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 30 / 100);
         }
 
         List<(Tile tile, uint count)> IServiceF1.GetTiles(RectLatLng viewArea, DateTime time)

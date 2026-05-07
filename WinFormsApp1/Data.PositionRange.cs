@@ -21,14 +21,21 @@ namespace TaxiManager
         public readonly bool IsIn(Position pos) =>
             (pos.X >= Min.X && pos.X < Max.X && pos.Y >= Min.Y && pos.Y < Max.Y);
         /// <summary>
-        /// 获取这个范围包含的所有瓦片，
-        /// 需要注意的是，当范围边界位于瓦片右侧和下侧边缘时，会比由瓦片获取子瓦片的范围多一个长度
+        /// 获取这个范围包含的所有瓦片
         /// </summary>
         public readonly List<Tile> GetTiles(byte tileSize = 1)
         {
             List<Tile> tiles = [];
             Tile tileA = Min.GetTile(tileSize), tileB = Max.GetTile(tileSize);
             uint xA = tileA.X, yA = tileA.Y, xB = tileB.X, yB = tileB.Y;
+            // 当最大点刚好在瓦片边缘时
+            // tileB会额外包含一个长度的瓦片群
+            // 需要考虑边缘情况，进行剔除
+            var rangeB = tileB.Range;
+            if (Max.X == rangeB.Min.X)
+                xB--;
+            if (Max.Y == rangeB.Min.Y)
+                yB--;
             for (uint i = xA; i <= xB; i++) for (uint j = yA; j <= yB; j++)
                     tiles.Add(Tile.From(tileSize, i, j));
             return tiles;

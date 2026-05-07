@@ -46,10 +46,12 @@ namespace TaxiManager
         /// 获取指定时间点的位置信息，并容许一定的误差，误差范围内的位置信息将被线性插值处理。
         /// 如果不存在误差内的位置信息，则返回null。
         /// </summary>
-        public Position? GetPosition(DateTime time, TimeTolerance tolerance = default)
+        public Position? GetPosition(DateTime time, TimeTolerance tolerance)
             => GetPositionIndex(time, tolerance)?.position;
+        public Position? GetPosition(DateTime time)
+            => GetPosition(time, TimeTolerance.Default);
         public (uint indexLeft, uint indexRight, Position position)?
-            GetPositionIndex(DateTime time, TimeTolerance tolerance = default)
+            GetPositionIndex(DateTime time, TimeTolerance tolerance)
         {
             if (time < MinExist || time > MaxExist) return null;
             if (IsEmpty) return null;
@@ -121,11 +123,13 @@ namespace TaxiManager
             // 左右节点都无效，返回null
             return null;
         }
+        public (uint indexLeft, uint indexRight, Position position)?
+            GetPositionIndex(DateTime time) => GetPositionIndex(time, TimeTolerance.Default);
         /// <summary>
         /// 获取连续时间段的每一条路线，所谓连续时间段，指的是在可容忍的时间误差内一直在移动
         /// 如果路径中有两个相邻的点，其位置有足够长的时间未更新，视作为不同的连续时间段
         /// </summary>
-        public List<MapRoute> GetRoutes(TimeTolerance tolerance = default)
+        public List<MapRoute> GetRoutes(TimeTolerance tolerance)
         {
             List<MapRoute> routes = [];
             int index = 0;
@@ -145,6 +149,7 @@ namespace TaxiManager
             routes.Add(curr);
             return routes;
         }
+        public List<MapRoute> GetRoutes() => GetRoutes(TimeTolerance.Default);
         public bool IsExist(DateTime from, DateTime to)
         {
             if (from > to)
