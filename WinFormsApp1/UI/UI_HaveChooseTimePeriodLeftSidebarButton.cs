@@ -17,7 +17,7 @@ namespace TaxiManager
             _leftSidebar_ChooseTimePeriod=new LeftSidebar_ChooseTimePeriod();
             _leftSidebar_ChooseTimePeriod.Title = "选择日期";
 
-            _sidebarController = new SidebarController(_mapForm, _leftSidebar_ChooseTimePeriod, expandedWidth: 280);
+            _sidebarController = new SidebarController(_mapForm, _leftSidebar_ChooseTimePeriod);
             _mapForm.FormClosed += (s, e) => _sidebarController.Dispose();
         }
 

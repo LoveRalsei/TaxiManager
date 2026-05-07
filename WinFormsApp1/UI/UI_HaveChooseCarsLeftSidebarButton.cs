@@ -17,7 +17,7 @@ namespace TaxiManager
             _leftSideBar_ChooseCars = new LeftSidebar_ChooseCars();
             _leftSideBar_ChooseCars.Title = "选择汽车ID";
 
-            _sidebarController = new SidebarController(_mapForm, _leftSideBar_ChooseCars, expandedWidth: 280);
+            _sidebarController = new SidebarController(_mapForm, _leftSideBar_ChooseCars);
             _mapForm.FormClosed += (s, e) => _sidebarController.Dispose();
         }
 
