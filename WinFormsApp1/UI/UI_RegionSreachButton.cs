@@ -55,7 +55,7 @@ namespace TaxiManager
                     _mapRegionMouseUp);
                 _regionSreachButton.Text = "区域选择中...";
                 BindBottomButtonToAnalysis(
-                    () => _analyzeRegion(_regionSearchPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
+                    () => _analyzeRegion(_regionSearchPoints),
                     () => _regionSearchPoints.Count >= 1,
                     CleanupRegionSearch);
                 _sidebarController?.Show();
@@ -134,11 +134,33 @@ namespace TaxiManager
             }
         }
 
-        private void _analyzeRegion(List<PointLatLng> polygonCorners, string startTime, string endTime)
+        private void _analyzeRegion(List<PointLatLng> polygonCorners)
         {
             // TODO: 在这里用 polygonCorners（四个角点经纬度）和时间范围做后续处理或过滤数据
             // 示例：polygonCorners[0].Lat / .Lng 可直接使用
             // 示例时间格式： startTime / endTime 为 "yyyy-MM-dd"
+            // 示例
+            // 从4个角点中提取最小和最大经纬度
+            double minLng = polygonCorners.Min(p => p.Lng);
+            double maxLng = polygonCorners.Max(p => p.Lng);
+            double minLat = polygonCorners.Min(p => p.Lat);
+            double maxLat = polygonCorners.Max(p => p.Lat);
+
+            // 转换为 Position（内部单位：经纬度 × 1e5）
+            Position minPos = Position.FromGmap(new PointLatLng(minLat, minLng));
+            Position maxPos = Position.FromGmap(new PointLatLng(maxLat, maxLng));
+
+            // 构建 PositionRange
+            PositionRange range = PositionRange.FromUnsort(minPos, maxPos);
+
+            // 调用 CountDrivers
+            uint count = ((IServiceF3)ServiceF3.Instance).CountDrivers(
+                range,
+                _leftSidebar_ChooseTimePeriod._datePicker2.Value,
+                _leftSidebar_ChooseTimePeriod._datePicker1.Value
+            );
+
+            MessageBox.Show($"矩形区域内出租车数量：{count}","F3区域范围查找结果");
         }
     }
 }

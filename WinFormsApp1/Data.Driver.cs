@@ -56,6 +56,7 @@ namespace TaxiManager
             if (time < MinExist || time > MaxExist) return null;
             if (IsEmpty) return null;
 
+            tolerance = TimeTolerance.Minutes(10);
             // 二分查找找到第一个 >= time 的节点
             int left = 0;
             int right = Nodes.Count - 1;

@@ -3,6 +3,7 @@ using GMap.NET.WindowsForms;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace TaxiManager.UI
     internal class UI_ShowTrackButton : UI_HaveChooseCarsLeftSidebarButton
     {
         private Button _showTrackButton;
+
+        private GMapOverlay trackOverlay;
 
         private bool _isSidebarShowing = false;
 
@@ -33,8 +36,6 @@ namespace TaxiManager.UI
             _showTrackButton.Click += _showTrackButtonClick;
 
             _mapForm.Controls.Add(_showTrackButton);
-
-            
         }
 
         private void _showTrackButtonClick(object sender, EventArgs e)
@@ -61,24 +62,43 @@ namespace TaxiManager.UI
 
         public void ResetShowTrackButton()
         {
-            // 清除轨迹 overlay
-            var oldOverlay = _mapForm.gmap.Overlays.FirstOrDefault(o => o.Id == $"DriverTrack");
-            if (oldOverlay != null)
-            {
-                oldOverlay.Routes.Clear();
-                _mapForm.gmap.Overlays.Remove(oldOverlay);
-                _mapForm.gmap.Refresh();
-            }
-            _isSidebarShowing= false;
+            _isSidebarShowing = false;
 
             HideSidebar();
         }
 
+        public void ClearTrackOverlay()
+        {
+            // 清除轨迹 overlay
+            //var oldOverlay = _mapForm.gmap.Overlays.FirstOrDefault(o => o.Id == $"DriverTrack");
+            if (trackOverlay != null)
+            {
+                trackOverlay.Routes.Clear();
+                _mapForm.gmap.Overlays.Remove(trackOverlay);
+                _mapForm.gmap.Refresh();
+                trackOverlay = null;
+            }
+
+        }
+
         public void ShowTrack()
+        {
+            ClearTrackOverlay();
+            int id;
+            if (_leftSideBar_ChooseCars._result.HasValue)
+            {
+                id = _leftSideBar_ChooseCars._result.Value;
+                if (id != 0)
+                    ShowOneTrack(id);
+                else
+                    ShowAllTracks();
+            }
+        }
+
+        private void ShowOneTrack(int id)
         {
             if (_leftSideBar_ChooseCars._result == null)
                 return;
-            int id = (int)_leftSideBar_ChooseCars._result;
 
             try
             {
@@ -102,21 +122,11 @@ namespace TaxiManager.UI
                     MessageBox.Show($"未找到 id={id} 的司机", "提示");
                     return;
                 }
-
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 // 获取司机的所有连续轨迹
-                var routes = driver.GetRoutes(TimeTolerance.Minutes(15));
-                //MessageBox.Show($"routes第一项的内容：\n名称：{routes[0].Name}\n：{routes[0].Points[0].Lat} {routes[0].Points[0].Lng}");
-
-                // 创建一个新的 overlay 用于显示轨迹
-                var trackOverlay = new GMapOverlay($"Driver{id}Track");
-
-                // 清除旧的轨迹 overlay（如果存在）
-                //var oldOverlay = _mapForm.gmap.Overlays.FirstOrDefault(o => o.Id == $"DriverTrack");
-                //if (oldOverlay != null)
-                //{
-                //    oldOverlay.Routes.Clear();
-                //    _mapForm.gmap.Overlays.Remove(oldOverlay);
-                //}
+                //var routes = driver.GetRoutes(TimeTolerance.Minutes(15));
+                var routes = ((IServiceF1)ServiceF1.Instance).GetDriverRoutes(id);
+                trackOverlay = new GMapOverlay($"DriverTrack");
                 // 遍历所有轨迹并创建 GMapRoute
                 int routeIndex = 0;
                 foreach (var route in routes)
@@ -124,10 +134,8 @@ namespace TaxiManager.UI
                     // 创建 GMap.WindowsForms.GMapRoute，需要传入点列表和名称
                     //var points = route.Points.Cast<PointLatLng>().ToList();
                     var gmapRoute = new GMap.NET.WindowsForms.GMapRoute(route.Points, $"Driver_Route{routeIndex}");
-                    //if(routeIndex==0)
-                    //    MessageBox.Show($"第一条轨迹的点数: {route.Points.Count}, \n" +
-                    //        $"第一条轨迹第一点: Lat={route.Points[0].Lat}, Lng={route.Points[0].Lng}\n" +
-                    //        $"第一条轨迹第二点: Lat={route.Points[1].Lat}, Lng={route.Points[1].Lng}");
+                    //var gmapRoute = ((IServiceF1)ServiceF1.Instance).GetDriverRoutes(driver.Id).Select(r => new GMap.NET.WindowsForms.GMapRoute(r.Points, $"Driver_Route{routeIndex}")).FirstOrDefault();
+
                     // 设置轨迹样式
                     gmapRoute.Stroke = new Pen(Color.Blue, 3);
 
@@ -141,16 +149,74 @@ namespace TaxiManager.UI
 
                 //刷新地图显示
                 _mapForm.gmap.Refresh();
-                _mapForm.gmap.Zoom+=0.001; // 目前发现绘制轨迹不会立即显示，
-                                           // 但修改缩放比例会显示，所以利用这个触发地图重绘
-                
+                _mapForm.gmap.Zoom += 0.001; // 目前发现绘制轨迹不会立即显示，
+                                             // 但修改缩放比例会显示，所以利用这个触发地图重绘
 
-                MessageBox.Show($"已绘制司机 {driver.Id} 的 {routes.Count} 条轨迹", "绘制完成");
+                stopwatch.Stop();
+                MessageBox.Show($"已绘制司机 {driver.Id} 的 {routes.Count} 条轨迹\n" +
+                    $"耗时{stopwatch.ElapsedMilliseconds} ms", "F1出租车轨迹可视化绘制完成");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"绘制轨迹时出错: {ex.Message}", "错误");
             }
         }
+
+        private void ShowAllTracks()
+        {
+            ClearTrackOverlay();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            var tileData = ((IServiceF1)ServiceF1.Instance).GetTiles(_mapForm.gmap.ViewArea,_leftSideBar_ChooseCars._dateTimePicker.Value );
+            // 获取最大count值用于计算透明度
+            int maxCount = tileData.Max(t => (int)t.count);
+            
+            // 创建overlay
+            trackOverlay = new GMapOverlay("TileOverlay");
+            
+            foreach (var tile in tileData)
+            {
+                // 计算透明度：count为0时alpha=255（完全不透明），count为最大值时alpha=0（完全透明）
+                // 注意：这里假设你希望count越大越透明，如果相反请调整计算逻辑
+                int alpha = (int)((double)255 * (double)tile.count / (double)maxCount);
+                alpha = Math.Clamp(alpha, 0, 255);
+            
+                // 获取瓦片的经纬度范围
+                var range = tile.tile.Range;
+                var minPoint = range.Min.ToGmap();
+                var maxPoint = range.Max.ToGmap();
+            
+                // 创建矩形区域的四个顶点
+                var points = new List<PointLatLng>
+                {
+                    minPoint,
+                    new PointLatLng(minPoint.Lat, maxPoint.Lng),
+                    maxPoint,
+                    new PointLatLng(maxPoint.Lat, minPoint.Lng)
+                };
+            
+                // 创建多边形（矩形）
+                Color tileColor = Color.FromArgb(alpha, Color.Blue);
+                var polygon = new GMapPolygon(points, $"Tile_{tile.tile.X}_{tile.tile.Y}")
+                {
+                    Fill = new SolidBrush(tileColor),
+                    Stroke = new Pen(Color.Transparent, 0)
+                };
+            
+                trackOverlay.Polygons.Add(polygon);
+            }
+            
+            // 添加到地图
+            _mapForm.gmap.Overlays.Add(trackOverlay);
+            _mapForm.gmap.Refresh();
+            _mapForm.gmap.Zoom += 0.001;
+
+            stopwatch.Stop();
+            MessageBox.Show($"已绘制{DataLoader.Drivers.Count()}个司机的轨迹瓦片共{tileData.Count}个\n" +
+                    $"耗时{stopwatch.ElapsedMilliseconds} ms", "F1出租车轨迹可视化绘制完成");
+            
+        }
+
+        
     }
 }

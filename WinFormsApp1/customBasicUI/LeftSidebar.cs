@@ -20,7 +20,7 @@ namespace TaxiManager
         {
 
             BackColor = Color.White;
-            Width = 260;
+            Width = 320;
             // We'll not dock by default; SidebarController will place it.
 
             _titleLabel = new Label
@@ -50,6 +50,8 @@ namespace TaxiManager
                 Height = 28,
                 Dock = DockStyle.Top,
                 Margin = new Padding(0, 4, 0, 8),
+                AutoSize = true,                         // 允许自动调整大小
+                MaximumSize = new Size(Width/2, 0),  // 限制最大宽度，高度自适应
                 //BackColor = Color.FromArgb(240, 248, 255), // 淡蓝
                 ForeColor = Color.FromArgb(20, 60, 120),
                 //BorderStyle = BorderStyle.FixedSingle,
@@ -71,11 +73,12 @@ namespace TaxiManager
             {
                 Text = "确定",
                 Height = 36,
-                Width = 236,
+                Width = this.Width/2,
                 Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
                 BackColor = Color.FromArgb(200, 230, 255),
                 ForeColor = Color.FromArgb(10, 70, 140),
                 FlatStyle = FlatStyle.Flat,
+                TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 Location = new Point(12, 4)
             };

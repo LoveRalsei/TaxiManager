@@ -10,8 +10,8 @@ namespace TaxiManager
     /// </summary>
     public class LeftSidebar_ChooseTimePeriod : LeftSidebar
     {
-        private DateTimePicker _datePicker1;
-        private DateTimePicker _datePicker2;
+        public DateTimePicker _datePicker1 {  get;private set; }
+        public DateTimePicker _datePicker2 {  get;private set; }
         private Panel _contentPanel;
         private Label _errorLabel;
 
@@ -51,7 +51,7 @@ namespace TaxiManager
             _datePicker1 = new DateTimePicker
             {
                 Format = DateTimePickerFormat.Custom,
-                CustomFormat = "yyyy-MM-dd",
+                CustomFormat = "yyyy-MM-dd HH:mm",
                 Value = new DateTime(2008, 2, 2),
                 Height = 28,
                 Dock = DockStyle.Top,
@@ -64,7 +64,7 @@ namespace TaxiManager
             _datePicker2 = new DateTimePicker
             {
                 Format = DateTimePickerFormat.Custom,
-                CustomFormat = "yyyy-MM-dd",
+                CustomFormat = "yyyy-MM-dd HH:mm",
                 Value = new DateTime(2008, 2, 2),
                 Height = 28,
                 Dock = DockStyle.Top,

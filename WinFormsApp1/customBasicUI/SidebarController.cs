@@ -17,11 +17,11 @@ namespace TaxiManager
 
         public bool IsExpanded { get; private set; }
 
-        public SidebarController(Control parent, LeftSidebar sidebar, int expandedWidth = 260, int animationIntervalMs = 15)
+        public SidebarController(Control parent, LeftSidebar sidebar,int animationIntervalMs = 15)
         {
             this._parent = parent ?? throw new ArgumentNullException(nameof(parent));
             this._sidebar = sidebar ?? throw new ArgumentNullException(nameof(sidebar));
-            this._expandedWidth = Math.Max(80, expandedWidth);
+            this._expandedWidth = Math.Max(80, sidebar.Width);
 
             // place sidebar on the left: dock it so layout with other docked controls works
             sidebar.Width = 0;

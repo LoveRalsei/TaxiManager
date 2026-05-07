@@ -20,7 +20,7 @@ namespace TaxiManager
         {
             if (driverId <= 0 || driverId > DataLoader.DriversCount)
                 throw new ArgumentOutOfRangeException(nameof(driverId));
-            return DataLoader.Drivers[driverId - 1].GetRoutes();
+            return DataLoader.Drivers[driverId - 1].GetRoutes(TimeTolerance.Minutes(15));
         }
 
         F1RenderMode IServiceF1.GetRenderMode(RectLatLng viewArea)

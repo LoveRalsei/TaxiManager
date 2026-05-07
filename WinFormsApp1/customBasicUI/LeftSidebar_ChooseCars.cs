@@ -8,6 +8,8 @@ namespace TaxiManager
     public class LeftSidebar_ChooseCars : LeftSidebar
     {
         private TextBox _inputBox;
+        public DateTimePicker _dateTimePicker {  get;private set; }
+
         public int? _result {  get; set; }
         private string _originalText;
         private System.Windows.Forms.Timer _restoreTextTimer;
@@ -33,7 +35,7 @@ namespace TaxiManager
             if (contentPanel == null) return;
 
             // 保存原始文本
-            _text.Text = "";
+            _text.Text = "点击在输入框内输入汽车ID。输入0表示显示所有汽车。选择时间以确定显示所有汽车的时间点。";
             _originalText = _text.Text;
 
             // 创建输入框
@@ -47,6 +49,18 @@ namespace TaxiManager
                 BorderStyle = BorderStyle.FixedSingle
             };
             _inputBox.TextChanged += OnInputBoxTextChanged;
+
+            _dateTimePicker=new DateTimePicker
+            {
+                Width = 120,
+                Height = 28,
+                Dock = DockStyle.Top,
+                Margin = new Padding(0, 8, 0, 8),
+                Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point),
+                Format=DateTimePickerFormat.Custom,
+                CustomFormat="yyyy-MM-dd HH:mm",
+                Value=new DateTime(2008, 2, 2, 17, 40, 0)
+            };
 
             // 初始化恢复文本的定时器
             _restoreTextTimer = new System.Windows.Forms.Timer();
@@ -67,6 +81,7 @@ namespace TaxiManager
                 contentPanel.Controls.Add(_inputBox);
                 contentPanel.Controls.SetChildIndex(_inputBox, textIndex + 1);
             }
+            contentPanel.Controls.Add(_dateTimePicker);
         }
 
         private void OnInputBoxTextChanged(object sender, EventArgs e)
@@ -86,8 +101,8 @@ namespace TaxiManager
                 return;
             }
 
-            // 验证条件：大于0，小于10358
-            if (num <= 0 || num >= 10358)
+            // 验证条件：大于等于0，小于10358
+            if (num < 0 || num >= 10358)
             {
                 _result = null;
                 return;
