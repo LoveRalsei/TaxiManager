@@ -56,7 +56,6 @@ namespace TaxiManager.Structure
             if (time < MinExist || time > MaxExist) return null;
             if (IsEmpty) return null;
 
-            tolerance = TimeTolerance.Minutes(10);
             // 二分查找找到第一个 >= time 的节点
             int left = 0;
             int right = Nodes.Count - 1;
@@ -84,7 +83,7 @@ namespace TaxiManager.Structure
             {
                 var rightNode = Nodes[index];
                 long diffRight = (long)(rightNode.Time - time).TotalMilliseconds;
-                if (diffRight <= toleranceMs)
+                if (Math.Abs(diffRight) <= toleranceMs)
                 {
                     // 如果正好在目标时间点上
                     if (diffRight == 0) return ((uint)index, (uint)index, rightNode.Position);
@@ -94,7 +93,7 @@ namespace TaxiManager.Structure
                     {
                         var leftNode = Nodes[index - 1];
                         long diff = (long)(rightNode.Time - leftNode.Time).TotalMilliseconds;
-                        if (diff <= toleranceMs)
+                        if (Math.Abs(diff) <= toleranceMs)
                         {
                             long diffLeft = (long)(time - leftNode.Time).TotalMilliseconds;
                             float scale = (float)(diffLeft * 1.0 / diff);
@@ -115,7 +114,7 @@ namespace TaxiManager.Structure
             {
                 var leftNode = Nodes[index - 1];
                 long diffLeft = (long)(time - leftNode.Time).TotalMilliseconds;
-                if (diffLeft <= toleranceMs)
+                if (Math.Abs(diffLeft) <= toleranceMs)
                 {
                     return ((uint)index - 1, (uint)index - 1, leftNode.Position);
                 }
@@ -138,7 +137,7 @@ namespace TaxiManager.Structure
             DateTime? last = null;
             Nodes.ForEach(node =>
             {
-                if (last != null && (node.Time - last.Value).TotalMilliseconds > tolerance.MillisecondsTolerance)
+                if (last != null && (node.Time - last.Value).TotalMilliseconds >= tolerance.MillisecondsTolerance)
                 {
                     routes.Add(curr);
                     index++;
@@ -155,7 +154,7 @@ namespace TaxiManager.Structure
         {
             if (from > to)
                 throw new ArgumentException("The arg from should not be greater than the arg to.");
-            return from >= MinExist && to <= MaxExist;
+            return from <= MaxExist && to >= MinExist;
         }
         public bool IsExist(PositionRange range) => IsExist(range.GetTiles(ExistTileSize).ToHashSet());
         /// <summary>

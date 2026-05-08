@@ -66,7 +66,7 @@ namespace TaxiManager.Service
                     continue;
                 var posTile = Tile.From(tileSize, position.Value);
                 if (driverCount.TryGetValue(posTile, out uint value))
-                    driverCount[posTile] = ++value;
+                    driverCount[posTile] = value + 1;
                 else
                     driverCount[posTile] = 1;
             }

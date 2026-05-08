@@ -250,6 +250,7 @@ namespace TaxiManager
                     _error = error;
                 }
             });
+            TileCount.Initialize();
         }
     }
 }
