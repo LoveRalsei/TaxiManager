@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public partial class UI_RegionCorrelation1AnalyzingButton : UIButton
     {

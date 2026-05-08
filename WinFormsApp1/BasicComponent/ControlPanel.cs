@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TaxiManager.BasicComponent;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public class ControlPanel : Control, IDisposable
     {

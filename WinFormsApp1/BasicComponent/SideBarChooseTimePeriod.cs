@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     /// <summary>
     /// 用于功能F3（区域范围查找）的侧边栏，包含日期选择器。

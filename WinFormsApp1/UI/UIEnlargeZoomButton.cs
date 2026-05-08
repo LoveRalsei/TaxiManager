@@ -1,7 +1,7 @@
 ﻿using GMap.NET.WindowsForms;
 using System.Windows.Forms;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public class UIEnlargeZoomButton : UIButton
     {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public abstract class AMapProviderBase : GMapProvider
     {

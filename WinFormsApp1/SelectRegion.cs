@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public static class SelectRegion
     {

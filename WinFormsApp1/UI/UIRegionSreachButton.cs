@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using TaxiManager.Service;
 using TaxiManager.Structure;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     public partial class UIRegionSreachButton: UIButton
     {

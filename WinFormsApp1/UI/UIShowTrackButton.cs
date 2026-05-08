@@ -8,11 +8,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaxiManager.UI.BasicUI;
+using TaxiManager.BasicComponent.BasicUI;
 using TaxiManager.Service;
 using TaxiManager.BasicComponent;
 
-namespace TaxiManager.UI.UI
+namespace TaxiManager.BasicComponent.UI
 {
     internal class UIShowTrackButton : UIButton
     {

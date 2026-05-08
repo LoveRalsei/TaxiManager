@@ -1,6 +1,6 @@
-using TaxiManager.UI.UI;
+using TaxiManager.BasicComponent.UI;
 
-namespace TaxiManager.UI
+namespace TaxiManager.BasicComponent
 {
     partial class MapForm
     {
