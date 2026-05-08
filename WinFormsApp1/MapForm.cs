@@ -3,13 +3,14 @@ using GMap.NET;
 using GMap.NET.WindowsForms;
 using System;
 
-namespace TaxiManager
+namespace TaxiManager.UI
 {
     public partial class MapForm : Form
     {
 
-        public GMapControl gmap { get;private set; }
-        public StatusStrip statusStrip { get; private set; }
+        public GMapControl GMap { get;private set; }
+        public ControlPanel ControlPanel { get; private set; }
+        public StatusStrip BottomStrip { get; private set; }
         public ToolStripStatusLabel statusLabel { get; private set; }
 
         // sidebar fields
@@ -22,9 +23,7 @@ namespace TaxiManager
 
         public MapForm()
         {
-            InitializeComponent();
-
-            gmap = new GMapControl
+            GMap = new GMapControl
             {
                 Dock = DockStyle.Fill,
                 MapProvider = AMapProvider.Instance,
@@ -36,19 +35,22 @@ namespace TaxiManager
                 MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter,
                 CanDragMap = true
             };
-            this.Controls.Add(gmap);
+            InitializeComponent();
+
+            
+            this.Controls.Add(GMap);
 
 
             GMaps.Instance.Mode = AccessMode.ServerAndCache;
 
-            statusStrip = new StatusStrip();
+            BottomStrip = new StatusStrip();
             statusLabel = new ToolStripStatusLabel();
-            statusStrip.Items.Add(statusLabel);
-            statusStrip.Dock = DockStyle.Bottom;
-            this.Controls.Add(statusStrip);
-            statusStrip.BringToFront();
+            BottomStrip.Items.Add(statusLabel);
+            BottomStrip.Dock = DockStyle.Bottom;
+            this.Controls.Add(BottomStrip);
+            BottomStrip.BringToFront();
             // 将 statusStrip 设置为最后一个（最上层显示）
-            this.Controls.SetChildIndex(statusStrip, this.Controls.Count - 1);
+            this.Controls.SetChildIndex(BottomStrip, this.Controls.Count - 1);
 
             statusLabel.Text = "正在加载数据...";
             var statusTimer = new System.Windows.Forms.Timer();
@@ -77,24 +79,10 @@ namespace TaxiManager
             };
             statusTimer.Start();
 
-            // 初始化左侧侧边栏并由 SidebarController 管理（不修改现有控件）
-            try
-            {
-                /*LeftSidebar_ChooseTimePeriod = new LeftSidebar_ChooseTimePeriod();
-                LeftSidebar_ChooseTimePeriod.Title = "筛选";
-                
+            ControlPanel = new(this, GMap);
+            this.Controls.Add(ControlPanel);
 
-                sidebarController = new SidebarController(this, LeftSidebar_ChooseTimePeriod, expandedWidth: 280);
-                //sidebarController.Show();
-                // 窗体关闭时释放 controller
-                this.FormClosed += (s, e) => sidebarController?.Dispose();*/
-            }
-            catch
-            {
-                // 若初始化失败则忽略，保持程序可用
-            }
-
-            SelectRegion.SetGMapControl(gmap);
+            SelectRegion.SetGMapControl(GMap);
         }
     }
 }

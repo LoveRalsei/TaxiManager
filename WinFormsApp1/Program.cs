@@ -1,4 +1,4 @@
-namespace TaxiManager
+namespace TaxiManager.UI
 {
     internal static class Program
     {

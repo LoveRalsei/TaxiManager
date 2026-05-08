@@ -1,6 +1,6 @@
-using TaxiManager.UI;
+using TaxiManager.UI.UI;
 
-namespace TaxiManager
+namespace TaxiManager.UI
 {
     partial class MapForm
     {
@@ -24,15 +24,15 @@ namespace TaxiManager
 
         #region Windows Form Designer generated code
         //控件声明
-        private UI_EnlargeZoomButton _enlargeButton;
-        private UI_ShrinkZoomButton _shrinkButton;
-        private UI_ShowTrackButton _showTrackButton;
-        private UI_RegionSreachButton _regionSreachButton;
+        private UIEnlargeZoomButton _enlargeButton;
+        private UIShrinkZoomButton _shrinkButton;
+        private UIShowTrackButton _showTrackButton;
+        private UIRegionSreachButton _regionSreachButton;
         private UI_RegionCorrelation1AnalyzingButton _regionalCorrelationAnalysis1Button;
         private UI_RegionCorrelation2AnalyzingButton _regionalCorrelationAnalysis2Button;
-        private UI_FrequentPathAnalysis2Button _frequentPathAnalysis2Button;
+        private UIFrequentPathAnalysis2Button _frequentPathAnalysis2Button;
 
-        private UI_DebugShowGMapButton _debugShowGMapButton;
+        private UIDebugShowGMapButton _debugShowGMapButton;
 
 
         /// <summary>
@@ -58,22 +58,22 @@ namespace TaxiManager
         private void InitialiazeCustomButtons()
         {
             //初始化按钮
-            _enlargeButton = new UI_EnlargeZoomButton(gmap, this);
+            _enlargeButton = new UIEnlargeZoomButton(GMap, this);
             _enlargeButton.Initialize();
-            _shrinkButton = new UI_ShrinkZoomButton(gmap, this);
+            _shrinkButton = new UIShrinkZoomButton(GMap, this);
             _shrinkButton.Initialize();
-            _showTrackButton = new UI_ShowTrackButton(gmap, this);
+            _showTrackButton = new UIShowTrackButton(GMap, this);
             _showTrackButton.Initialize();
-            _regionSreachButton = new UI_RegionSreachButton(gmap, this);
+            _regionSreachButton = new UIRegionSreachButton(GMap, this);
             _regionSreachButton.Initialize();
-            _regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(gmap, this);
+            _regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(GMap, this);
             _regionalCorrelationAnalysis1Button.Initialize();
-            _regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(gmap, this);
+            _regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(GMap, this);
             _regionalCorrelationAnalysis2Button.Initialize();
-            _frequentPathAnalysis2Button = new UI_FrequentPathAnalysis2Button(gmap, this);
+            _frequentPathAnalysis2Button = new UIFrequentPathAnalysis2Button(GMap, this);
             _frequentPathAnalysis2Button.Initialize();
 #if DEBUG
-            _debugShowGMapButton = new UI_DebugShowGMapButton(gmap, this);
+            _debugShowGMapButton = new UIDebugShowGMapButton(GMap, this);
             _debugShowGMapButton.Initialize();
 #endif
         }
@@ -82,7 +82,6 @@ namespace TaxiManager
         public void _resetAllButton()
         {
             // 解绑底部按钮的分析函数
-            _showTrackButton.ResetShowTrackButton();
             _regionSreachButton.ResetRegionSearchButton();
             _regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
             _regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
