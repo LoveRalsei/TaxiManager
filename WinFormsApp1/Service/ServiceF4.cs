@@ -31,7 +31,7 @@ namespace TaxiManager.Service
             {
                 var smallTiles = tile.SubTiles;
                 var currDensity = TileDensity.GetCount(smallTiles, time);
-                var prevDensity = TileDensity.GetCount(smallTiles, TileDensity.GetPrevUnitTime(time));
+                var prevDensity = TileDensity.GetCount(smallTiles, TimeUnit.GetPrevUnitTime(time));
                 double densityChange = currDensity - prevDensity;
                 densityChange /= (double)maxDensity;
                 Color? color = null;

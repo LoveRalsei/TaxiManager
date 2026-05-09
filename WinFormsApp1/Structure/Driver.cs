@@ -12,6 +12,7 @@ namespace TaxiManager.Structure
     using PathSupplier = Func<List<PathNode>>;
     public class Driver
     {
+        public static Driver[] Drivers => DataLoader.Drivers;
         /// <summary>
         /// 用于剪枝判断存在范围的瓦片HashSet中，每个瓦片的大小
         /// </summary>

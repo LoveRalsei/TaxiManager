@@ -14,14 +14,9 @@ namespace TaxiManager.Structure
         public static bool IsError => _task?.IsFaulted ?? false;
         public static Exception? Error => _task?.Exception;
 
-        public static readonly TimeSpan UnitTime = TimeSpan.FromMinutes(15);
-        public static DateTime GetPrevUnitTime(DateTime time)
-            => time - UnitTime;
-        public static int GetUnit(DateTime time)
-            => time.Year * 4 * 24 * 31 * 12 + time.Month * 4 * 24 * 31 + time.Day * 4 * 24 + time.Hour * 4 + time.Minute / 15;
         public static void Initialize()
         {
-            _task = Task.Run(() =>
+            _task = DataLoader.ExecuteAfterLoaded(() =>
             {
                 var drivers = DataLoader.Drivers;
                 foreach (var driver in drivers)
@@ -29,7 +24,7 @@ namespace TaxiManager.Structure
                     HashSet<(Tile tile, int unit)> passed = [];
                     foreach (var node in driver.Nodes)
                     {
-                        passed.Add((node.Position.GetTile(), GetUnit(node.Time)));
+                        passed.Add((node.Position.GetTile(), TimeUnit.GetUnit(node.Time)));
                     }
                     foreach (var entry in passed)
                     {
@@ -51,8 +46,10 @@ namespace TaxiManager.Structure
         /// </summary>
         public static int GetCount(List<Tile> tiles, DateTime time)
         {
+            if (!Loaded)
+                MessageBox.Show("数据加载未完成，请稍等……");
             _task?.Wait();
-            int unit = GetUnit(time);
+            int unit = TimeUnit.GetUnit(time);
             int count = 0;
             foreach (var t in tiles)
             {

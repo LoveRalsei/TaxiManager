@@ -25,6 +25,8 @@ namespace TaxiManager
         {
             get
             {
+                if (!Loaded)
+                    MessageBox.Show("数据加载未完成，请稍等……");
                 // 未完成加载时，等待加载完成
                 _loadTask?.Wait();
                 if (Error != null)
@@ -41,6 +43,8 @@ namespace TaxiManager
         public static DateTime TimeMin {
             get
             {
+                if (!Loaded)
+                    MessageBox.Show("数据加载未完成，请稍等……");
                 _loadTask?.Wait();
                 if (Error != null)
                     throw Error;
@@ -51,6 +55,8 @@ namespace TaxiManager
         {
             get
             {
+                if (!Loaded)
+                    MessageBox.Show("数据加载未完成，请稍等……");
                 _loadTask?.Wait();
                 if (Error != null)
                     throw Error;
@@ -251,6 +257,15 @@ namespace TaxiManager
                 }
             });
             TileDensity.Initialize();
+            TileFlow.Initialize();
+        }
+        public static Task ExecuteAfterLoaded(Action action)
+        {
+            return Task.Run(() =>
+            {
+                _loadTask?.Wait();
+                action();
+            });
         }
     }
 }
