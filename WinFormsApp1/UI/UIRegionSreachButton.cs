@@ -18,6 +18,7 @@ namespace TaxiManager.BasicComponent
         public const string KeyF3TTitile = "F3Title";
         public const string KeyChooseTimePeriod = "ChooseTimePeriod";
         public const string KeyResult="RegionSearchResult";
+        public const string KeyRegionSreachButton = "RegionSearchButton";
 
         private SideBarLabel _resultLabel;
 
@@ -73,7 +74,7 @@ namespace TaxiManager.BasicComponent
             registry.Add((KeyResult, _resultLabel));
             SideBarButton button = new("确认查找");
             button.Click += StartSearch;
-            registry.Add(("按钮", button));
+            registry.Add((KeyRegionSreachButton, button));
             
             //throw new NotImplementedException();
         }
