@@ -2,6 +2,7 @@ using GMap.NET;
 using GMap.NET.WindowsForms;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -14,14 +15,24 @@ namespace TaxiManager.BasicComponent
 {
     public partial class UIRegionSreachButton: UIButton
     {
+        public const string KeyF3TTitile = "F3Title";
+        public const string KeyChooseTimePeriod = "ChooseTimePeriod";
+        public const string KeyResult="RegionSearchResult";
+
+        private SideBarLabel _resultLabel;
+
+        private ValueTuple<DateTime, DateTime>? _oldTime=null;
+        private PositionRange? _oldRegion = null;
+
         private Button _regionSreachButton;
 
-        private bool _isRegionSearching = false;
+
+        /*private bool _isRegionSearching = false;
         private bool _isRegionDragging = false;
         private List<PointLatLng> _regionSearchPoints = new List<PointLatLng>();
         private GMapOverlay _regionSearchOverlay = new GMapOverlay("polygons");
         private Point _regionDragStartLocal;
-        private Point _regionDragCurrentLocal;
+        private Point _regionDragCurrentLocal;*/
 
         public UIRegionSreachButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
 
@@ -44,134 +55,61 @@ namespace TaxiManager.BasicComponent
 
         private void OnButtonClick(object sender, EventArgs e)
         {
-            /*
-            if (_isRegionSearching == false)
+            if (_mapForm.ControlPanel.CurrentComponent != this)
             {
                 _mapForm._resetAllButton();
-                _isRegionSearching = true;
-                SelectRegion.InitializeSingleRegionSelection(
-                    _regionSearchOverlay,
-                    _mapRegionMouseDown,
-                    _mapRegionMouseMove,
-                    _mapRegionMouseUp);
-                _regionSreachButton.Text = "区域选择中...";
-                BindBottomButtonToAnalysis(
-                    () => _analyzeRegion(_regionSearchPoints),
-                    () => _regionSearchPoints.Count >= 1,
-                    CleanupRegionSearch);
-                _sidebarController?.Show();
+                _mapForm.ControlPanel.SwitchTo(this);
+                SelectRegion.Instance.StartSelectRegion(1);
             }
             else
             {
-                UnbindBottomButtonAnalysis();
-                ResetRegionSearchButton();
-                _sidebarController?.Hide();
-            }*/
+                _mapForm.ControlPanel.SwitchTo(null);
+            }
+            
         }
 
-        private void CleanupRegionSearch()
-        {
-            _isRegionSearching = false;
-            _isRegionDragging = false;
-            _regionSearchPoints.Clear();
-            try { _gmap.MouseDown -= _mapRegionMouseDown; } catch { }
-            try { _gmap.MouseMove -= _mapRegionMouseMove; } catch { }
-            try { _gmap.MouseUp -= _mapRegionMouseUp; } catch { }
-            _regionSreachButton.Text = "区域范围查找";
-        }
+        
 
         public void ResetRegionSearchButton()
         {
-            _isRegionSearching = false;
-            _isRegionDragging = false;
-            _regionSearchPoints.Clear();
-            SelectRegion.ResetSingleRegionSelection(
-                _regionSearchOverlay,
-                _mapRegionMouseDown,
-                _mapRegionMouseMove,
-                _mapRegionMouseUp);
-            _regionSreachButton.Text = "区域范围查找";
-
-        }
-
-        private void _mapRegionMouseDown(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleSingleRegionMouseDown(
-                _isRegionSearching,
-                _isRegionDragging,
-                out _isRegionDragging,
-                ref _regionDragStartLocal,
-                ref _regionDragCurrentLocal,
-                _regionSearchOverlay,
-                _regionSearchPoints,
-                e);
-        }
-
-        private void _mapRegionMouseMove(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleSingleRegionMouseMove(
-                _isRegionSearching,
-                _isRegionDragging,
-                ref _regionDragCurrentLocal,
-                _regionDragStartLocal,
-                _regionSearchOverlay,
-                Color.Blue,
-                e);
-        }
-
-        private void _mapRegionMouseUp(object sender, MouseEventArgs e)
-        {
-            if (SelectRegion.HandleSingleRegionMouseUp(
-                _isRegionSearching,
-                _isRegionDragging,
-                _regionDragStartLocal,
-                _regionDragCurrentLocal,
-                out _isRegionDragging,
-                out _regionSearchPoints,
-                e))
-            {
-                _regionSreachButton.Text = SelectRegion.GetSingleRegionButtonText(_isRegionSearching, "区域范围查找", _regionSearchPoints);
-            }
-        }
-
-        private void _analyzeRegion(List<PointLatLng> polygonCorners)
-        {
-            /*
-            // TODO: 在这里用 polygonCorners（四个角点经纬度）和时间范围做后续处理或过滤数据
-            // 示例：polygonCorners[0].Lat / .Lng 可直接使用
-            // 示例时间格式： startTime / endTime 为 "yyyy-MM-dd"
-            // 示例
-            // 从4个角点中提取最小和最大经纬度
-            double minLng = polygonCorners.Min(p => p.Lng);
-            double maxLng = polygonCorners.Max(p => p.Lng);
-            double minLat = polygonCorners.Min(p => p.Lat);
-            double maxLat = polygonCorners.Max(p => p.Lat);
-
-            // 转换为 Position（内部单位：经纬度 × 1e5）
-            Position minPos = Position.FromGmap(new PointLatLng(minLat, minLng));
-            Position maxPos = Position.FromGmap(new PointLatLng(maxLat, maxLng));
-
-            // 构建 PositionRange
-            PositionRange range = PositionRange.FromUnsort(minPos, maxPos);
-
-            // 调用 CountDrivers
-            uint count = ((IServiceF3)ServiceF3.Instance).CountDrivers(
-                range,
-                _leftSidebar_ChooseTimePeriod._pickerTo.Value,
-                _leftSidebar_ChooseTimePeriod._pickerFrom.Value
-            );
-
-            MessageBox.Show($"矩形区域内出租车数量：{count}","F3区域范围查找结果");*/
+            SelectRegion.Instance.EndSelectRegion();
         }
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
-            throw new NotImplementedException();
+            _resultLabel = new SideBarLabel("请在地图上选择一个矩形区域", ContentAlignment.MiddleLeft);
+
+            registry.Add((KeyF3TTitile, new SideBarLabel("F3区域范围查找",ContentAlignment.MiddleCenter)));
+            registry.Add((KeyChooseTimePeriod,new SideBarChooseTimePeriod()));
+            registry.Add((KeyResult, _resultLabel));
+            //throw new NotImplementedException();
         }
 
         public override void Update(ControlPanel panel)
         {
-            throw new NotImplementedException();
+            var time = ((ValueTuple<DateTime, DateTime>?)panel.GetItemValue(KeyChooseTimePeriod))!.Value;
+            var region = SelectRegion.Instance.GetOneRegion();
+            if (region == null)
+                return;
+            if (time == _oldTime && region == _oldRegion)
+                return;
+            _oldTime = time;
+            _oldRegion = region;
+
+            DateTime fromTime = time.Item1;
+            DateTime toTime = time.Item2;
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            uint count = IServiceF3.Instance.CountDrivers((PositionRange)region, fromTime, toTime);
+            stopwatch.Stop();
+
+            _resultLabel.SetValue($"查询从\n" +
+                $"{fromTime:MM:dd:HH:mm}到\n" +
+                $"{toTime:MM:dd:HH:mm}\n" +
+                $"期间在选定区域内的出租车数量：\n" +
+                $"{count}\n"+
+                $"耗时：{stopwatch.ElapsedMilliseconds}ms");
+            //throw new NotImplementedException();
         }
     }
 }

@@ -17,14 +17,14 @@ namespace TaxiManager.BasicComponent
         private DateTimePicker? _pickerTo;
 
         public SideBarChooseTimePeriod() : base("选择时段") { }
-
+        //获取用户所选时间段
         public override object? GetValue()
         {
             if (_pickerFrom!.Value >= _pickerTo!.Value)
                 return null;
             return (_pickerFrom!.Value, _pickerTo!.Value);
         }
-
+        //初始化时间选择器
         public override void InitComponents()
         {
 
@@ -37,6 +37,7 @@ namespace TaxiManager.BasicComponent
                 MinDate = MinTime,
                 MaxDate = MaxTime,
                 Height = 28,
+                Width=320,
                 Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 CalendarFont = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
             };
@@ -50,6 +51,7 @@ namespace TaxiManager.BasicComponent
                 MinDate = MinTime,
                 MaxDate = MaxTime,
                 Height = 28,
+                Width = 320,
                 Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point),
                 CalendarFont = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point)
             };

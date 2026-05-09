@@ -82,7 +82,7 @@ namespace TaxiManager.BasicComponent
             ControlPanel = new(this, GMap);
             this.Controls.Add(ControlPanel);
 
-            SelectRegion.SetGMapControl(GMap);
+            SelectRegion.Instance.SetGMapControl(GMap);
         }
     }
 }

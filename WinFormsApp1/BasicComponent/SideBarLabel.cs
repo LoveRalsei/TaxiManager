@@ -7,6 +7,7 @@ using TaxiManager.BasicComponent;
 
 namespace TaxiManager.BasicComponent
 {
+    //侧边栏文本组件
     internal class SideBarLabel : SideBarItem
     {
         private Label _label = new Label
