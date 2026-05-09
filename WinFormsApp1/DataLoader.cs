@@ -250,7 +250,7 @@ namespace TaxiManager
                     _error = error;
                 }
             });
-            TileCount.Initialize();
+            TileDensity.Initialize();
         }
     }
 }

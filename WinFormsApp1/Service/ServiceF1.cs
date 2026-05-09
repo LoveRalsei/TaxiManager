@@ -48,10 +48,9 @@ namespace TaxiManager.Service
 
         private byte GetTileSize(RectLatLng viewArea, Size gmapSize)
         {
-            Rectangle? screen = (Screen.PrimaryScreen?.WorkingArea) ?? throw new Exception("Without window(form)!");
             double meterWidthPixel = viewArea.WidthLng * 1e5 / gmapSize.Width;
             double meterHeightPixel = viewArea.HeightLat * 1e5 / gmapSize.Height;
-            return (byte)Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 15 / 100);
+            return (byte)Math.Max(1, Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 15 / 100));
         }
 
         List<(Tile tile, uint count)> IServiceF1.GetTiles(RectLatLng viewArea, Size gmapSize, DateTime time)

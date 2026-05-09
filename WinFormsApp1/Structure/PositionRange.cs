@@ -10,6 +10,7 @@ namespace TaxiManager.Structure
     public readonly record struct PositionRange
     {
         public readonly Position Min, Max;
+        public List<Position> Corners => [Min, Position.From(Max.X, Min.Y), Max, Position.From(Min.X, Max.Y)];
         public PositionRange(Position min, Position max)
         {
             Min = min;
@@ -20,6 +21,15 @@ namespace TaxiManager.Structure
             From(Position.From(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), Position.From(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y)));
         public readonly bool IsIn(Position pos) =>
             pos.X >= Min.X && pos.X < Max.X && pos.Y >= Min.Y && pos.Y < Max.Y;
+        public bool IsIn(PositionRange other) => IsIn(other.Min) && IsIn(other.Max);
+        public bool IsIntersect(PositionRange other)
+        {
+            var corners = Corners;
+            foreach (var corner in corners)
+                if (other.IsIn(corner))
+                    return true;
+            return false;
+        }
         /// <summary>
         /// 获取这个范围包含的所有瓦片
         /// </summary>
