@@ -26,14 +26,6 @@ namespace TaxiManager.BasicComponent
 
         private Button _regionSreachButton;
 
-
-        /*private bool _isRegionSearching = false;
-        private bool _isRegionDragging = false;
-        private List<PointLatLng> _regionSearchPoints = new List<PointLatLng>();
-        private GMapOverlay _regionSearchOverlay = new GMapOverlay("polygons");
-        private Point _regionDragStartLocal;
-        private Point _regionDragCurrentLocal;*/
-
         public UIRegionSreachButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
 
         public override void Initialize()
@@ -67,8 +59,6 @@ namespace TaxiManager.BasicComponent
             }
             
         }
-
-        
 
         public void ResetRegionSearchButton()
         {

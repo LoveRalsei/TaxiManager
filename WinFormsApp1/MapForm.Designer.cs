@@ -1,4 +1,5 @@
 using TaxiManager.BasicComponent.UI;
+using TaxiManager.UI;
 
 namespace TaxiManager.BasicComponent
 {
@@ -28,6 +29,7 @@ namespace TaxiManager.BasicComponent
         private UIShrinkZoomButton _shrinkButton;
         private UIShowTrackButton _showTrackButton;
         private UIRegionSreachButton _regionSreachButton;
+        private UITrafficFlowAnalysisButton _trafficFlowAnalysisButton;
         private UI_RegionCorrelation1AnalyzingButton _regionalCorrelationAnalysis1Button;
         private UI_RegionCorrelation2AnalyzingButton _regionalCorrelationAnalysis2Button;
         private UIFrequentPathAnalysis2Button _frequentPathAnalysis2Button;
@@ -66,12 +68,14 @@ namespace TaxiManager.BasicComponent
             _showTrackButton.Initialize();
             _regionSreachButton = new UIRegionSreachButton(GMap, this);
             _regionSreachButton.Initialize();
-            _regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(GMap, this);
-            _regionalCorrelationAnalysis1Button.Initialize();
-            _regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(GMap, this);
-            _regionalCorrelationAnalysis2Button.Initialize();
-            _frequentPathAnalysis2Button = new UIFrequentPathAnalysis2Button(GMap, this);
-            _frequentPathAnalysis2Button.Initialize();
+            _trafficFlowAnalysisButton=new UITrafficFlowAnalysisButton(GMap, this);
+            _trafficFlowAnalysisButton.Initialize();
+            //_regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(GMap, this);
+            //_regionalCorrelationAnalysis1Button.Initialize();
+            //_regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(GMap, this);
+            //_regionalCorrelationAnalysis2Button.Initialize();
+            //_frequentPathAnalysis2Button = new UIFrequentPathAnalysis2Button(GMap, this);
+            //_frequentPathAnalysis2Button.Initialize();
 #if DEBUG
             _debugShowGMapButton = new UIDebugShowGMapButton(GMap, this);
             _debugShowGMapButton.Initialize();
