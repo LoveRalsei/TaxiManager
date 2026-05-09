@@ -55,9 +55,9 @@ namespace TaxiManager.BasicComponent
 
         private void OnButtonClick(object sender, EventArgs e)
         {
+            _mapForm.ResetAllButton();
             if (_mapForm.ControlPanel.CurrentComponent != this)
             {
-                _mapForm._resetAllButton();
                 _mapForm.ControlPanel.SwitchTo(this);
                 SelectRegion.Instance.StartSelectRegion(1);
             }
@@ -65,7 +65,6 @@ namespace TaxiManager.BasicComponent
             {
                 _mapForm.ControlPanel.SwitchTo(null);
             }
-            
         }
 
         
@@ -82,12 +81,16 @@ namespace TaxiManager.BasicComponent
             registry.Add((KeyF3TTitile, new SideBarLabel("F3区域范围查找",ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseTimePeriod,new SideBarChooseTimePeriod()));
             registry.Add((KeyResult, _resultLabel));
+            SideBarButton button = new("确认查找");
+            button.Click += StartSearch;
+            registry.Add(("按钮", button));
+            
             //throw new NotImplementedException();
         }
 
-        public override void Update(ControlPanel panel)
+        public virtual void StartSearch()
         {
-            var time = ((ValueTuple<DateTime, DateTime>?)panel.GetItemValue(KeyChooseTimePeriod))!.Value;
+            var time = ((ValueTuple<DateTime, DateTime>?)_mapForm.ControlPanel.GetItemValue(KeyChooseTimePeriod))!.Value;
             var region = SelectRegion.Instance.GetOneRegion();
             if (region == null)
                 return;
@@ -107,9 +110,12 @@ namespace TaxiManager.BasicComponent
                 $"{fromTime:MM:dd:HH:mm}到\n" +
                 $"{toTime:MM:dd:HH:mm}\n" +
                 $"期间在选定区域内的出租车数量：\n" +
-                $"{count}\n"+
+                $"{count}\n" +
                 $"耗时：{stopwatch.ElapsedMilliseconds}ms");
-            //throw new NotImplementedException();
+        }
+
+        public override void Update(ControlPanel panel)
+        {
         }
     }
 }

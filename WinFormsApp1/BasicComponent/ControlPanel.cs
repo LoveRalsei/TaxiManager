@@ -51,10 +51,14 @@ namespace TaxiManager.BasicComponent
 
         private void Update(object? sender, EventArgs e)
         {
+            bool hasResizeDirty = false;
             foreach (var bar in _bars.Values)
             {
                 bar.TickUpdate();
+                hasResizeDirty |= bar.ResizeDirty;
             }
+            if (hasResizeDirty)
+                UpdateLayout();
             _component?.Update(this);
         }
 
@@ -72,6 +76,20 @@ namespace TaxiManager.BasicComponent
             return _bars[itemKey]?.GetValue();
         }
 
+        public void UpdateLayout()
+        {
+            int maxWidth = 0;
+            int yOffset = ItemPaddingHeight;
+            foreach (var bar in _bars.Values)
+            {
+                bar.ResizeDirty = false;
+                maxWidth = Math.Max(maxWidth, bar.Width);
+                bar.Location = new(ItemPaddingWidth, yOffset);
+                yOffset += bar.Height + ItemPaddingHeight;
+            }
+            Width = maxWidth <= 0 ? 0 : maxWidth + ItemPaddingWidth * 2;
+        }
+
         public void SwitchTo(IComponent? component)
         {
             foreach (var bar in _bars.Values)
@@ -80,18 +98,13 @@ namespace TaxiManager.BasicComponent
             _overlay.Clear();
             List<(string, SideBarItem)> registry = [];
             component?.RegisterBars(registry);
-            int maxWidth = 0;
-            int yOffset = ItemPaddingHeight;
             foreach (var entry in registry)
             {
                 var bar = entry.Item2;
-                bar.Location = new(ItemPaddingWidth, yOffset);
-                yOffset += bar.Height + ItemPaddingHeight;
                 this.Controls.Add(bar);
                 this._bars.Add(entry.Item1, entry.Item2);
-                maxWidth = Math.Max(maxWidth, bar.Width);
             }
-            Width = maxWidth <= 0 ? 0 : maxWidth + ItemPaddingWidth * 2;
+            UpdateLayout();
             _component = component;
             _component?.Update(this);
         }

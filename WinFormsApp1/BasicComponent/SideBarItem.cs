@@ -9,6 +9,10 @@ namespace TaxiManager.BasicComponent
     {
         public const int InnerPaddingHeight = 10;
         public string? _text;
+        /// <summary>
+        /// 标志信息，用于更新 ControlPanel 的大小
+        /// </summary>
+        public bool ResizeDirty = false;
         public SideBarItem(string? text)
         {
             _text = text;
@@ -28,6 +32,7 @@ namespace TaxiManager.BasicComponent
                 totalHeight += InnerPaddingHeight * (Controls.Count - 1);
             this.Height = totalHeight;
             this.Width = maxWidth;
+            ResizeDirty = true;
         }
         //根据已有组件的高度和间距来设置新组件的位置，并添加到控件集合中
         public virtual void AddControlComponent(Control control)

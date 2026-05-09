@@ -45,9 +45,9 @@ namespace TaxiManager.BasicComponent.UI
 
         private void OnButtonClick(object? sender, EventArgs e)
         {
+            _mapForm.ResetAllButton();
             if (_mapForm.ControlPanel.CurrentComponent != this)
             {
-                _mapForm._resetAllButton();
                 _mapForm.ControlPanel.SwitchTo(this);
             } else
             {

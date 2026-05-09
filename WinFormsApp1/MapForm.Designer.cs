@@ -79,7 +79,7 @@ namespace TaxiManager.BasicComponent
         }
 
         #endregion
-        public void _resetAllButton()
+        public void ResetAllButton()
         {
             // 解绑底部按钮的分析函数
             _regionSreachButton.ResetRegionSearchButton();
