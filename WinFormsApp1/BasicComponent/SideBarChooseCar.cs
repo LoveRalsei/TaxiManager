@@ -5,12 +5,14 @@ using System.Windows.Forms;
 
 namespace TaxiManager.BasicComponent
 {
+    //选择汽车ID的组件
     public class SideBarChooseCar : SideBarItem
     {
         private TextBox _inputBox;
         private int? _result = null;
 
-        public SideBarChooseCar() : base("点击在输入框内输入汽车ID\n非正数或无效值代表无选择或选择全体") { }
+        public SideBarChooseCar() : base("点击在输入框内输入汽车ID\n" +
+            "非正数或无效值代表无选择或选择全体") { }
 
         public override void InitComponents()
         {
@@ -31,7 +33,7 @@ namespace TaxiManager.BasicComponent
 
             
         }
-
+        // 输入框文本变化时，修改_result
         private void OnInputBoxTextChanged(object? sender, EventArgs e)
         {
             string text = _inputBox.Text.Trim();

@@ -83,9 +83,9 @@ namespace TaxiManager.BasicComponent
         {
             // 解绑底部按钮的分析函数
             _regionSreachButton.ResetRegionSearchButton();
-            _regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
-            _regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
-            _frequentPathAnalysis2Button.ResetFrequentPathAnalysis2Button();
+            //_regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
+            //_regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
+            //_frequentPathAnalysis2Button.ResetFrequentPathAnalysis2Button();
         }
 
     }

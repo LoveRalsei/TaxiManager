@@ -14,7 +14,7 @@ namespace TaxiManager.BasicComponent
             _text = text;
             InitComponents();
         }
-        
+        //根据已有组件的高度和间距来设置当前组件的大小
         public virtual void UpdateSize()
         {
             int totalHeight = 0;
@@ -29,7 +29,7 @@ namespace TaxiManager.BasicComponent
             this.Height = totalHeight;
             this.Width = maxWidth;
         }
-
+        //根据已有组件的高度和间距来设置新组件的位置，并添加到控件集合中
         public virtual void AddControlComponent(Control control)
         {
             int totalHeight = 0;
@@ -41,7 +41,7 @@ namespace TaxiManager.BasicComponent
             Controls.Add(control);
             UpdateSize();
         }
-
+        // 检测并初始化文本组件
         public virtual void InitComponents()
         {
             if (_text != null)

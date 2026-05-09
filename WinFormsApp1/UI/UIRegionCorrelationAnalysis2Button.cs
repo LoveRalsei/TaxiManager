@@ -71,74 +71,74 @@ namespace TaxiManager.BasicComponent
             }*/
         }
 
-        private void CleanupRegionCorrelation2()
-        {
-            _isRegionCorrelation2Analyzing = false;
-            _isRegionCorrelation2Dragging = false;
-            _correlation2RegionPoints.Clear();
-            try { _gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
-            try { _gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
-            try { _gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
-            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
-        }
+        //private void CleanupRegionCorrelation2()
+        //{
+        //    _isRegionCorrelation2Analyzing = false;
+        //    _isRegionCorrelation2Dragging = false;
+        //    _correlation2RegionPoints.Clear();
+        //    try { _gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
+        //    try { _gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
+        //    try { _gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
+        //    _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+        //}
 
-        // 重置区域关联分析2按钮到初始状态（供其他按钮调用）
-        public void ResetCorrelationAnalysis2Button()
-        {
-            _isRegionCorrelation2Analyzing = false;
-            _isRegionCorrelation2Dragging = false;
-            _correlation2RegionPoints.Clear();
-            SelectRegion.ResetSingleRegionSelection(
-                _correlation2RegionOverlay,
-                _mapCorrelation2RegionMouseDown,
-                _mapCorrelation2RegionMouseMove,
-                _mapCorrelation2RegionMouseUp);
-            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+        //// 重置区域关联分析2按钮到初始状态（供其他按钮调用）
+        //public void ResetCorrelationAnalysis2Button()
+        //{
+        //    _isRegionCorrelation2Analyzing = false;
+        //    _isRegionCorrelation2Dragging = false;
+        //    _correlation2RegionPoints.Clear();
+        //    SelectRegion.ResetSingleRegionSelection(
+        //        _correlation2RegionOverlay,
+        //        _mapCorrelation2RegionMouseDown,
+        //        _mapCorrelation2RegionMouseMove,
+        //        _mapCorrelation2RegionMouseUp);
+        //    _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
 
-        }
+        //}
 
-        // 鼠标按下：开始拖拽
-        private void _mapCorrelation2RegionMouseDown(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleSingleRegionMouseDown(
-                _isRegionCorrelation2Analyzing,
-                _isRegionCorrelation2Dragging,
-                out _isRegionCorrelation2Dragging,
-                ref _correlation2DragStartLocal,
-                ref _correlation2DragCurrentLocal,
-                _correlation2RegionOverlay,
-                _correlation2RegionPoints,
-                e);
-        }
+        //// 鼠标按下：开始拖拽
+        //private void _mapCorrelation2RegionMouseDown(object sender, MouseEventArgs e)
+        //{
+        //    SelectRegion.HandleSingleRegionMouseDown(
+        //        _isRegionCorrelation2Analyzing,
+        //        _isRegionCorrelation2Dragging,
+        //        out _isRegionCorrelation2Dragging,
+        //        ref _correlation2DragStartLocal,
+        //        ref _correlation2DragCurrentLocal,
+        //        _correlation2RegionOverlay,
+        //        _correlation2RegionPoints,
+        //        e);
+        //}
 
-        // 鼠标移动：更新临时矩形显示
-        private void _mapCorrelation2RegionMouseMove(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleSingleRegionMouseMove(
-                _isRegionCorrelation2Analyzing,
-                _isRegionCorrelation2Dragging,
-                ref _correlation2DragCurrentLocal,
-                _correlation2DragStartLocal,
-                _correlation2RegionOverlay,
-                Color.Purple,
-                e);
-        }
+        //// 鼠标移动：更新临时矩形显示
+        //private void _mapCorrelation2RegionMouseMove(object sender, MouseEventArgs e)
+        //{
+        //    SelectRegion.HandleSingleRegionMouseMove(
+        //        _isRegionCorrelation2Analyzing,
+        //        _isRegionCorrelation2Dragging,
+        //        ref _correlation2DragCurrentLocal,
+        //        _correlation2DragStartLocal,
+        //        _correlation2RegionOverlay,
+        //        Color.Purple,
+        //        e);
+        //}
 
-        // 鼠标抬起：结束拖拽，固定图形
-        private void _mapCorrelation2RegionMouseUp(object sender, MouseEventArgs e)
-        {
-            if (SelectRegion.HandleSingleRegionMouseUp(
-                _isRegionCorrelation2Analyzing,
-                _isRegionCorrelation2Dragging,
-                _correlation2DragStartLocal,
-                _correlation2DragCurrentLocal,
-                out _isRegionCorrelation2Dragging,
-                out _correlation2RegionPoints,
-                e))
-            {
-                _regionalCorrelationAnalysis2Button.Text = SelectRegion.GetSingleRegionButtonText(_isRegionCorrelation2Analyzing, "区域关联分析2", _correlation2RegionPoints);
-            }
-        }
+        //// 鼠标抬起：结束拖拽，固定图形
+        //private void _mapCorrelation2RegionMouseUp(object sender, MouseEventArgs e)
+        //{
+        //    if (SelectRegion.HandleSingleRegionMouseUp(
+        //        _isRegionCorrelation2Analyzing,
+        //        _isRegionCorrelation2Dragging,
+        //        _correlation2DragStartLocal,
+        //        _correlation2DragCurrentLocal,
+        //        out _isRegionCorrelation2Dragging,
+        //        out _correlation2RegionPoints,
+        //        e))
+        //    {
+        //        _regionalCorrelationAnalysis2Button.Text = SelectRegion.GetSingleRegionButtonText(_isRegionCorrelation2Analyzing, "区域关联分析2", _correlation2RegionPoints);
+        //    }
+        //}
 
         // 区域关联分析2占位函数（暂时为空实现）
         private void _analyze2RegionCorrelation(List<PointLatLng> region, string startTime, string endTime)

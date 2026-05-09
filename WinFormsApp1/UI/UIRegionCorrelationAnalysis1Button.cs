@@ -71,97 +71,97 @@ namespace TaxiManager.BasicComponent
             }*/
         }
 
-        private void CleanupRegionCorrelation1()
-        {
-            _isRegionCorrelation1Analyzing = false;
-            _isRegionCorrelation1Dragging = false;
-            _correlation1RegionPoints.Clear();
-            try { _gmap.MouseDown -= _mapCorrelation1RegionMouseDown; } catch { }
-            try { _gmap.MouseMove -= _mapCorrelation1RegionMouseMove; } catch { }
-            try { _gmap.MouseUp -= _mapCorrelation1RegionMouseUp; } catch { }
-            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
-        }
+        //private void CleanupRegionCorrelation1()
+        //{
+        //    _isRegionCorrelation1Analyzing = false;
+        //    _isRegionCorrelation1Dragging = false;
+        //    _correlation1RegionPoints.Clear();
+        //    try { _gmap.MouseDown -= _mapCorrelation1RegionMouseDown; } catch { }
+        //    try { _gmap.MouseMove -= _mapCorrelation1RegionMouseMove; } catch { }
+        //    try { _gmap.MouseUp -= _mapCorrelation1RegionMouseUp; } catch { }
+        //    _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+        //}
 
-        public void ResetCorrelationAnalysis1Button()
-        {
-            _isRegionCorrelation1Analyzing = false;
-            _isRegionCorrelation1Dragging = false;
-            SelectRegion.ResetMultiRegionSelection(
-                _correlation1RegionOverlay,
-                _correlation1RegionPoints,
-                _mapCorrelation1RegionMouseDown,
-                _mapCorrelation1RegionMouseMove,
-                _mapCorrelation1RegionMouseUp);
-            _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
+        //public void ResetCorrelationAnalysis1Button()
+        //{
+        //    _isRegionCorrelation1Analyzing = false;
+        //    _isRegionCorrelation1Dragging = false;
+        //    SelectRegion.ResetMultiRegionSelection(
+        //        _correlation1RegionOverlay,
+        //        _correlation1RegionPoints,
+        //        _mapCorrelation1RegionMouseDown,
+        //        _mapCorrelation1RegionMouseMove,
+        //        _mapCorrelation1RegionMouseUp);
+        //    _regionalCorrelationAnalysis1Button.Text = "区域关联分析1";
 
-        }
+        //}
 
-        private void _mapCorrelation1RegionMouseDown(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleMultiRegionMouseDown(
-                _isRegionCorrelation1Analyzing,
-                _correlation1RegionPoints.Count,
-                2,
-                _isRegionCorrelation1Dragging,
-                out _isRegionCorrelation1Dragging,
-                ref _correlation1DragStartLocal,
-                ref _correlation1DragCurrentLocal,
-                _correlation1RegionOverlay,
-                _correlation1RegionPoints,
-                _correlation1RegionColors,
-                e);
-        }
+        //private void _mapCorrelation1RegionMouseDown(object sender, MouseEventArgs e)
+        //{
+        //    SelectRegion.HandleMultiRegionMouseDown(
+        //        _isRegionCorrelation1Analyzing,
+        //        _correlation1RegionPoints.Count,
+        //        2,
+        //        _isRegionCorrelation1Dragging,
+        //        out _isRegionCorrelation1Dragging,
+        //        ref _correlation1DragStartLocal,
+        //        ref _correlation1DragCurrentLocal,
+        //        _correlation1RegionOverlay,
+        //        _correlation1RegionPoints,
+        //        _correlation1RegionColors,
+        //        e);
+        //}
 
-        private void _mapCorrelation1RegionMouseMove(object sender, MouseEventArgs e)
-        {
-            SelectRegion.HandleMultiRegionMouseMove(
-                _isRegionCorrelation1Analyzing,
-                _isRegionCorrelation1Dragging,
-                ref _correlation1DragCurrentLocal,
-                _correlation1DragStartLocal,
-                _correlation1RegionOverlay,
-                _correlation1RegionPoints,
-                _correlation1RegionColors,
-                e);
-        }
+        //private void _mapCorrelation1RegionMouseMove(object sender, MouseEventArgs e)
+        //{
+        //    SelectRegion.HandleMultiRegionMouseMove(
+        //        _isRegionCorrelation1Analyzing,
+        //        _isRegionCorrelation1Dragging,
+        //        ref _correlation1DragCurrentLocal,
+        //        _correlation1DragStartLocal,
+        //        _correlation1RegionOverlay,
+        //        _correlation1RegionPoints,
+        //        _correlation1RegionColors,
+        //        e);
+        //}
 
-        private void _mapCorrelation1RegionMouseUp(object sender, MouseEventArgs e)
-        {
-            if (SelectRegion.HandleMultiRegionMouseUp(
-                _isRegionCorrelation1Analyzing,
-                _isRegionCorrelation1Dragging,
-                _correlation1DragStartLocal,
-                _correlation1DragCurrentLocal,
-                _correlation1RegionOverlay,
-                _correlation1RegionPoints,
-                _correlation1RegionColors,
-                2,
-                out _isRegionCorrelation1Analyzing,
-                out _isRegionCorrelation1Dragging,
-                e))
-            {
-                if (_isRegionCorrelation1Analyzing)
-                {
-                    _regionalCorrelationAnalysis1Button.Text = "选择区域2/2...";
-                }
-                else
-                {
-                    _regionalCorrelationAnalysis1Button.Text = "已选2个区域";
-                    SelectRegion.StopMultiRegionSelection(
-                        _mapCorrelation1RegionMouseDown,
-                        _mapCorrelation1RegionMouseMove,
-                        _mapCorrelation1RegionMouseUp);
-                }
-            }
-        }
+        //private void _mapCorrelation1RegionMouseUp(object sender, MouseEventArgs e)
+        //{
+        //    if (SelectRegion.HandleMultiRegionMouseUp(
+        //        _isRegionCorrelation1Analyzing,
+        //        _isRegionCorrelation1Dragging,
+        //        _correlation1DragStartLocal,
+        //        _correlation1DragCurrentLocal,
+        //        _correlation1RegionOverlay,
+        //        _correlation1RegionPoints,
+        //        _correlation1RegionColors,
+        //        2,
+        //        out _isRegionCorrelation1Analyzing,
+        //        out _isRegionCorrelation1Dragging,
+        //        e))
+        //    {
+        //        if (_isRegionCorrelation1Analyzing)
+        //        {
+        //            _regionalCorrelationAnalysis1Button.Text = "选择区域2/2...";
+        //        }
+        //        else
+        //        {
+        //            _regionalCorrelationAnalysis1Button.Text = "已选2个区域";
+        //            SelectRegion.StopMultiRegionSelection(
+        //                _mapCorrelation1RegionMouseDown,
+        //                _mapCorrelation1RegionMouseMove,
+        //                _mapCorrelation1RegionMouseUp);
+        //        }
+        //    }
+        //}
 
-        private void _analyze1RegionCorrelation(List<List<PointLatLng>> regions, string startTime, string endTime)
-        {
-            // TODO: 在这里实现区域关联分析的具体逻辑
-            // regions[0] 和 regions[1] 分别是两个区域的四个角点经纬度
-            // startTime / endTime 为 "yyyy-MM-dd" 格式的时间范围
-            // 示例：regions[0][0].Lat / .Lng 可直接使用
-        }
+        //private void _analyze1RegionCorrelation(List<List<PointLatLng>> regions, string startTime, string endTime)
+        //{
+        //    // TODO: 在这里实现区域关联分析的具体逻辑
+        //    // regions[0] 和 regions[1] 分别是两个区域的四个角点经纬度
+        //    // startTime / endTime 为 "yyyy-MM-dd" 格式的时间范围
+        //    // 示例：regions[0][0].Lat / .Lng 可直接使用
+        //}
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {

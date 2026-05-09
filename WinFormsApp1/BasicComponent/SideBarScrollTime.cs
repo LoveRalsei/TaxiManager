@@ -8,6 +8,7 @@ using TaxiManager;
 
 namespace TaxiManager.BasicComponent
 {
+    //时间滚动条组件
     public class SideBarScrollTime : SideBarItem
     {
 
@@ -114,17 +115,20 @@ namespace TaxiManager.BasicComponent
             _isPlaying = !_isPlaying;
             UpdateButtonIcon();
         }
+        //用户拖动滚动条时，停止播放
         public virtual void OnTimeTrackUserScroll(object? sender, EventArgs e)
         {
             _isPlaying = false;
             UpdateButtonIcon();
         }
+        //滚动条更新时，更新时间选择器的值
         public virtual void OnTimeTrackChanged(object? sender, EventArgs e)
         {
             _curr = MinTime + TimeSpan.FromSeconds(_timeTrack!.Value);
             if (_picker!.Value != _curr)
                 _picker!.Value = _curr;
         }
+        //播放速度滚动条更新时，修改播放速度并更新标签显示
         public virtual void OnSpeedTrackChanged(object? sender, EventArgs e)
         {
             PlaySpeed = TimeSpan.FromMilliseconds(_speedTrack!.Value);
@@ -141,6 +145,7 @@ namespace TaxiManager.BasicComponent
         {
             return _curr;
         }
+        //循环更新方法
         public override void TickUpdate()
         {
             base.TickUpdate();

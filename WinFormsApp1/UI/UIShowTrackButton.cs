@@ -16,6 +16,7 @@ namespace TaxiManager.BasicComponent.UI
 {
     internal class UIShowTrackButton : UIButton
     {
+        public const string KeyF1Title = "F1Title";
         public const string KeyChooseCar = "ChooseCar";
         public const string KeyTimePicker = "TimePicker";
 
@@ -27,7 +28,6 @@ namespace TaxiManager.BasicComponent.UI
 
         public override void Initialize()
         {
-
             _showTrackButton = new Button
             {
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
@@ -47,6 +47,7 @@ namespace TaxiManager.BasicComponent.UI
         {
             if (_mapForm.ControlPanel.CurrentComponent != this)
             {
+                _mapForm._resetAllButton();
                 _mapForm.ControlPanel.SwitchTo(this);
             } else
             {
@@ -154,6 +155,7 @@ namespace TaxiManager.BasicComponent.UI
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
+            registry.Add((KeyF1Title, new SideBarLabel("F1出租车轨迹可视化",ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseCar, new SideBarChooseCar()));
             registry.Add((KeyTimePicker, new SideBarScrollTime()));
         }

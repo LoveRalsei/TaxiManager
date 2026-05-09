@@ -7,6 +7,8 @@ using TaxiManager.BasicComponent;
 
 namespace TaxiManager.BasicComponent
 {
+    //侧边栏组件，负责在地图界面左侧显示各种信息和交互组件。
+    //它会定期更新显示的内容，并且可以根据需要切换不同的组件。
     public class ControlPanel : Control, IDisposable
     {
         public const int TickInterval = 50;
