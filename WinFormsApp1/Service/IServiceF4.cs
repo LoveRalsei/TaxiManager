@@ -14,6 +14,8 @@ namespace TaxiManager.Service
         /// <param name="time"></param>
         /// <param name="maxDensity"></param> 多少密度作为最高密度（红色）
         /// <returns></returns>
-        public Dictionary<Tile, Color> GetDensityChange(RectLatLng viewArea, Size gmapSize, DateTime time, int maxDensity = 50);
+        public Dictionary<Tile, Color> GetDensityChange(RectLatLng viewArea, Size gmapSize, DateTime time);
+
+        public Dictionary<Tile, Color> GetDensityChange(byte tileSize, RectLatLng viewArea, DateTime time);
     }
 }

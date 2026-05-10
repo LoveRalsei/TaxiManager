@@ -1,4 +1,5 @@
-﻿using GMap.NET;
+﻿using System.Diagnostics;
+using GMap.NET;
 using TaxiManager.Structure;
 
 namespace TaxiManager.Service
@@ -24,9 +25,12 @@ namespace TaxiManager.Service
         /// <param name="time"></param>
         /// <param name="maxDensity">多少密度作为最高密度（红色）</param> 
         /// <returns></returns>
-        Dictionary<Tile, Color> IServiceF4.GetDensityChange(RectLatLng viewArea, Size gmapSize, DateTime time, int maxDensity = 50)
+        Dictionary<Tile, Color> IServiceF4.GetDensityChange(RectLatLng viewArea, Size gmapSize, DateTime time)
+            => ((IServiceF4)this).GetDensityChange(GetTileSize(viewArea, gmapSize), viewArea, time);
+
+        Dictionary<Tile, Color> IServiceF4.GetDensityChange(byte tileSize, RectLatLng viewArea, DateTime time)
         {
-            var tileSize = GetTileSize(viewArea, gmapSize);
+            var maxDensity = 0.2f;
             Dictionary<Tile, Color> map = [];
             var tiles = PositionRange.FromGmap(viewArea).GetTiles(tileSize);
             var unit = TimeUnit.GetUnit(time);
@@ -37,14 +41,14 @@ namespace TaxiManager.Service
                 var currDensity = TileDensity.GetCount(smallTiles, unit);
                 var prevDensity = TileDensity.GetCount(smallTiles, prevUnit);
                 double densityChange = Math.Abs(currDensity - prevDensity);
-                densityChange /= (double)maxDensity;
+                densityChange /= maxDensity;
                 Color? color = null;
                 if (densityChange >= 1)
                     color = Color.FromArgb(0x7fff0000);
-                else if (densityChange >= 0.5)
-                    color = Color.FromArgb(0x7fff0000 | (((int)(0xff * (2 - 2 * densityChange))) << 2));
+                else if (densityChange >= 0.2)
+                    color = Color.FromArgb(0x7fff0000 | (((int)(0xff * 0.25 * (5 - 5 * densityChange))) << 2));
                 else if (densityChange > 0)
-                    color = Color.FromArgb(0x7f00ff00 | (((int)(0xff * 2 * densityChange)) << 4));
+                    color = Color.FromArgb(0x7f00ff00 | (((int)(0xff * 5 * densityChange)) << 4));
                 if (color != null)
                     map.Add(tile, color.Value);
             }

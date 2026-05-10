@@ -77,45 +77,36 @@ namespace TaxiManager.Structure
         {
             _task = DataLoader.ExecuteAfterLoaded(() =>
             {
-                List<Task<(Driver driver, Dictionary<(Tile tile, int unit), HashSet<Tile>> map)>> tasks = [];
                 foreach (var driver in DataLoader.Drivers)
                 {
-                    tasks.Add(Task.Run(() =>
+                    Dictionary<(Tile tile, int unit), HashSet<Tile>> movements = [];
+                    Position? lastPosition = null;
+                    int lastUnit = 0;
+                    for (var time = driver.MinExist; time <= driver.MaxExist; time += TimeUnit.UnitTime)
                     {
-                        Dictionary<(Tile tile, int unit), HashSet<Tile>> movements = [];
-                        Position? lastPosition = null;
-                        int lastUnit = 0;
-                        for (var time = driver.MinExist; time <= driver.MaxExist; time += TimeUnit.UnitTime)
+                        var currPosition = driver.GetPosition(time);
+                        if (currPosition == null)
                         {
-                            var currPosition = driver.GetPosition(time);
-                            if (currPosition == null)
-                            {
-                                lastPosition = null;
-                                lastUnit = 0;
-                                continue;
-                            }
-                            int currUnit = TimeUnit.GetUnit(time);
-                            if (lastPosition != null)
-                            {
-                                Tile from = lastPosition.Value.GetTile();
-                                Tile to = currPosition.Value.GetTile();
-                                if (from == to)
-                                    goto breakIf;
-                                var passed = GetTilesOnLine(lastPosition.Value, currPosition.Value);
-                                if (passed.Count > 0)
-                                    movements.Add((from, lastUnit), passed);
-                            }
-                            breakIf:;
-                            lastPosition = currPosition;
-                            lastUnit = currUnit;
+                            lastPosition = null;
+                            lastUnit = 0;
+                            continue;
                         }
-                        return (driver, movements);
-                    }));
-                }
-                Task.WhenAll(tasks).Wait();
-                foreach (var task in tasks)
-                {
-                    _flowMap.Add(task.Result.driver, task.Result.map);
+                        int currUnit = TimeUnit.GetUnit(time);
+                        if (lastPosition != null)
+                        {
+                            Tile from = lastPosition.Value.GetTile();
+                            Tile to = currPosition.Value.GetTile();
+                            if (from == to)
+                                goto breakIf;
+                            var passed = GetTilesOnLine(lastPosition.Value, currPosition.Value);
+                            if (passed.Count > 0)
+                                movements.Add((from, lastUnit), passed);
+                        }
+                        breakIf:; 
+                        lastPosition = currPosition; 
+                        lastUnit = currUnit;
+                    }
+                    _flowMap.Add(driver, movements);
                 }
             });
         }

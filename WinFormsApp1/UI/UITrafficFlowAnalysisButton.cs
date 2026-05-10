@@ -20,6 +20,7 @@ namespace TaxiManager.UI
         public const string KeyChooseTime = "ChooseTime";
         public const string KeyTrafficFlowAnalysisButton = "TrafficFlowAnalysisButton";
         public const string KeyTrafficFlowAnalysisResult = "TrafficFlowAnalysisResult";
+        public const string KeyTrafficFlowAnalysisInput = "TrafficFlowAnalysisInput";
 
         private SideBarLabel _resultLabel;
 
@@ -66,17 +67,26 @@ namespace TaxiManager.UI
         {
             registry.Add((KeyF4Title, new SideBarLabel("F4区域车流密度分析", ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseTime, new SideBarScrollTime()));
+            /*
             SideBarButton button = new("确认查找");
             button.Click += StartAnalysis;
             registry.Add((KeyTrafficFlowAnalysisButton, button));
+            */
+            registry.Add((KeyTrafficFlowAnalysisInput, new SideBarInput("请输入网格大小 (单位: 百米)", "1")));
             _resultLabel = new SideBarLabel("");
             registry.Add((KeyTrafficFlowAnalysisResult, _resultLabel));
         }
+        
+        private string _lastInput = string.Empty;
+        private byte _tileSize = 0;
 
         public void StartAnalysis()
         {
             try
             {
+                if (!TileDensity.Loaded)
+                    return;
+                
                 var totalWatch = Stopwatch.StartNew();
                 
                 var timeObj = _mapForm.ControlPanel.GetItemValue(KeyChooseTime);
@@ -95,12 +105,23 @@ namespace TaxiManager.UI
                     MessageBox.Show("地图尺寸无效，无法分析", "错误");
                     return;
                 }
-                
+
+                var currInput = (string)_mapForm.ControlPanel.GetItemValue(KeyTrafficFlowAnalysisInput)!;
+                if (!_lastInput.Equals(currInput))
+                {
+                    _tileSize = !byte.TryParse(currInput, out var result) ? (byte)0 : result;
+                    if (_tileSize == 0)
+                        MessageBox.Show("请输入正确的网格大小 (1~255)", "确认错误");
+                }
+                _lastInput = currInput;
+                if (_tileSize == 0)
+                    return;
+
                 // UI feedback
                 try { _resultLabel.SetValue("F4: 正在计算..."); } catch { }
 
                 var calMsWatch = Stopwatch.StartNew();
-                var tilesMap = IServiceF4.Instance.GetDensityChange(viewArea, gmapSize, time.Value);
+                var tilesMap = IServiceF4.Instance.GetDensityChange(_tileSize, viewArea, time.Value);
                 long calMs = 0;
                 calMsWatch.Stop();
                 calMs = calMsWatch.ElapsedMilliseconds;
@@ -151,11 +172,18 @@ namespace TaxiManager.UI
             }
         }
 
+        private int _timer = 0;
+        private int _routineTicks = 1;
+
         public override void Update(ControlPanel panel)
         {
-
+            if (_timer++ >= _routineTicks)
+            {
+                _timer = 0;
+                return;
+            }
+            StartAnalysis();
         }
-
 
     }
 }
