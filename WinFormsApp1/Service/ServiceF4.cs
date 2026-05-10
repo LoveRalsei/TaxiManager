@@ -9,6 +9,8 @@ namespace TaxiManager.Service
         
         private byte GetTileSize(RectLatLng viewArea, Size gmapSize)
         {
+            if (gmapSize.Width == 0 || gmapSize.Height == 0)
+                return 1;
             double meterWidthPixel = viewArea.WidthLng * 1e5 / gmapSize.Width;
             double meterHeightPixel = viewArea.HeightLat * 1e5 / gmapSize.Height;
             return (byte)Math.Max(1, Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 15 / 100));
@@ -20,19 +22,21 @@ namespace TaxiManager.Service
         /// <param name="viewArea"></param>
         /// <param name="gmapSize"></param>
         /// <param name="time"></param>
-        /// <param name="maxDensity"></param> 多少密度作为最高密度（红色）
+        /// <param name="maxDensity">多少密度作为最高密度（红色）</param> 
         /// <returns></returns>
         Dictionary<Tile, Color> IServiceF4.GetDensityChange(RectLatLng viewArea, Size gmapSize, DateTime time, int maxDensity = 50)
         {
             var tileSize = GetTileSize(viewArea, gmapSize);
             Dictionary<Tile, Color> map = [];
             var tiles = PositionRange.FromGmap(viewArea).GetTiles(tileSize);
+            var unit = TimeUnit.GetUnit(time);
+            var prevUnit = TimeUnit.GetPrevUnit(unit);
             foreach (var tile in tiles)
             {
                 var smallTiles = tile.SubTiles;
-                var currDensity = TileDensity.GetCount(smallTiles, time);
-                var prevDensity = TileDensity.GetCount(smallTiles, TimeUnit.GetPrevUnitTime(time));
-                double densityChange = currDensity - prevDensity;
+                var currDensity = TileDensity.GetCount(smallTiles, unit);
+                var prevDensity = TileDensity.GetCount(smallTiles, prevUnit);
+                double densityChange = Math.Abs(currDensity - prevDensity);
                 densityChange /= (double)maxDensity;
                 Color? color = null;
                 if (densityChange >= 1)

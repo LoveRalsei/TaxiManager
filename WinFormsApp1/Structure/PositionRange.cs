@@ -36,6 +36,7 @@ namespace TaxiManager.Structure
         public readonly List<Tile> GetTiles(byte tileSize = 1)
         {
             List<Tile> tiles = [];
+            var min = Position.From(Min.X, Min.Y);
             Tile tileA = Min.GetTile(tileSize), tileB = Max.GetTile(tileSize);
             uint xA = tileA.X, yA = tileA.Y, xB = tileB.X, yB = tileB.Y;
             // 当最大点刚好在瓦片边缘时

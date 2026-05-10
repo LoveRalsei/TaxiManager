@@ -148,8 +148,8 @@ namespace TaxiManager.BasicComponent.UI
             });
 
             stopwatch.Stop();
-            Console.WriteLine($"以渲染模式{renderMode}，渲染共{renderTargetCount}个对象\n" +
-                    $"耗时{stopwatch.ElapsedMilliseconds} ms", "F1出租车轨迹可视化绘制完成");
+            //Console.WriteLine($"以渲染模式{renderMode}，渲染共{renderTargetCount}个对象\n" +
+            //        $"耗时{stopwatch.ElapsedMilliseconds} ms", "F1出租车轨迹可视化绘制完成");
             
         }
 

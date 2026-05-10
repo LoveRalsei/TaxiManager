@@ -44,16 +44,21 @@ namespace TaxiManager.Structure
         /// <summary>
         /// 返回瓦片和时间指定的时空段中，存在过的车辆数
         /// </summary>
+        /// <param name="tiles">大小为1的瓦片列表</param>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public static int GetCount(List<Tile> tiles, DateTime time)
+            => GetCount(tiles, TimeUnit.GetUnit(time));
+
+        public static int GetCount(List<Tile> tiles, int timeUnit)
         {
             if (!Loaded)
                 MessageBox.Show("数据加载未完成，请稍等……");
             _task?.Wait();
-            int unit = TimeUnit.GetUnit(time);
             int count = 0;
             foreach (var t in tiles)
             {
-                if (_countMap.TryGetValue((t, unit), out int tileCount))
+                if (_countMap.TryGetValue((t, timeUnit), out int tileCount))
                     count += tileCount;
             }
             return count;

@@ -73,72 +73,77 @@ namespace TaxiManager.UI
             registry.Add((KeyTrafficFlowAnalysisResult, _resultLabel));
         }
 
-        public async void StartAnalysis()
+        public void StartAnalysis()
         {
             try
             {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-
+                var totalWatch = Stopwatch.StartNew();
+                
                 var timeObj = _mapForm.ControlPanel.GetItemValue(KeyChooseTime);
-                DateTime? time = (DateTime?)timeObj;
+                var time = (DateTime?)timeObj;
                 if (time == null)
                 {
                     MessageBox.Show("请在侧边栏选择时间", "提示");
                     return;
                 }
-
+                
                 var viewArea = _mapForm.GMap.ViewArea;
                 var gmapSize = _mapForm.GMap.Size;
-
                 // guard against zero size
                 if (gmapSize.Width == 0 || gmapSize.Height == 0)
                 {
                     MessageBox.Show("地图尺寸无效，无法分析", "错误");
                     return;
                 }
-
+                
                 // UI feedback
                 try { _resultLabel.SetValue("F4: 正在计算..."); } catch { }
 
-                // call service in background
-                var tilesMap = await Task.Run(() => ((IServiceF4)ServiceF4.Instance).GetDensityChange(viewArea, gmapSize, time.Value));
-
+                var calMsWatch = Stopwatch.StartNew();
+                var tilesMap = IServiceF4.Instance.GetDensityChange(viewArea, gmapSize, time.Value);
+                long calMs = 0;
+                calMsWatch.Stop();
+                calMs = calMsWatch.ElapsedMilliseconds;
+                
                 // render on overlay (ControlPanel.ModifyOverlay runs on UI thread)
                 _mapForm.ControlPanel.ModifyOverlay((overlay) =>
                 {
-                    // remove previous F4 visuals
-                    var oldPolys = overlay.Polygons.Where(p => p.Name != null && p.Name.StartsWith("F4Tile_")).ToList();
-                    foreach (var p in oldPolys) overlay.Polygons.Remove(p);
-
+                    var brushCache = new Dictionary<Color, SolidBrush>();
                     // add new polygons
                     foreach (var kv in tilesMap)
                     {
                         var tile = kv.Key;
                         var color = kv.Value;
+
+                        if (!brushCache.TryGetValue(color, out SolidBrush brush))
+                        {
+                            brush = new SolidBrush(color);
+                            brushCache.Add(color, brush);
+                        }
+                        
                         var range = tile.Range;
                         var minPoint = range.Min.ToGmap();
                         var maxPoint = range.Max.ToGmap();
-                        var pts = new List<PointLatLng>
-                        {
-                            minPoint,
-                            new PointLatLng(minPoint.Lat, maxPoint.Lng),
-                            maxPoint,
-                            new PointLatLng(maxPoint.Lat, minPoint.Lng)
-                        };
 
-                        var poly = new GMap.NET.WindowsForms.GMapPolygon(pts, $"F4Tile_{tile.Size}_{tile.X}_{tile.Y}")
+                        var poly = new GMapPolygon([
+                                minPoint,
+                                new PointLatLng(minPoint.Lat, maxPoint.Lng),
+                                maxPoint,
+                                new PointLatLng(maxPoint.Lat, minPoint.Lng)]
+                            , $"F4Tile_{tile.Size}_{tile.X}_{tile.Y}")
                         {
-                            Fill = new SolidBrush(color),
-                            Stroke = new Pen(Color.Transparent, 0)
+                            Fill = brush,
+                            Stroke = Pens.Transparent
                         };
 
                         overlay.Polygons.Add(poly);
                     }
                 });
 
-                stopwatch.Stop();
+                totalWatch.Stop();
                 try { _resultLabel.SetValue($"F4: 渲染完毕，共 {tilesMap.Count} 瓦片\n" +
-                        $"耗时{stopwatch.ElapsedMilliseconds}ms"); } catch { }
+                        $"共耗时{totalWatch.ElapsedMilliseconds}ms\n" + 
+                        $"其中计算耗时{calMs}ms"); } catch { }
             }
             catch (Exception ex)
             {

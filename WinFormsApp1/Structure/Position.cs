@@ -17,7 +17,20 @@ namespace TaxiManager.Structure
         public const uint MinX = 11530000, MaxX = 11760000, MinY = 3940000, MaxY = 4110000;
         public readonly uint X;
         public readonly uint Y;
-        public Position(uint x, uint y) : this() { X = x; Y = y; }
+
+        public Position(uint x, uint y) : this()
+        {
+            if (x < MinX)
+                x = MinX;
+            if (x > MaxX)
+                x = MaxX;
+            if (y < MinY)
+                y = MinY;
+            if (y > MaxY)
+                y = MaxY;
+            X = x; 
+            Y = y;
+        }
         public Position? Lerp(Position? target, float scale)
         {
             return Lerp(this, target, scale);
