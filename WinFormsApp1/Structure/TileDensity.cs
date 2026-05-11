@@ -11,6 +11,7 @@ namespace TaxiManager.Structure
     public class TileDensity
     {
         private readonly static Dictionary<int, Dictionary<Tile, float>> _countMap = [];
+        private readonly static HashSet<Tile> _emptyTiles = [];
         private static Task? _task;
         public static bool Loaded => _task?.IsCompleted ?? false;
         public static bool IsError => _task?.IsFaulted ?? false;
@@ -24,6 +25,7 @@ namespace TaxiManager.Structure
                 Console.WriteLine("Initializing TileDensity");
                 Stopwatch sw = Stopwatch.StartNew();
                 var drivers = DataLoader.Drivers;
+                HashSet<Tile> existTiles = [];
                 foreach (var driver in drivers)
                 {
                     HashSet<(Tile tile, int unit)> passed = [];
@@ -34,6 +36,7 @@ namespace TaxiManager.Structure
                     var eachDensity = 1.0f / passed.Count;
                     foreach (var entry in passed)
                     {
+                        existTiles.Add(entry.tile);
                         if (!_countMap.TryGetValue(entry.unit, out var tileMap))
                         {
                             tileMap = [];
@@ -48,6 +51,10 @@ namespace TaxiManager.Structure
                     }
                 }
                 _countMap.TrimExcess();
+                foreach (var tile in Tile.GetAllTiles().Where(tile => !existTiles.Contains(tile)))
+                {
+                    _emptyTiles.Add(tile);
+                }
                 sw.Stop();
                 Console.WriteLine($"TileDensity Initialized in {sw.ElapsedMilliseconds}ms");
             });
@@ -81,5 +88,8 @@ namespace TaxiManager.Structure
             timeCounter?.Stop();
             return count;
         }
+
+        public static bool IsEmpty(Tile tile)
+            => tile.Size == 1 ? _emptyTiles.Contains(tile) : tile.SubTiles.All(IsEmpty);
     }
 }

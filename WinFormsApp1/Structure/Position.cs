@@ -15,19 +15,13 @@ namespace TaxiManager.Structure
     {
         public const double MinLongitude = 115.3, MaxLongitude = 117.6, MinLatitude = 39.4, MaxLatitude = 41.1;
         public const uint MinX = 11530000, MaxX = 11760000, MinY = 3940000, MaxY = 4110000;
+        public static readonly Position Min = new(MinX, MinY);
+        public static readonly Position Max = new(MaxX, MaxY);
         public readonly uint X;
         public readonly uint Y;
 
         public Position(uint x, uint y) : this()
         {
-            if (x < MinX)
-                x = MinX;
-            if (x > MaxX)
-                x = MaxX;
-            if (y < MinY)
-                y = MinY;
-            if (y > MaxY)
-                y = MaxY;
             X = x; 
             Y = y;
         }
@@ -58,6 +52,17 @@ namespace TaxiManager.Structure
         /// </summary>
         public PositionRaw ToRaw() => PositionRaw.From(X*1e-5, Y*1e-5);
         public PointLatLng ToGmap() => ToRaw().ToGmap();
+
+        public Position ToValid()
+        {
+            var x = X;
+            if (x < MinX) x = MinX;
+            if (x > MaxX) x = MaxX;
+            var y = Y;
+            if (y < MinY) y = MinY;
+            if (y > MaxY) y = MaxY;
+            return From(x, y);
+        }
         public Tile GetTile(byte size = 1) => Tile.From(size, this);
         public static implicit operator Position(PositionRaw raw) => FromRaw(raw);
         public static implicit operator Position(PointLatLng point) => FromGmap(point);
