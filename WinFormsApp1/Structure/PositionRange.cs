@@ -34,24 +34,9 @@ namespace TaxiManager.Structure
         /// 获取这个范围包含的所有瓦片
         /// </summary>
         public readonly List<Tile> GetTiles(byte tileSize = 1)
-        {
-            List<Tile> tiles = [];
-            var min = Position.From(Min.X, Min.Y);
-            Tile tileA = Min.GetTile(tileSize), tileB = Max.GetTile(tileSize);
-            uint xA = tileA.X, yA = tileA.Y, xB = tileB.X, yB = tileB.Y;
-            // 当最大点刚好在瓦片边缘时
-            // tileB会额外包含一个长度的瓦片群
-            // 需要考虑边缘情况，进行剔除
-            var rangeB = tileB.Range;
-            if (Max.X == rangeB.Min.X)
-                xB--;
-            if (Max.Y == rangeB.Min.Y)
-                yB--;
-            for (uint i = xA; i <= xB; i++) for (uint j = yA; j <= yB; j++)
-                    tiles.Add(Tile.From(tileSize, i, j));
-            return tiles;
-        }
+            => Tile.GetTilesIn(tileSize, this);
         public readonly RectLatLng ToGmap() => new(Min, Max - Min);
+        public readonly PositionRange ToValid() => new PositionRange(Min.ToValid(), Max.ToValid());
         public static PositionRange FromGmap(RectLatLng rect) => FromUnsort(rect.LocationTopLeft, rect.LocationRightBottom);
         public static implicit operator PositionRange(RectLatLng rect) => FromGmap(rect);
         public static implicit operator RectLatLng(PositionRange range) => range.ToGmap();

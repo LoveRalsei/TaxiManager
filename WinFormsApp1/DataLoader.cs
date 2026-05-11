@@ -248,14 +248,21 @@ namespace TaxiManager
                 }
             });
             TileDensity.Initialize();
-            TileFlow.Initialize();
+            Flows.Initialize();
         }
         public static Task ExecuteAfterLoaded(Action action)
         {
             return Task.Run(() =>
             {
-                _loadTask?.Wait();
-                action();
+                try
+                {
+                    _loadTask?.Wait();
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
+                }
             });
         }
     }

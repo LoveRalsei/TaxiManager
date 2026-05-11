@@ -71,6 +71,15 @@ namespace TaxiManager.Structure
             X = x;
             Y = y;
         }
+        /// <summary>
+        /// 获得一个起始点相同，大小不同的瓦片
+        /// </summary>
+        public Tile ToSize(byte size)
+        {
+            var thisSize = Size;
+            uint x = X * thisSize / size, y = Y * thisSize / size;
+            return From(size, x, y);
+        }
         public static Tile From(byte size, uint x, uint y) => new(size, x, y);
         public static Tile From(uint x, uint y) => From(1, x, y);
         
@@ -83,24 +92,29 @@ namespace TaxiManager.Structure
 
         public static List<Tile> GetTilesIn(byte tileSize, PositionRange range)
         {
-            List<Tile> list = [];
-            
-            uint length = (uint)(tileSize * 100);
+            var valid = range.ToValid();
+            List<Tile> tiles = [];
+            var min = valid.Min;
+            var max = valid.Max;
+            Tile tileA = min.GetTile(tileSize), tileB = max.GetTile(tileSize);
+            uint xA = tileA.X, yA = tileA.Y, xB = tileB.X, yB = tileB.Y;
+            // 当最大点刚好在瓦片边缘时
+            // tileB会额外包含一个长度的瓦片群
+            // 需要考虑边缘情况，进行剔除
+            var rangeB = tileB.Range;
+            if (max.X == rangeB.Min.X)
+                xB--;
+            if (max.Y == rangeB.Min.Y)
+                yB--;
+            for (uint i = xA; i <= xB; i++) for (uint j = yA; j <= yB; j++)
+                tiles.Add(Tile.From(tileSize, i, j));
+            return tiles;
+        }
 
-            uint startX = (range.Min.X - Position.MinX) / length;
-            uint endX = (range.Max.X - Position.MinX) / length;
-            uint startY = (range.Min.Y - Position.MinY) / length;
-            uint endY = (range.Max.Y - Position.MinY) / length;
-
-            for (uint x = startX; x <= endX; x++)
-            {
-                for (uint y = startY; y <= endY; y++)
-                {
-                    list.Add(From(tileSize, x, y));
-                }
-            }
-
-            return list;
+        public static List<Tile> GetAllTiles(byte tileSize = 1)
+        {
+            var range = PositionRange.From(Position.Min, Position.Max);
+            return GetTilesIn(tileSize, range);
         }
     }
 }
