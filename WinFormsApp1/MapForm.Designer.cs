@@ -70,10 +70,10 @@ namespace TaxiManager
             _regionSreachButton.Initialize();
             _trafficFlowAnalysisButton=new UITrafficFlowAnalysisButton(GMap, this);
             _trafficFlowAnalysisButton.Initialize();
-            //_regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(GMap, this);
-            //_regionalCorrelationAnalysis1Button.Initialize();
-            //_regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(GMap, this);
-            //_regionalCorrelationAnalysis2Button.Initialize();
+            _regionalCorrelationAnalysis1Button = new UI_RegionCorrelation1AnalyzingButton(GMap, this);
+            _regionalCorrelationAnalysis1Button.Initialize();
+            _regionalCorrelationAnalysis2Button = new UI_RegionCorrelation2AnalyzingButton(GMap, this);
+            _regionalCorrelationAnalysis2Button.Initialize();
             //_frequentPathAnalysis2Button = new UIFrequentPathAnalysis2Button(GMap, this);
             //_frequentPathAnalysis2Button.Initialize();
 #if DEBUG
@@ -88,8 +88,8 @@ namespace TaxiManager
             // 解绑底部按钮的分析函数
             _regionSreachButton.ResetRegionSearchButton();
             _trafficFlowAnalysisButton.ResetTrafficFlowAnalysisButton();
-            //_regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
-            //_regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
+            _regionalCorrelationAnalysis1Button.ResetCorrelationAnalysis1Button();
+            _regionalCorrelationAnalysis2Button.ResetCorrelationAnalysis2Button();
             //_frequentPathAnalysis2Button.ResetFrequentPathAnalysis2Button();
         }
 

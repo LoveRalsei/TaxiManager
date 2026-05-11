@@ -6,15 +6,14 @@ namespace TaxiManager.UI
 {
     public class UI_RegionCorrelation2AnalyzingButton : UIButton
     {
+        public const string KeyF6Title = "F6Title";
+        public const string KeyScrollTime = "ScrollTime";
+        public const string KeyResult = "RegionCorrelation2AnalyzingResult";
+
+        private SideBarLabel _resultLabel;
+
         private Button _regionalCorrelationAnalysis2Button;
 
-        // 区域关联分析2相关的成员变量
-        private bool _isRegionCorrelation2Analyzing = false;
-        private bool _isRegionCorrelation2Dragging = false;
-        private List<PointLatLng> _correlation2RegionPoints = new List<PointLatLng>(); // 存储一个区域的点
-        private GMapOverlay _correlation2RegionOverlay = new GMapOverlay("correlation2Polygons");
-        private Point _correlation2DragStartLocal;
-        private Point _correlation2DragCurrentLocal;
 
         public UI_RegionCorrelation2AnalyzingButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
         {
@@ -24,13 +23,16 @@ namespace TaxiManager.UI
         {
             _regionalCorrelationAnalysis2Button = new Button();
 
-            _regionalCorrelationAnalysis2Button.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _regionalCorrelationAnalysis2Button.Location = new Point(466, 464);
-            _regionalCorrelationAnalysis2Button.Name = "_regionalCorrelationAnalysis2Button";
-            _regionalCorrelationAnalysis2Button.Size = new Size(121, 40);
-            _regionalCorrelationAnalysis2Button.TabIndex = 4;
-            _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
-            _regionalCorrelationAnalysis2Button.UseVisualStyleBackColor = true;
+            _regionalCorrelationAnalysis2Button = new Button
+            {
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+                Location = new Point(339, 464),
+                Name = "_regionalCorrelationAnalysis2Button",
+                Size = new Size(121, 40),
+                TabIndex = 5,
+                Text = "区域关联分析2",
+                UseVisualStyleBackColor = true
+            };
             _regionalCorrelationAnalysis2Button.Click += _regionalCorrelationAnalysis2ButtonClick;
 
             _mapForm.Controls.Add(_regionalCorrelationAnalysis2Button);
@@ -39,102 +41,27 @@ namespace TaxiManager.UI
         // 区域关联分析2按钮点击事件
         private void _regionalCorrelationAnalysis2ButtonClick(object sender, EventArgs e)
         {
-            /*
-            if (_isRegionCorrelation2Analyzing == false)
+            _mapForm.ResetAllButton();
+            if (_mapForm.ControlPanel.CurrentComponent != this)
             {
-                _mapForm._resetAllButton();
-                _isRegionCorrelation2Analyzing = true;
-                SelectRegion.InitializeSingleRegionSelection(
-                    _correlation2RegionOverlay,
-                    _mapCorrelation2RegionMouseDown,
-                    _mapCorrelation2RegionMouseMove,
-                    _mapCorrelation2RegionMouseUp);
-                _regionalCorrelationAnalysis2Button.Text = "区域选择中...";
-                BindBottomButtonToAnalysis(
-                    () => _analyze2RegionCorrelation(_correlation2RegionPoints, _leftSidebar_ChooseTimePeriod.StartDateString, _leftSidebar_ChooseTimePeriod.EndDateString),
-                    () => _correlation2RegionPoints.Count >= 4,
-                    CleanupRegionCorrelation2);
-                _sidebarController?.Show();
+                _mapForm.ControlPanel.SwitchTo(this);
+                SelectRegion.Instance.StartSelectTileRegion(1, 1);
             }
             else
             {
-                UnbindBottomButtonAnalysis();
-                ResetCorrelationAnalysis2Button();
-                _sidebarController?.Hide();
-            }*/
+                _mapForm.ControlPanel.SwitchTo(null);
+            }
         }
 
-        //private void CleanupRegionCorrelation2()
-        //{
-        //    _isRegionCorrelation2Analyzing = false;
-        //    _isRegionCorrelation2Dragging = false;
-        //    _correlation2RegionPoints.Clear();
-        //    try { _gmap.MouseDown -= _mapCorrelation2RegionMouseDown; } catch { }
-        //    try { _gmap.MouseMove -= _mapCorrelation2RegionMouseMove; } catch { }
-        //    try { _gmap.MouseUp -= _mapCorrelation2RegionMouseUp; } catch { }
-        //    _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
-        //}
 
-        //// 重置区域关联分析2按钮到初始状态（供其他按钮调用）
-        //public void ResetCorrelationAnalysis2Button()
-        //{
-        //    _isRegionCorrelation2Analyzing = false;
-        //    _isRegionCorrelation2Dragging = false;
-        //    _correlation2RegionPoints.Clear();
-        //    SelectRegion.ResetSingleRegionSelection(
-        //        _correlation2RegionOverlay,
-        //        _mapCorrelation2RegionMouseDown,
-        //        _mapCorrelation2RegionMouseMove,
-        //        _mapCorrelation2RegionMouseUp);
-        //    _regionalCorrelationAnalysis2Button.Text = "区域关联分析2";
+        // 重置区域关联分析2按钮到初始状态（供其他按钮调用）
+        public void ResetCorrelationAnalysis2Button()
+        {
+            SelectRegion.Instance.EndSelectRegion();
 
-        //}
+        }
 
-        //// 鼠标按下：开始拖拽
-        //private void _mapCorrelation2RegionMouseDown(object sender, MouseEventArgs e)
-        //{
-        //    SelectRegion.HandleSingleRegionMouseDown(
-        //        _isRegionCorrelation2Analyzing,
-        //        _isRegionCorrelation2Dragging,
-        //        out _isRegionCorrelation2Dragging,
-        //        ref _correlation2DragStartLocal,
-        //        ref _correlation2DragCurrentLocal,
-        //        _correlation2RegionOverlay,
-        //        _correlation2RegionPoints,
-        //        e);
-        //}
-
-        //// 鼠标移动：更新临时矩形显示
-        //private void _mapCorrelation2RegionMouseMove(object sender, MouseEventArgs e)
-        //{
-        //    SelectRegion.HandleSingleRegionMouseMove(
-        //        _isRegionCorrelation2Analyzing,
-        //        _isRegionCorrelation2Dragging,
-        //        ref _correlation2DragCurrentLocal,
-        //        _correlation2DragStartLocal,
-        //        _correlation2RegionOverlay,
-        //        Color.Purple,
-        //        e);
-        //}
-
-        //// 鼠标抬起：结束拖拽，固定图形
-        //private void _mapCorrelation2RegionMouseUp(object sender, MouseEventArgs e)
-        //{
-        //    if (SelectRegion.HandleSingleRegionMouseUp(
-        //        _isRegionCorrelation2Analyzing,
-        //        _isRegionCorrelation2Dragging,
-        //        _correlation2DragStartLocal,
-        //        _correlation2DragCurrentLocal,
-        //        out _isRegionCorrelation2Dragging,
-        //        out _correlation2RegionPoints,
-        //        e))
-        //    {
-        //        _regionalCorrelationAnalysis2Button.Text = SelectRegion.GetSingleRegionButtonText(_isRegionCorrelation2Analyzing, "区域关联分析2", _correlation2RegionPoints);
-        //    }
-        //}
-
-        // 区域关联分析2占位函数（暂时为空实现）
-        private void _analyze2RegionCorrelation(List<PointLatLng> region, string startTime, string endTime)
+        public void StartAnalysis()
         {
             // TODO: 在这里实现区域关联分析2的具体逻辑（分析一个区域与其他区域的关联）
             // region 是一个区域的四个角点经纬度
@@ -144,12 +71,20 @@ namespace TaxiManager.UI
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
-            throw new NotImplementedException();
+            registry.Add((KeyF6Title, new SideBarLabel("F6区域关联分析2", ContentAlignment.MiddleCenter)));
+            registry.Add((KeyScrollTime, new SideBarScrollTime()));
+            SideBarButton button = new SideBarButton("开始分析");
+            //button.Click += StartAnalysis;
+            //registry.Add((KeyRegionCorrelation2AnalyzingButton, button));
+            //registry.Add((KeyResult, new SideBarLabel("")));
+            //throw new NotImplementedException();
+            _resultLabel = new SideBarLabel("请选择区域");
+            registry.Add((KeyResult, _resultLabel));
         }
 
         public override void Update(ControlPanel panel)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

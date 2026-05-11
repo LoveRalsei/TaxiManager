@@ -17,7 +17,7 @@ namespace TaxiManager.UI
     internal class UITrafficFlowAnalysisButton : UIButton
     {
         public const string KeyF4Title = "F4Title";
-        public const string KeyChooseTime = "ChooseTime";
+        public const string KeyScrollTime = "ScrollTime";
         public const string KeyTrafficFlowAnalysisButton = "TrafficFlowAnalysisButton";
         public const string KeyTrafficFlowAnalysisResult = "TrafficFlowAnalysisResult";
         public const string KeyTrafficFlowAnalysisInput = "TrafficFlowAnalysisInput";
@@ -66,7 +66,7 @@ namespace TaxiManager.UI
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
             registry.Add((KeyF4Title, new SideBarLabel("F4区域车流密度分析", ContentAlignment.MiddleCenter)));
-            registry.Add((KeyChooseTime, new SideBarScrollTime()));
+            registry.Add((KeyScrollTime, new SideBarScrollTime()));
             /*
             SideBarButton button = new("确认查找");
             button.Click += StartAnalysis;
@@ -89,7 +89,7 @@ namespace TaxiManager.UI
                 
                 var totalWatch = Stopwatch.StartNew();
                 
-                var timeObj = _mapForm.ControlPanel.GetItemValue(KeyChooseTime);
+                var timeObj = _mapForm.ControlPanel.GetItemValue(KeyScrollTime);
                 var time = (DateTime?)timeObj;
                 if (time == null)
                 {
