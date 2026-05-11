@@ -10,16 +10,21 @@ namespace TaxiManager.Structure
     {
         private static Task? _task;
         private static readonly Dictionary<Driver, Dictionary<(Tile tile, int unit), HashSet<Tile>>> _flowRawMap = [];
-        private static readonly Dictionary<(Tile tile, int unit), Dictionary<Tile, int>> _flowMap = [];
-        private static readonly Dictionary<(Tile tile, int unit), HashSet<Tile>> _emptyMap = [];
-        private static readonly HashSet<Tile> _emptySet = [];
+        /// <summary>
+        /// 二层字典 Key 为 起点 Tile 的 Map
+        /// </summary>
+        private static readonly Dictionary<int, Dictionary<Tile, Dictionary<Tile, int>>> _flowFromKey = [];
+        /// <summary>
+        /// 二层字典 Key 为 终点 Tile 的 Map
+        /// </summary>
+        private static readonly Dictionary<int, Dictionary<Tile, Dictionary<Tile, int>>> _flowToKey = [];
 
         public static bool Loaded => _task?.IsCompleted ?? false;
 
         /// <summary>
         /// 获取从起点到终点直线经过的所有大小为1的瓦片（不包括起点）
         /// </summary>
-        public static HashSet<Tile> GetTilesOnLine(Position from, Position to)
+        private static HashSet<Tile> GetTilesOnLine(Position from, Position to)
         {
             var tiles = new HashSet<Tile>();
             Position curr = from;
@@ -116,33 +121,69 @@ namespace TaxiManager.Structure
                     // 处理后添加到 _flowMap
                     foreach (var entry in movements)
                     {
-                        if (!_flowMap.TryGetValue(entry.Key, out var flow))
+                        var fromTile = entry.Key.tile;
+                        var unit = entry.Key.unit;
+                        if (!_flowFromKey.TryGetValue(unit, out var flowFromMap))
                         {
-                            flow = new Dictionary<Tile, int>();
-                            _flowMap.Add(entry.Key, flow);
+                            flowFromMap = [];
+                            _flowFromKey.Add(entry.Key.unit, flowFromMap);
                         }
 
-                        foreach (var tile in entry.Value)
+                        if (!_flowToKey.TryGetValue(unit, out var flowToMap))
                         {
-                            if (!flow.TryGetValue(tile, out var count))
-                                count = 0;
-                            flow[tile] = count + 1;
+                            flowToMap = [];
+                            _flowToKey.Add(entry.Key.unit, flowToMap);
+                        }
+
+                        if (!flowFromMap.TryGetValue(fromTile, out var flowFrom))
+                        {
+                            flowFrom = [];
+                            flowFromMap.Add(fromTile, flowFrom);
+                        }
+
+                        foreach (var toTile in entry.Value)
+                        {
+                            var countFrom = flowFrom.GetValueOrDefault(toTile, 0);
+                            flowFrom[toTile] = countFrom + 1;
+
+                            if (!flowToMap.TryGetValue(toTile, out var flowTo))
+                            {
+                                flowTo = [];
+                                flowToMap.Add(toTile, flowTo);
+                            }
+                            var countTo = flowTo.GetValueOrDefault(fromTile, 0);
+                            flowTo[fromTile] = countTo + 1;
+                            
                         }
                     }
                 }
             });
         }
 
-        public static Dictionary<Tile, int> GetFlow(Tile from, int timeUnit)
+        public static Dictionary<Tile, int> GetFlowFrom(Tile from, int timeUnit)
         {
             if (!Loaded)
             {
                 MessageBox.Show("数据未完成预处理");
                 _task?.Wait();
             }
+
             return 
-                _flowMap.TryGetValue((from, timeUnit), out var flows) ? 
-                    flows : [];
+                _flowFromKey.TryGetValue(timeUnit, out var flowFromMap) ? 
+                    flowFromMap.TryGetValue(from, out var flowFrom) ? flowFrom : [] : [];
+        }
+
+        public static Dictionary<Tile, int> GetFlowTo(Tile to, int timeUnit)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            
+            return 
+                _flowToKey.TryGetValue(timeUnit, out var flowToMap) ? 
+                    flowToMap.TryGetValue(to, out var flowTo) ? flowTo : [] : [];
         }
     }
 }

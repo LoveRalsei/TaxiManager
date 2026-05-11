@@ -14,7 +14,7 @@ public class ServiceF5 : IServiceF5
         var unit = TimeUnit.GetUnit(time);
         foreach (var tileA in tilesA)
         {
-            var flows = TileFlow.GetFlow(tileA, unit);
+            var flows = TileFlow.GetFlowFrom(tileA, unit);
             foreach (var tileB in tilesB)
             {
                 if (flows.TryGetValue(tileB, out var flow))
@@ -24,7 +24,7 @@ public class ServiceF5 : IServiceF5
 
         foreach (var tileB in tilesB)
         {
-            var flows = TileFlow.GetFlow(tileB, unit);
+            var flows = TileFlow.GetFlowFrom(tileB, unit);
             foreach (var tileA in tilesA)
             {
                 if (flows.TryGetValue(tileA, out var flow))
