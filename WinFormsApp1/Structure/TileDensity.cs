@@ -21,6 +21,8 @@ namespace TaxiManager.Structure
         {
             _task = DataLoader.ExecuteAfterLoaded(() =>
             {
+                Console.WriteLine("Initializing TileDensity");
+                Stopwatch sw = Stopwatch.StartNew();
                 var drivers = DataLoader.Drivers;
                 foreach (var driver in drivers)
                 {
@@ -46,6 +48,8 @@ namespace TaxiManager.Structure
                     }
                 }
                 _countMap.TrimExcess();
+                sw.Stop();
+                Console.WriteLine($"TileDensity Initialized in {sw.ElapsedMilliseconds}ms");
             });
         }
 

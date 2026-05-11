@@ -71,6 +71,15 @@ namespace TaxiManager.Structure
             X = x;
             Y = y;
         }
+        /// <summary>
+        /// 获得一个起始点相同，大小不同的瓦片
+        /// </summary>
+        public Tile ToSize(byte size)
+        {
+            var thisSize = Size;
+            uint x = X * thisSize / size, y = Y * thisSize / size;
+            return From(size, x, y);
+        }
         public static Tile From(byte size, uint x, uint y) => new(size, x, y);
         public static Tile From(uint x, uint y) => From(1, x, y);
         

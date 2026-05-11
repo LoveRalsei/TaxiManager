@@ -5,16 +5,16 @@ namespace TaxiManager.Service;
 public class ServiceF5 : IServiceF5
 {
     public static readonly ServiceF5 Instance = new ServiceF5();
-    public (int fromAtoB, int fromBtoA) GetFlow(PositionRange rangeA, PositionRange rangeB, DateTime time)
+    public (float fromAtoB, float fromBtoA) GetFlow(PositionRange rangeA, PositionRange rangeB, DateTime time)
     {
         var tilesA = rangeA.GetTiles();
         var tilesB = rangeB.GetTiles().ToHashSet();
-        var flowAtoB = 0;
-        var flowBtoA = 0;
+        var flowAtoB = 0f;
+        var flowBtoA = 0f;
         var unit = TimeUnit.GetUnit(time);
         foreach (var tileA in tilesA)
         {
-            var flows = TileFlow.GetFlowFrom(tileA, unit);
+            var flows = Flows.GetFlowFrom(tileA, unit);
             foreach (var tileB in tilesB)
             {
                 if (flows.TryGetValue(tileB, out var flow))
@@ -24,7 +24,7 @@ public class ServiceF5 : IServiceF5
 
         foreach (var tileB in tilesB)
         {
-            var flows = TileFlow.GetFlowFrom(tileB, unit);
+            var flows = Flows.GetFlowFrom(tileB, unit);
             foreach (var tileA in tilesA)
             {
                 if (flows.TryGetValue(tileA, out var flow))

@@ -17,5 +17,8 @@ namespace TaxiManager.Structure
             => unit + 1;
         public static int GetUnit(DateTime time)
             => (int)(time.Ticks / UnitTime.Ticks);
+
+        public static DateTime GetTime(int unit)
+            => new DateTime(unit * UnitTime.Ticks);
     }
 }
