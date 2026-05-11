@@ -1,17 +1,10 @@
-using GMap.NET;
 using GMap.NET.WindowsForms;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using TaxiManager.BasicComponent;
 using TaxiManager.Service;
 using TaxiManager.Structure;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager.UI
 {
     public partial class UIRegionSreachButton: UIButton
     {

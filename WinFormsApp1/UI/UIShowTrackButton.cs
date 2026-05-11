@@ -1,18 +1,9 @@
-using GMap.NET;
 using GMap.NET.WindowsForms;
-using GMap.NET.WindowsForms.Markers;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaxiManager.BasicComponent.BasicUI;
-using TaxiManager.Service;
 using TaxiManager.BasicComponent;
+using TaxiManager.Service;
 
-namespace TaxiManager.BasicComponent.UI
+namespace TaxiManager.UI
 {
     internal class UIShowTrackButton : UIButton
     {

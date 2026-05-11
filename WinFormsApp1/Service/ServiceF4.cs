@@ -30,7 +30,7 @@ namespace TaxiManager.Service
 
         Dictionary<Tile, Color> IServiceF4.GetDensityChange(byte tileSize, RectLatLng viewArea, DateTime time)
         {
-            var maxDensity = 0.2f;
+            var maxDensity = 0.05f;
             Dictionary<Tile, Color> map = [];
             var tiles = PositionRange.FromGmap(viewArea).GetTiles(tileSize);
             var unit = TimeUnit.GetUnit(time);

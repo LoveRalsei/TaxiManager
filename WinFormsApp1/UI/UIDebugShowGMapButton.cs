@@ -1,13 +1,7 @@
-﻿using GMap.NET;
-using GMap.NET.WindowsForms;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GMap.NET.WindowsForms;
+using TaxiManager.BasicComponent;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager.UI
 {
     internal class UIDebugShowGMapButton : UIButton
     {

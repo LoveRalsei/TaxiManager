@@ -1,4 +1,4 @@
-namespace TaxiManager.BasicComponent
+namespace TaxiManager
 {
     internal static class Program
     {

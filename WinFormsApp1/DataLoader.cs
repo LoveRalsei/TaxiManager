@@ -1,16 +1,5 @@
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using TaxiManager.Structure;
 
 namespace TaxiManager
@@ -140,6 +129,8 @@ namespace TaxiManager
                                 {
                                     continue;
                                 }
+                                longitude += AMapProviderBase.LongitudeOffset;
+                                latitude += AMapProviderBase.LatitudeOffset;
                                 if (!Position.IsValid(longitude, latitude))
                                     continue;
                                 // 如果当前节点和上一个节点的位置相差大于容忍度，则认为是新的有效节点。

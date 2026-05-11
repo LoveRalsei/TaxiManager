@@ -1,6 +1,7 @@
 ﻿using GMap.NET.WindowsForms;
+using TaxiManager.BasicComponent;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager.UI
 {
     internal class UIShrinkZoomButton : UIButton
     {

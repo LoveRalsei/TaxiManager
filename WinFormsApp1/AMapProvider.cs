@@ -1,17 +1,14 @@
 using GMap.NET.MapProviders;
 using GMap.NET.Projections;
 using GMap.NET;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager
 {
     public abstract class AMapProviderBase : GMapProvider
     {
-public AMapProviderBase()
+        public const double LongitudeOffset = 600 * 1e-5;
+        public const double LatitudeOffset = 100 * 1e-5;
+        public AMapProviderBase()
         {
             MaxZoom = null;
             MinZoom = 3;  // 限制最小缩放级别，避免地图太小

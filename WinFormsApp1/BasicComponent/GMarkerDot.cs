@@ -7,7 +7,7 @@ using System.Drawing;
 using GMap.NET;
 using GMap.NET.WindowsForms;
 
-namespace TaxiManager.BasicComponent.BasicUI
+namespace TaxiManager.BasicComponent
 {
     public class GMarkerDot : GMapMarker
     {

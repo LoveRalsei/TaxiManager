@@ -1,9 +1,8 @@
-using GMap.NET.MapProviders;
 using GMap.NET;
 using GMap.NET.WindowsForms;
-using System;
+using TaxiManager.BasicComponent;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager
 {
     public partial class MapForm : Form
     {

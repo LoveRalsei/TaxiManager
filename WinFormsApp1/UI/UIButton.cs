@@ -1,7 +1,7 @@
 ﻿using GMap.NET.WindowsForms;
 using TaxiManager.BasicComponent;
 
-namespace TaxiManager.BasicComponent
+namespace TaxiManager.UI
 {
     public abstract class UIButton : IComponent
     {
