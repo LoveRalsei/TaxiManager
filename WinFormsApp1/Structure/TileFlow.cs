@@ -9,9 +9,12 @@ namespace TaxiManager.Structure
     public class TileFlow
     {
         private static Task? _task;
-        private static readonly Dictionary<Driver, Dictionary<(Tile tile, int unit), HashSet<Tile>>> _flowMap = [];
+        private static readonly Dictionary<Driver, Dictionary<(Tile tile, int unit), HashSet<Tile>>> _flowRawMap = [];
+        private static readonly Dictionary<(Tile tile, int unit), Dictionary<Tile, int>> _flowMap = [];
         private static readonly Dictionary<(Tile tile, int unit), HashSet<Tile>> _emptyMap = [];
         private static readonly HashSet<Tile> _emptySet = [];
+
+        public static bool Loaded => _task?.IsCompleted ?? false;
 
         /// <summary>
         /// 获取从起点到终点直线经过的所有大小为1的瓦片（不包括起点）
@@ -91,6 +94,7 @@ namespace TaxiManager.Structure
                             lastUnit = 0;
                             continue;
                         }
+
                         int currUnit = TimeUnit.GetUnit(time);
                         if (lastPosition != null)
                         {
@@ -102,13 +106,43 @@ namespace TaxiManager.Structure
                             if (passed.Count > 0)
                                 movements.Add((from, lastUnit), passed);
                         }
-                        breakIf:; 
-                        lastPosition = currPosition; 
+
+                        breakIf: ;
+                        lastPosition = currPosition;
                         lastUnit = currUnit;
                     }
-                    _flowMap.Add(driver, movements);
+
+                    _flowRawMap.Add(driver, movements);
+                    // 处理后添加到 _flowMap
+                    foreach (var entry in movements)
+                    {
+                        if (!_flowMap.TryGetValue(entry.Key, out var flow))
+                        {
+                            flow = new Dictionary<Tile, int>();
+                            _flowMap.Add(entry.Key, flow);
+                        }
+
+                        foreach (var tile in entry.Value)
+                        {
+                            if (!flow.TryGetValue(tile, out var count))
+                                count = 0;
+                            flow[tile] = count + 1;
+                        }
+                    }
                 }
             });
+        }
+
+        public static Dictionary<Tile, int> GetFlow(Tile from, int timeUnit)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            return 
+                _flowMap.TryGetValue((from, timeUnit), out var flows) ? 
+                    flows : [];
         }
     }
 }
