@@ -33,8 +33,8 @@ namespace TaxiManager.Service
             var viewRange = PositionRange.FromGmap(viewArea);
             var unit = TimeUnit.GetUnit(time);
             var nextUnit = TimeUnit.GetNextUnit(unit);
-            var densityMap = TileDensity.GetDensity(tileSize, unit);
-            var densityMapNext = TileDensity.GetDensity(tileSize, nextUnit);
+            var densityMap = Density.GetDensity(tileSize, unit);
+            var densityMapNext = Density.GetDensity(tileSize, nextUnit);
             foreach (var (tile, density) in densityMap)
             {
                 if (!viewRange.IsIn(tile.Index)) continue;
@@ -44,6 +44,15 @@ namespace TaxiManager.Service
                 if (densityChange > 0)
                     map.Add(tile, service.GetHotColor(densityChange, 0.2f));
             }
+            /*
+            //临时 Debug 显示路径点用
+            map.Clear();
+            foreach (var (tile, flow) in Paths.FlowsTotal)
+            {
+                if (flow > 1.2)
+                    map.Add(tile, service.GetHotColor(flow / 3f, 0.2f));
+            }
+            */
             return map;
         }
     }

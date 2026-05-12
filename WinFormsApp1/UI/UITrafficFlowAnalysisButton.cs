@@ -87,7 +87,7 @@ namespace TaxiManager.UI
         {
             try
             {
-                if (!TileDensity.Loaded)
+                if (!Density.Loaded)
                     return;
                 
                 var totalWatch = Stopwatch.StartNew();

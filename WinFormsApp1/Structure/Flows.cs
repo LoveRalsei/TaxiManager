@@ -78,13 +78,11 @@ namespace TaxiManager.Structure
                 }
             }
             
-            foreach (var entry in driversFrom)
+            foreach (var (driver, fromPos) in driversFrom)
             {
-                var driver = entry.Key;
                 if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
-                if (range.IsIn(toPos)) continue;
-                
-                var fromPos = entry.Value;
+                if (range.IsIn(toPos) || fromPos.GetTile() == toPos.GetTile()) continue;
+
                 var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 1);
                 if (passed.Count == 0) continue;
                 
@@ -133,13 +131,11 @@ namespace TaxiManager.Structure
                     driversTo.Add(driver, position);
             }
 
-            foreach (var entry in driversTo)
+            foreach (var (driver, toPos) in driversTo)
             {
-                var driver = entry.Key;
-                if (!unitMap.TryGetValue(driver, out Position fromPos)) continue;
-                if (to.IsIn(fromPos)) continue;
-                
-                var toPos = entry.Value;
+                if (!unitMap.TryGetValue(driver, out var fromPos)) continue;
+                if (to.IsIn(fromPos) || fromPos.GetTile() == toPos.GetTile()) continue;
+
                 var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 2);
                 if (passed.Count == 0)
                     continue;
@@ -183,6 +179,7 @@ namespace TaxiManager.Structure
             {
                 if (!unitMap.TryGetValue(driver, out var fromPos)) continue;
                 if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
+                if (fromPos.GetTile() == toPos.GetTile()) continue;
                 var isAtoB = rangeA.IsIn(fromPos) && rangeB.IsIn(toPos);
                 var isBtoA = !isAtoB && rangeB.IsIn(fromPos) && rangeA.IsIn(toPos);
                 var flowDensity = 1f;
@@ -209,9 +206,10 @@ namespace TaxiManager.Structure
         /// <param name="rangeB"></param>
         /// <param name="unitFrom"></param>
         /// <param name="unitTo"></param>
+        /// <param name="unitStep"></param>
         /// <returns></returns>
         public static (int fromAtoB, int fromBtoA) GetFlowPeriod(PositionRange rangeA, PositionRange rangeB, 
-            int unitFrom, int unitTo)
+            int unitFrom, int unitTo, int unitStep = 1)
         {
             if (!Loaded)
             {
@@ -232,7 +230,7 @@ namespace TaxiManager.Structure
              * 2: 从B出发（已进入过B）
              */
             Dictionary<Driver, int> states = [];
-            for (var unit = unitFrom; unit <= unitTo; unit++, currMap = nextMap )
+            for (var unit = unitFrom; unit <= unitTo; unit += unitStep, currMap = nextMap )
             {
                 nextMap = _positions.GetValueOrDefault(unit, _emptyMap);
                 if (currMap.Count == 0 || nextMap.Count == 0) continue;

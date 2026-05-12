@@ -32,7 +32,7 @@ namespace TaxiManager.Structure
         public bool IsValid() => IsValid(this);
         public static bool IsValid(Position? position) => position != null && IsValid(position.Value.X, position.Value.Y);
         public static bool IsValid(double longitude, double latitude) => IsValid(FromRaw(longitude, latitude));
-        public static bool IsValid(uint x, uint y) => x >= MinX && x <= MaxX && y >= MinY && y <= MaxY;
+        public static bool IsValid(uint x, uint y) => x is >= MinX and <= MaxX && y is >= MinY and <= MaxY;
         public static Position? Lerp(Position? from, Position? to, float scale)
         {
             if (from == null && to == null) return null;

@@ -2,15 +2,16 @@
 
 namespace TaxiManager.Structure
 {
-    public class TileDensity
+    public static class Density
     {
-        private readonly static Dictionary<int, Dictionary<Tile, float>> _countMap = [];
-        private readonly static HashSet<Tile> _emptyTiles = [];
+        private static readonly Dictionary<int, Dictionary<Tile, float>> _countMap = [];
+        private static readonly HashSet<Tile> _emptyTiles = [];
         private static Task? _task;
         public static bool Loaded => _task?.IsCompleted ?? false;
         public static bool IsError => _task?.IsFaulted ?? false;
         public static Exception? Error => _task?.Exception;
         public static float MaxDensity { get; private set; }
+        public static Action ExecuteAfterLoadedList;
 
         public static void Initialize()
         {
@@ -52,31 +53,48 @@ namespace TaxiManager.Structure
                 sw.Stop();
                 Console.WriteLine($"TileDensity Initialized in {sw.ElapsedMilliseconds}ms");
             });
+            _task.ContinueWith(_ => ExecuteAfterLoadedList?.Invoke());
         }
+        
+        public static Task ExecuteAfterLoaded(Action action)
+            => _task!.ContinueWith(task => action());
+        
 
-        public static Dictionary<Tile, float> GetDensity(byte tileSize, int timeUnit, Stopwatch? timeCounter = null)
+        public static void RecordDensity(Dictionary<Tile, float> record, byte tileSize, int timeUnit,
+            Stopwatch? timeCounter = null)
         {
-            if (tileSize == 1)
-                return GetDensity(timeUnit, timeCounter);
             if (!Loaded)
             {
                 MessageBox.Show("数据加载未完成，请稍等……");
                 _task?.Wait();
             }
             timeCounter?.Start();
-            Dictionary<Tile, float> densityMap = [];
+            //Dictionary<Tile, float> record = [];
             if (!_countMap.TryGetValue(timeUnit, out var tileMap))
-                return densityMap;
+                return;
             foreach (var (t, density) in tileMap)
             {
                 var tile = t.ToSize(tileSize);
-                densityMap[tile] = densityMap.GetValueOrDefault(tile, 0) + density;
+                record[tile] = record.GetValueOrDefault(tile, 0) + density;
             }
             timeCounter?.Stop();
-            return densityMap;
         }
 
-        public static Dictionary<Tile, float> GetDensity(int timeUnit, Stopwatch? timeCounter = null)
+        public static Dictionary<Tile, float> GetDensity(byte tileSize, int timeUnit, Stopwatch? timeCounter = null)
+        {
+            if (tileSize == 1)
+                return GetDensity(timeUnit);
+            if (!Loaded)
+            {
+                MessageBox.Show("数据加载未完成，请稍等……");
+                _task?.Wait();
+            }
+            var record = new Dictionary<Tile, float>();
+            RecordDensity(record, tileSize, timeUnit, timeCounter);
+            return record;
+        }
+
+        public static Dictionary<Tile, float> GetDensity(int timeUnit)
         {
             if (!Loaded)
             {

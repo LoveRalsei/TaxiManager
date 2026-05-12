@@ -82,7 +82,7 @@ namespace TaxiManager.Service
             for (int unit = startUnit; unit <= endUnit; unit += sampleInterval)
             {
                 // 从TileDensity获取该时间点的密度分布
-                if (!TileDensity.Loaded)
+                if (!Density.Loaded)
                     continue;
 
                 var timeFlows = GetTimeSliceFlows(unit);

@@ -202,6 +202,7 @@ namespace TaxiManager
             {
                 try
                 {
+                    Console.WriteLine("Start loading data...");
                     var firstTime = DateTime.Now;
                     List<Driver> drivers = [];
                     List<Task<Driver?>> entryLoaders = [];
@@ -241,14 +242,18 @@ namespace TaxiManager
                     _timeMin = minTime;
                     _timeMax = maxTime;
                     _loadTotalMs = (long)(DateTime.Now - firstTime).TotalMilliseconds;
+                    Console.WriteLine(
+                        $"Loaded {_loadedCount} drivers, {_driversCount} valid drivers, {_rawDriversCount} raw drivers, {_drivers.Length} drivers, {_drivers.Sum(driver => driver.Nodes.Count)} nodes");
                 }
                 catch (Exception error)
                 {
+                    Console.Error.WriteLine(error);
                     _error = error;
                 }
             });
-            TileDensity.Initialize();
+            Density.Initialize();
             Flows.Initialize();
+            Paths.Initialize();
         }
         public static Task ExecuteAfterLoaded(Action action)
         {

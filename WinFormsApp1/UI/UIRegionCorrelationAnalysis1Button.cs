@@ -66,7 +66,7 @@ namespace TaxiManager.UI
         {
             registry.Add((KeyF5Title, new SideBarLabel("F5区域关联分析1", ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseTimePeriod, new SideBarChooseTimePeriod()));
-            SideBarButton button = new SideBarButton("开始分析");
+            var button = new SideBarButton("开始分析");
             button.Click += StartAnalysis;
             registry.Add((KeyRegionCorrelation1AnalyzingButton, button));
             _resultLabel = new SideBarLabel("");
@@ -75,7 +75,7 @@ namespace TaxiManager.UI
 
         public void StartAnalysis()
         {
-            var regions = SelectRegion.Instance.GetTileRegions();
+            var regions = SelectRegion.Instance.GetRegions();
             if (regions.Count != 2)
                 return;
 
