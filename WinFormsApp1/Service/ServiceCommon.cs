@@ -191,5 +191,71 @@ namespace TaxiManager.Service
             return 3; // 默认返回12，可根据具体需求调整
             
         }
+
+        public Color GetHotColor(float percent, float yellowPercent = 0.5f)
+        {
+            if (percent <= 0)
+                return Color.FromArgb(0x7f00ff2f);
+            if (percent >= 1)
+                return Color.FromArgb(0x7fff002f);
+            if (percent <= yellowPercent)
+                return Color.FromArgb(0x7f00ff2f | (((int)(0xff * percent / yellowPercent)) << 16));
+            return Color.FromArgb(0x7fff002f | (((int)(0xff * (1 - percent) / (1 - yellowPercent))) << 8));
+        }
+
+        public List<Tile> GetTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments = 0)
+        {
+            var tiles = new List<Tile>();
+
+            var fromTile = from.GetTile(tileSize);
+            var toTile = to.GetTile(tileSize);
+            
+            int startX = (int)fromTile.X;
+            int startY = (int)fromTile.Y;
+            int endX = (int)toTile.X;
+            int endY = (int)toTile.Y;
+            
+            int dx = Math.Abs(endX - startX);
+            int dy = Math.Abs(endY - startY);
+            int sx = (startX < endX) ? 1 : -1;
+            int sy = (startY < endY) ? 1 : -1;
+            int err = dx - dy;
+            
+            int x = startX, y = startY;
+            
+            while (true)
+            {
+                if (ignoreArguments is 0 or 2)
+                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                
+                int e2 = 2 * err;
+                if (e2 >= -dx)
+                {
+                    x += sx;
+                    err -= dy;
+                }
+                if (e2 <= dy)
+                {
+                    err += dx;
+                    y += sy;
+                }
+                
+                if (ignoreArguments == 1)
+                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                
+                if (x == endX && y == endY)
+                {
+                    if (ignoreArguments == 0)
+                        tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                    break;
+                } 
+                if (ignoreArguments == 3)
+                {
+                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                }
+            }
+
+            return tiles;
+        }
     }
 }

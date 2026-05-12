@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace TaxiManager.Structure
 {
@@ -60,33 +54,37 @@ namespace TaxiManager.Structure
             });
         }
 
-        /// <summary>
-        /// 返回瓦片和时间指定的时空段中，存在过的车辆数
-        /// </summary>
-        /// <param name="tiles">大小为1的瓦片列表</param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static float GetCount(List<Tile> tiles, DateTime time)
-            => GetCount(tiles, TimeUnit.GetUnit(time));
-
-        public static float GetCount(List<Tile> tiles, int timeUnit, Stopwatch? timeCounter = null)
+        public static Dictionary<Tile, float> GetDensity(byte tileSize, int timeUnit, Stopwatch? timeCounter = null)
         {
+            if (tileSize == 1)
+                return GetDensity(timeUnit, timeCounter);
             if (!Loaded)
             {
                 MessageBox.Show("数据加载未完成，请稍等……");
                 _task?.Wait();
             }
             timeCounter?.Start();
-            float count = 0f;
+            Dictionary<Tile, float> densityMap = [];
             if (!_countMap.TryGetValue(timeUnit, out var tileMap))
-                return 0;
-            foreach (var t in tiles)
+                return densityMap;
+            foreach (var (t, density) in tileMap)
             {
-                if (tileMap.TryGetValue(t, out float density))
-                    count += density;
+                var tile = t.ToSize(tileSize);
+                densityMap[tile] = densityMap.GetValueOrDefault(tile, 0) + density;
             }
             timeCounter?.Stop();
-            return count;
+            return densityMap;
+        }
+
+        public static Dictionary<Tile, float> GetDensity(int timeUnit, Stopwatch? timeCounter = null)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据加载未完成，请稍等……");
+                _task?.Wait();
+            }
+
+            return _countMap.GetValueOrDefault(timeUnit, []);
         }
 
         public static bool IsEmpty(Tile tile)

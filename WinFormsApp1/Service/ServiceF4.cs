@@ -27,28 +27,22 @@ namespace TaxiManager.Service
         Dictionary<Tile, Color> IServiceF4.GetDensityChange(byte tileSize, RectLatLng viewArea, DateTime time)
         {
             const float maxDensity = 0.02f;
+            var service = IServiceCommon.Instance;
             Dictionary<Tile, Color> map = [];
-            var tiles = PositionRange.FromGmap(viewArea).GetTiles(tileSize);
+            
+            var viewRange = PositionRange.FromGmap(viewArea);
             var unit = TimeUnit.GetUnit(time);
-            var prevUnit = TimeUnit.GetPrevUnit(unit);
-            foreach (var tile in tiles)
+            var nextUnit = TimeUnit.GetNextUnit(unit);
+            var densityMap = TileDensity.GetDensity(tileSize, unit);
+            var densityMapNext = TileDensity.GetDensity(tileSize, nextUnit);
+            foreach (var (tile, density) in densityMap)
             {
-                if (TileDensity.IsEmpty(tile))
-                    continue;
-                var smallTiles = tile.SubTiles;
-                var currDensity = TileDensity.GetCount(smallTiles, unit);
-                var prevDensity = TileDensity.GetCount(smallTiles, prevUnit);
-                double densityChange = Math.Abs(currDensity - prevDensity);
+                if (!viewRange.IsIn(tile.Index)) continue;
+                if (!densityMapNext.TryGetValue(tile, out var densityNext)) continue;
+                var densityChange = Math.Abs(density - densityNext);
                 densityChange /= maxDensity;
-                Color? color = null;
-                if (densityChange >= 1)
-                    color = Color.FromArgb(0x7fdf0000);
-                else if (densityChange >= 0.2)
-                    color = Color.FromArgb(0x7fdf0000 | (((int)(0xdf * 0.25 * (5 - 5 * densityChange))) << 8));
-                else if (densityChange > 0)
-                    color = Color.FromArgb(0x7f00df00 | (((int)(0xdf * 5 * densityChange)) << 16));
-                if (color != null)
-                    map.Add(tile, color.Value);
+                if (densityChange > 0)
+                    map.Add(tile, service.GetHotColor(densityChange, 0.2f));
             }
             return map;
         }

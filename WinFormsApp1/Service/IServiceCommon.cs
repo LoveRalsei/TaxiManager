@@ -29,5 +29,13 @@ namespace TaxiManager.Service
         /// - 21: 先经过range2，再经过range1
         /// </returns>
         public abstract int CheckLinePassThroughTwoRanges(Position a, Position b, PositionRange range1, PositionRange range2);
+
+        public abstract Color GetHotColor(float percent, float yellowPercent = 0.5f);
+
+        /// <summary>
+        /// 获取从起点到终点直线经过的所有大小为1的瓦片
+        /// </summary>
+        /// <param name="ignoreArguments">0: 无忽略, 1: 忽略头, 2: 忽略尾, 3: 忽略头尾</param>
+        public abstract List<Tile> GetTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments = 0);
     }
 }
