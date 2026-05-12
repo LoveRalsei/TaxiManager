@@ -3,29 +3,29 @@ using TaxiManager.BasicComponent;
 
 namespace TaxiManager.UI
 {
-    public partial class UIFrequentPathAnalysis2Button : UIButton
+    public partial class UICommunicationTimeAnalysisButton : UIButton
     {
-        public const string KeyF8Title = "F8Title";
+        public const string KeyF9Title = "F9Title";
 
-        private Button _frequentPathAnalysis2Button;
+        private Button _communicationTimeAnalysisButton;
 
-        public UIFrequentPathAnalysis2Button(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
+        public UICommunicationTimeAnalysisButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
 
         public override void Initialize()
         {
-            _frequentPathAnalysis2Button = new Button
+            _communicationTimeAnalysisButton = new Button
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(760, 310),
-                Name = "_frequentPathAnalysis2Button",
+                Location = new Point(760, 360),
+                Name = "_communicationTimeAnalysisButton",
                 Size = new Size(121, 40),
-                TabIndex = 7,
-                Text = "频繁路径分析2",
+                TabIndex = 8,
+                Text = "通信时间分析",
                 UseVisualStyleBackColor = true
             };
-            _frequentPathAnalysis2Button.Click += OnButtonClick;
+            _communicationTimeAnalysisButton.Click += OnButtonClick;
 
-            _mapForm.Controls.Add(_frequentPathAnalysis2Button);
+            _mapForm.Controls.Add(_communicationTimeAnalysisButton);
         }
 
         private void OnButtonClick(object? sender, EventArgs e)
@@ -42,14 +42,14 @@ namespace TaxiManager.UI
             }
         }
 
-        public void ResetFrequentPathAnalysis2Button()
+        public void ResetCommunicationTimeAnalysisButton()
         {
             SelectRegion.Instance.EndSelectRegion();
         }
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
-            registry.Add((KeyF8Title, new SideBarLabel("F8频繁路径分析2", ContentAlignment.MiddleCenter)));
+            registry.Add((KeyF9Title, new SideBarLabel("F9通信时间分析", ContentAlignment.MiddleCenter)));
         }
 
         public override void Update(ControlPanel panel)
@@ -58,7 +58,7 @@ namespace TaxiManager.UI
 
         public void StartAnalysis()
         {
-            // TODO: 实现频繁路径分析2的具体逻辑
+            // TODO: 实现通信时间分析的具体逻辑
         }
     }
 }

@@ -3,29 +3,29 @@ using TaxiManager.BasicComponent;
 
 namespace TaxiManager.UI
 {
-    public partial class UIFrequentPathAnalysis2Button : UIButton
+    public partial class UIFrequentPathAnalysis1Button : UIButton
     {
-        public const string KeyF8Title = "F8Title";
+        public const string KeyF7Title = "F7Title";
 
-        private Button _frequentPathAnalysis2Button;
+        private Button _frequentPathAnalysis1Button;
 
-        public UIFrequentPathAnalysis2Button(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
+        public UIFrequentPathAnalysis1Button(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
 
         public override void Initialize()
         {
-            _frequentPathAnalysis2Button = new Button
+            _frequentPathAnalysis1Button = new Button
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(760, 310),
-                Name = "_frequentPathAnalysis2Button",
+                Location = new Point(760, 260),
+                Name = "_frequentPathAnalysis1Button",
                 Size = new Size(121, 40),
-                TabIndex = 7,
-                Text = "频繁路径分析2",
+                TabIndex = 6,
+                Text = "频繁路径分析1",
                 UseVisualStyleBackColor = true
             };
-            _frequentPathAnalysis2Button.Click += OnButtonClick;
+            _frequentPathAnalysis1Button.Click += OnButtonClick;
 
-            _mapForm.Controls.Add(_frequentPathAnalysis2Button);
+            _mapForm.Controls.Add(_frequentPathAnalysis1Button);
         }
 
         private void OnButtonClick(object? sender, EventArgs e)
@@ -34,7 +34,6 @@ namespace TaxiManager.UI
             if (_mapForm.ControlPanel.CurrentComponent != this)
             {
                 _mapForm.ControlPanel.SwitchTo(this);
-                SelectRegion.Instance.StartSelectRegion(2);
             }
             else
             {
@@ -42,14 +41,14 @@ namespace TaxiManager.UI
             }
         }
 
-        public void ResetFrequentPathAnalysis2Button()
+        public void ResetFrequentPathAnalysis1Button()
         {
-            SelectRegion.Instance.EndSelectRegion();
+            // no-op for now
         }
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
-            registry.Add((KeyF8Title, new SideBarLabel("F8频繁路径分析2", ContentAlignment.MiddleCenter)));
+            registry.Add((KeyF7Title, new SideBarLabel("F7频繁路径分析1", ContentAlignment.MiddleCenter)));
         }
 
         public override void Update(ControlPanel panel)
@@ -58,7 +57,7 @@ namespace TaxiManager.UI
 
         public void StartAnalysis()
         {
-            // TODO: 实现频繁路径分析2的具体逻辑
+            // TODO: 实现频繁路径分析1的具体逻辑
         }
     }
 }

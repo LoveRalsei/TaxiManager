@@ -18,7 +18,7 @@ namespace TaxiManager.UI
             _debugShowGmapButton = new Button
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(750, 20),
+                Location = new Point(760, 10),
                 Name = "_regionSreachButton",
                 Size = new Size(121, 40),
                 TabIndex = 2,

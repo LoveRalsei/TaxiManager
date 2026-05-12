@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace TaxiManager.UI
 {
-    internal class UITrafficFlowAnalysisButton : UIButton
+    public partial class UITrafficFlowAnalysisButton : UIButton
     {
         public const string KeyF4Title = "F4Title";
         public const string KeyScrollTime = "ScrollTime";
@@ -26,14 +26,17 @@ namespace TaxiManager.UI
 
         private Button _trafficFlowAnalysisButton;
 
+        private int _timer = 0;
+        private int _routineTicks = 1;
+
         public UITrafficFlowAnalysisButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm) { }
 
         public override void Initialize()
         {
             _trafficFlowAnalysisButton = new Button
             {
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                Location = new Point(593, 464),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(760, 110),
                 Name = "_trafficFlowAnalysisButton",
                 Size = new Size(121, 40),
                 TabIndex = 3,
@@ -172,8 +175,6 @@ namespace TaxiManager.UI
             }
         }
 
-        private int _timer = 0;
-        private int _routineTicks = 1;
 
         public override void Update(ControlPanel panel)
         {

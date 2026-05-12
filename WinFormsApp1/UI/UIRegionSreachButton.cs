@@ -8,7 +8,7 @@ namespace TaxiManager.UI
 {
     public partial class UIRegionSreachButton: UIButton
     {
-        public const string KeyF3TTitile = "F3Title";
+        public const string KeyF3Titile = "F3Title";
         public const string KeyChooseTimePeriod = "ChooseTimePeriod";
         public const string KeyResult="RegionSearchResult";
         public const string KeyRegionSreachButton = "RegionSearchButton";
@@ -26,8 +26,8 @@ namespace TaxiManager.UI
         {
             _regionSreachButton = new Button
             {
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                Location = new Point(720, 464),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(760, 60),
                 Name = "_regionSreachButton",
                 Size = new Size(121, 40),
                 TabIndex = 2,
@@ -62,7 +62,7 @@ namespace TaxiManager.UI
         {
             _resultLabel = new SideBarLabel("请在地图上选择一个矩形区域", ContentAlignment.MiddleLeft);
 
-            registry.Add((KeyF3TTitile, new SideBarLabel("F3区域范围查找",ContentAlignment.MiddleCenter)));
+            registry.Add((KeyF3Titile, new SideBarLabel("F3区域范围查找",ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseTimePeriod,new SideBarChooseTimePeriod()));
             registry.Add((KeyResult, _resultLabel));
             SideBarButton button = new("确认查找");

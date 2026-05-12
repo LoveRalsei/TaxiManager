@@ -1,11 +1,12 @@
 using GMap.NET;
 using GMap.NET.WindowsForms;
+using System.Diagnostics;
 using TaxiManager.BasicComponent;
 using TaxiManager.Service;
 
 namespace TaxiManager.UI
 {
-    public partial class UI_RegionCorrelation1AnalyzingButton : UIButton
+    public partial class UIRegionCorrelation1AnalyzingButton : UIButton
     {
         public const string KeyF5Title = "F5Title";
         public const string KeyChooseTimePeriod = "ChooseTimePeriod";
@@ -17,7 +18,7 @@ namespace TaxiManager.UI
         private Button _regionalCorrelationAnalysis1Button;
 
         
-        public UI_RegionCorrelation1AnalyzingButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
+        public UIRegionCorrelation1AnalyzingButton(GMapControl gmap, MapForm mapForm) : base(gmap, mapForm)
         {
         }
 
@@ -25,8 +26,8 @@ namespace TaxiManager.UI
         {
             _regionalCorrelationAnalysis1Button = new Button
             {
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                Location = new Point(466, 464),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(760, 160),
                 Name = "_regionalCorrelationAnalysis1Button",
                 Size = new Size(121, 40),
                 TabIndex = 4,
@@ -44,7 +45,7 @@ namespace TaxiManager.UI
             if (_mapForm.ControlPanel.CurrentComponent != this)
             {
                 _mapForm.ControlPanel.SwitchTo(this);
-                SelectRegion.Instance.StartSelectTileRegion(1, 2);
+                SelectRegion.Instance.StartSelectRegion(2);
             }
             else
             {
@@ -63,7 +64,7 @@ namespace TaxiManager.UI
 
         public override void RegisterBars(List<(string key, SideBarItem item)> registry)
         {
-            registry.Add((KeyF5Title, new SideBarLabel("F5区域关联分析1")));
+            registry.Add((KeyF5Title, new SideBarLabel("F5区域关联分析1", ContentAlignment.MiddleCenter)));
             registry.Add((KeyChooseTimePeriod, new SideBarChooseTimePeriod()));
             SideBarButton button = new SideBarButton("开始分析");
             button.Click += StartAnalysis;
@@ -82,11 +83,14 @@ namespace TaxiManager.UI
             
             
             //MessageBox.Show("分析函数未完成");
+            Stopwatch stopwatch = Stopwatch.StartNew();
             var (fromAtoB, fromBtoA) = IServiceF5.Instance.GetFlow(regions[0], regions[1], time.Item1, time.Item2);
+            stopwatch.Stop();
 
             _resultLabel.SetValue($"区域关联分析结果：\n" +
                 $"A→B 流量: {fromAtoB}\n" +
-                $"B→A 流量: {fromBtoA}");
+                $"B→A 流量: {fromBtoA}\n" +
+                $"耗时：{stopwatch.ElapsedMilliseconds}ms");
         }
 
         public override void Update(ControlPanel panel)
