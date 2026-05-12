@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TaxiManager.Service;
 
 namespace TaxiManager.Structure
 {
@@ -235,6 +236,8 @@ namespace TaxiManager.Structure
                 MessageBox.Show("数据未完成预处理");
                 _task?.Wait();
             }
+
+            var service = IServiceCommon.Instance;
             
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
             var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
@@ -267,6 +270,13 @@ namespace TaxiManager.Structure
         public static (int fromAtoB, int fromBtoA) GetFlow(PositionRange rangeA, PositionRange rangeB, 
             int unitFrom, int unitTo)
         {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            
+            var service = ServiceCommon.Instance;
             int fromAtoB = 0;
             int fromBtoA = 0;
             
@@ -275,63 +285,59 @@ namespace TaxiManager.Structure
             /**
              * 记录每个司机的状态
              * 0: 未开始
-             * 1: 从A出发
-             * 2: 从B出发
+             * 1: 从A出发（已进入过A）
+             * 2: 从B出发（已进入过B）
              */
             Dictionary<Driver, int> states = [];
             for (var unit = unitFrom; unit <= unitTo; unit++, currMap = nextMap )
             {
                 nextMap = _positions.GetValueOrDefault(unit, _emptyMap);
                 if (currMap.Count == 0 || nextMap.Count == 0) continue;
-                Console.WriteLine($"Unit {unit}");
+                
                 foreach (var entry in currMap)
                 {
                     var driver = entry.Key;
                     if (!nextMap.TryGetValue(driver, out var toPos)) continue;
                     var fromPos = entry.Value;
                     if (fromPos.GetTile() == toPos.GetTile()) continue;
-                    if (!MaybeCross(fromPos, toPos, rangeA) && !MaybeCross(fromPos, toPos, rangeB)) continue;
-                    //var delta = toPos - fromPos;
-                    //Console.WriteLine($"Driver {driver.Id} from {fromPos} to {toPos} in {unit} with delta {delta}");
-                    var passed = GetTilesOnLine(1, fromPos, toPos, 0);
-                    if (passed.Count == 0) continue;
+                    
+                    // 如果广义范围都和A、B范围不相交，就跳过
+                    var maybeRange = PositionRange.FromUnsort(fromPos, toPos);
+                    if (!maybeRange.IsIntersect(rangeA) && !maybeRange.IsIntersect(rangeB)) continue;
+                    
+                    // 使用新的几何计算方法判断线段是否经过两个范围及顺序
+                    var result = service.CheckLinePassThroughTwoRanges(fromPos, toPos, rangeA, rangeB);
+                    
                     var state = states.GetValueOrDefault(driver, 0);
-                    var alreadyPassed = 0;
-                    foreach (var tile in passed)
+                    
+                    // 根据返回值处理不同情况
+                    switch (result)
                     {
-                        switch (state)
-                        {
-                            case 0:
-                                if (rangeA.IsIn(tile.Index))
-                                {
-                                    state = 1;
-                                    alreadyPassed++;
-                                }
-                                else if (rangeB.IsIn(tile.Index)) 
-                                {
-                                    state = 2;
-                                    alreadyPassed++;
-                                }
-                                break;
-                            case 1:
-                                if (rangeB.IsIn(tile.Index))
-                                {
-                                    state = 2;
-                                    fromAtoB++;
-                                    alreadyPassed++;
-                                }
-                                break;
-                            case 2:
-                                if (rangeA.IsIn(tile.Index))
-                                {
-                                    state = 1;
-                                    fromBtoA++;
-                                    alreadyPassed++;
-                                }
-                                break;
-                        }
-                        if (alreadyPassed == 2) break;
+                        case 3: // 先经过range1(A)，再经过range2(B)
+                            if (state is 0 or 1)
+                            {
+                                fromAtoB++;
+                                state = 2; // 标记已完成A->B
+                            }
+                            break;
+                        case 4: // 先经过range2(B)，再经过range1(A)
+                            if (state is 0 or 2)
+                            {
+                                fromBtoA++;
+                                state = 1; // 标记已完成B->A
+                            }
+                            break;
+                        case 1: // 只经过rangeA
+                            if (state == 0)
+                                state = 1;
+                            break;
+                        case 2: // 只经过rangeB
+                            if (state == 0)
+                                state = 2;
+                            break;
+                        // case 0: 不经过任何范围，不做处理
                     }
+                    
                     if (state != 0)
                         states[driver] = state;
                 }

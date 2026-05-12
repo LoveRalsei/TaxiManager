@@ -25,10 +25,7 @@ namespace TaxiManager.Structure
         public bool IsIntersect(PositionRange other)
         {
             var corners = Corners;
-            foreach (var corner in corners)
-                if (other.IsIn(corner))
-                    return true;
-            return false;
+            return corners.Any(other.IsIn);
         }
         /// <summary>
         /// 获取这个范围包含的所有瓦片
