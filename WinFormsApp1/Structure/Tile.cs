@@ -31,6 +31,23 @@ namespace TaxiManager.Structure
             readonly get => (ushort)(_data & 0xFFF);
             set => _data = _data & 0xfffff000 | value & 0xfff;
         }
+
+        public Position Index {
+            get
+            {
+                uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
+                return Position.From(x, y);
+            }
+        }
+
+        public Position Edge
+        {
+            get
+            {
+                uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
+                return Position.From(x + length, y + length);
+            }
+        }
         public readonly PositionRange Range
         {
             get

@@ -81,12 +81,12 @@ namespace TaxiManager.UI
             var time = ((ValueTuple<DateTime, DateTime>?)_mapForm.ControlPanel.GetItemValue(KeyChooseTimePeriod))!.Value;
             
             
-            MessageBox.Show("分析函数未完成");
-            //var (fromAtoB, fromBtoA) = IServiceF5.Instance.GetFlow(regions[0], regions[1], time.Item1);
+            //MessageBox.Show("分析函数未完成");
+            var (fromAtoB, fromBtoA) = IServiceF5.Instance.GetFlow(regions[0], regions[1], time.Item1, time.Item2);
 
-            //_resultLabel.SetValue($"区域关联分析结果：\n" +
-            //    $"A→B 流量: {fromAtoB}\n" +
-            //    $"B→A 流量: {fromBtoA}");
+            _resultLabel.SetValue($"区域关联分析结果：\n" +
+                $"A→B 流量: {fromAtoB}\n" +
+                $"B→A 流量: {fromBtoA}");
         }
 
         public override void Update(ControlPanel panel)

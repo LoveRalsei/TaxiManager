@@ -72,5 +72,10 @@ namespace TaxiManager.Structure
         public static Position operator -(Position position, SizeLatLng offset) => 
             (position.ToRaw() - offset).ToMeter();
         public static SizeLatLng operator -(Position a, Position b) => a.ToRaw() - b.ToRaw();
+
+        public override string ToString()
+        {
+            return $"[{X},{Y}]";
+        }
     }
 }

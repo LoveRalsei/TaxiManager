@@ -41,7 +41,7 @@ namespace TaxiManager.Structure
             int err = dx - dy;
             
             int x = startX, y = startY;
-
+            
             while (true)
             {
                 if (ignoreArguments is 0 or 2)
@@ -76,7 +76,22 @@ namespace TaxiManager.Structure
 
             return tiles;
         }
-        
+
+        private static bool MaybeCross(Position from, Position to, PositionRange range)
+        {
+            uint fromX = from.X, fromY = from.Y, toX = to.X, toY = to.Y;
+            var min = range.Min;
+            var max = range.Max;
+            if (Math.Max(fromX, toX) < min.X)
+                return false;
+            if (Math.Max(fromY, toY) < min.Y)
+                return false;
+            if (Math.Min(fromX, toX) > max.X)
+                return false;
+            if (Math.Min(fromY, toY) > max.Y)
+                return false;
+            return true;
+        }
         
         public static void Initialize()
         {
@@ -96,7 +111,7 @@ namespace TaxiManager.Structure
                     {
                         var position = driver.GetPosition(time);
                         if (position != null)
-                            unitMap.Add(driver, position.Value);
+                            unitMap[driver] = position.Value;
                     }
                 }
                 sw.Stop();
@@ -106,11 +121,13 @@ namespace TaxiManager.Structure
 
         /// <summary>
         /// 获得某个时间点，从 from Tile 出发的所有流
+        /// 需要注意的是，这些流包括了路过的瓦片的值，而不只是作为终点的值
+        /// 其流量会比 GetFlow(rangeA, rangeB, timeUnit) 更大
         /// </summary>
         /// <param name="from"></param>
         /// <param name="timeUnit"></param>
         /// <returns></returns>
-        public static Dictionary<Tile, float> GetFlowFrom(Tile from, int timeUnit)
+        public static Dictionary<Tile, float> GetFlowFrom(PositionRange range, int timeUnit)
         {
             if (!Loaded)
             {
@@ -118,41 +135,39 @@ namespace TaxiManager.Structure
                 _task?.Wait();
             }
 
-            var tileSize = from.Size;
+            byte tileSize = 1;
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
             var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
-            Dictionary<Driver, Position> driversFrom = [];
-            Dictionary<Driver, Position> driversTo = [];
             
+            Dictionary<Driver, Position> driversFrom = [];
             Dictionary<Tile, float> flows = [];
             
             foreach (var driver in DataLoader.Drivers)
             {
-                if (unitMap.TryGetValue(driver, out Position position))
-                    if (position.GetTile(tileSize) == from)
-                        driversFrom.Add(driver, position);
+                if (!unitMap.TryGetValue(driver, out var position)) continue;
+                if (range.IsIn(position))
+                {
+                    driversFrom.Add(driver, position);
+                }
             }
-
+            
             foreach (var entry in driversFrom)
             {
                 var driver = entry.Key;
-                if (unitNextMap.TryGetValue(driver, out Position toPos))
+                if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
+                if (range.IsIn(toPos)) continue;
+                
+                var fromPos = entry.Value;
+                var passed = GetTilesOnLine(tileSize, fromPos, toPos, 1);
+                if (passed.Count == 0) continue;
+                
+                var flowDensity = 1.0f / passed.Count;
+                foreach (var toTile in passed)
                 {
-                    if (Tile.From(tileSize, toPos) == from)
-                        continue;
-                    var fromPos = entry.Value;
-                    var passed = GetTilesOnLine(tileSize, fromPos, toPos, 1);
-                    if (passed.Count == 0)
-                        continue;
-                    var flowDensity = 1.0f / passed.Count;
-                    foreach (var toTile in passed)
-                    {
-                        if (flows.TryGetValue(toTile, out var flow))
-                            flows[toTile] += flowDensity;
-                        else
-                            flows.Add(toTile, flowDensity);
-                    }
-                    
+                    if (flows.TryGetValue(toTile, out var flow))
+                        flows[toTile] += flowDensity;
+                    else
+                        flows.Add(toTile, flowDensity);
                 }
             }
 
@@ -161,11 +176,13 @@ namespace TaxiManager.Structure
 
         /// <summary>
         /// 获得某个时间点，到 to Tile 的所有流
+        /// 需要注意的是，这些流包括了路过的瓦片的值，而不只是作为终点的值
+        /// 其流量会比 GetFlow(rangeA, rangeB, timeUnit) 更大
         /// </summary>
         /// <param name="to"></param>
         /// <param name="timeUnit"></param>
         /// <returns></returns>
-        public static Dictionary<Tile, float> GetFlowTo(Tile to, int timeUnit)
+        public static Dictionary<Tile, float> GetFlowTo(PositionRange to, int timeUnit)
         {
             if (!Loaded)
             {
@@ -173,44 +190,155 @@ namespace TaxiManager.Structure
                 _task?.Wait();
             }
             
-            var tileSize = to.Size;
+            byte tileSize = 1;
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
             var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
-            Dictionary<Driver, Position> driversFrom = [];
             Dictionary<Driver, Position> driversTo = [];
             
             Dictionary<Tile, float> flows = [];
             
             foreach (var driver in DataLoader.Drivers)
             {
-                if (unitNextMap.TryGetValue(driver, out Position position))
-                    if (position.GetTile(tileSize) == to)
-                        driversTo.Add(driver, position);
+                if (!unitNextMap.TryGetValue(driver, out var position)) continue;
+                if (to.IsIn(position))
+                    driversTo.Add(driver, position);
             }
 
             foreach (var entry in driversTo)
             {
                 var driver = entry.Key;
-                if (unitMap.TryGetValue(driver, out Position fromPos))
+                if (!unitMap.TryGetValue(driver, out Position fromPos)) continue;
+                if (to.IsIn(fromPos)) continue;
+                
+                var toPos = entry.Value;
+                var passed = GetTilesOnLine(tileSize, fromPos, toPos, 2);
+                if (passed.Count == 0)
+                    continue;
+                var flowDensity = 1.0f / passed.Count;
+                foreach (var fromTile in passed)
                 {
-                    if (Tile.From(tileSize, fromPos) == to)
-                        continue;
-                    var toPos = entry.Value;
-                    var passed = GetTilesOnLine(tileSize, fromPos, toPos, 2);
-                    if (passed.Count == 0)
-                        continue;
-                    var flowDensity = 1.0f / passed.Count;
-                    foreach (var fromTile in passed)
-                    {
-                        if (flows.TryGetValue(fromTile, out var flow))
-                            flows[fromTile] += flowDensity;
-                        else
-                            flows.Add(fromTile, flowDensity);
-                    }
+                    if (flows.TryGetValue(fromTile, out var flow))
+                        flows[fromTile] += flowDensity;
+                    else
+                        flows.Add(fromTile, flowDensity);
                 }
             }
 
             return flows;
         }
+
+        public static (float fromAtoB, float fromBtoA) GetFlowFromTo(PositionRange rangeA, PositionRange rangeB,
+            int timeUnit)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            
+            var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
+            var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
+
+            float fromAtoB = 0;
+            float fromBtoA = 0;
+            foreach (var driver in DataLoader.Drivers)
+            {
+                if (!unitMap.TryGetValue(driver, out var fromPos)) continue;
+                if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
+                var isAtoB = rangeA.IsIn(fromPos) && rangeB.IsIn(toPos);
+                var isBtoA = !isAtoB && rangeB.IsIn(fromPos) && rangeA.IsIn(toPos);
+                var flowDensity = 1f;
+                if (isAtoB || isBtoA)
+                {
+                    var passed = GetTilesOnLine(1, fromPos, toPos, 1);
+                    if (passed.Count == 0) continue;
+                    var toRange = isAtoB? rangeB : rangeA;
+                    var passedInTo = passed.Count(toTile => toRange.IsIn(toTile.Index));
+                    flowDensity = (float)passedInTo / passed.Count;
+                }
+                if (isAtoB)
+                    fromAtoB += flowDensity;
+                else if (isBtoA)
+                    fromBtoA += flowDensity;
+            }
+            return (fromAtoB, fromBtoA);
+        }
+
+        public static (int fromAtoB, int fromBtoA) GetFlow(PositionRange rangeA, PositionRange rangeB, 
+            int unitFrom, int unitTo)
+        {
+            int fromAtoB = 0;
+            int fromBtoA = 0;
+            
+            var currMap = _positions.GetValueOrDefault(unitFrom, _emptyMap);
+            Dictionary<Driver, Position> nextMap = [];
+            /**
+             * 记录每个司机的状态
+             * 0: 未开始
+             * 1: 从A出发
+             * 2: 从B出发
+             */
+            Dictionary<Driver, int> states = [];
+            for (var unit = unitFrom; unit <= unitTo; unit++, currMap = nextMap )
+            {
+                nextMap = _positions.GetValueOrDefault(unit, _emptyMap);
+                if (currMap.Count == 0 || nextMap.Count == 0) continue;
+                Console.WriteLine($"Unit {unit}");
+                foreach (var entry in currMap)
+                {
+                    var driver = entry.Key;
+                    if (!nextMap.TryGetValue(driver, out var toPos)) continue;
+                    var fromPos = entry.Value;
+                    if (fromPos.GetTile() == toPos.GetTile()) continue;
+                    if (!MaybeCross(fromPos, toPos, rangeA) && !MaybeCross(fromPos, toPos, rangeB)) continue;
+                    //var delta = toPos - fromPos;
+                    //Console.WriteLine($"Driver {driver.Id} from {fromPos} to {toPos} in {unit} with delta {delta}");
+                    var passed = GetTilesOnLine(1, fromPos, toPos, 0);
+                    if (passed.Count == 0) continue;
+                    var state = states.GetValueOrDefault(driver, 0);
+                    var alreadyPassed = 0;
+                    foreach (var tile in passed)
+                    {
+                        switch (state)
+                        {
+                            case 0:
+                                if (rangeA.IsIn(tile.Index))
+                                {
+                                    state = 1;
+                                    alreadyPassed++;
+                                }
+                                else if (rangeB.IsIn(tile.Index)) 
+                                {
+                                    state = 2;
+                                    alreadyPassed++;
+                                }
+                                break;
+                            case 1:
+                                if (rangeB.IsIn(tile.Index))
+                                {
+                                    state = 2;
+                                    fromAtoB++;
+                                    alreadyPassed++;
+                                }
+                                break;
+                            case 2:
+                                if (rangeA.IsIn(tile.Index))
+                                {
+                                    state = 1;
+                                    fromBtoA++;
+                                    alreadyPassed++;
+                                }
+                                break;
+                        }
+                        if (alreadyPassed == 2) break;
+                    }
+                    if (state != 0)
+                        states[driver] = state;
+                }
+            }
+            return (fromAtoB, fromBtoA);
+        }
+        
+        
     }
 }
