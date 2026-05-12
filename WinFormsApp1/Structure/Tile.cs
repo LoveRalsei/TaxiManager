@@ -133,5 +133,6 @@ namespace TaxiManager.Structure
             var range = PositionRange.From(Position.Min, Position.Max);
             return GetTilesIn(tileSize, range);
         }
+        public override string ToString() => $"{X},{Y},{Size}";
     }
 }

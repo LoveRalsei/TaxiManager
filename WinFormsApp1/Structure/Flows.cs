@@ -17,82 +17,6 @@ namespace TaxiManager.Structure
         private static readonly Dictionary<int, Dictionary<Driver, Position>> _positions = [];
 
         private static readonly Dictionary<Driver, Position> _emptyMap = [];
-
-
-        /// <summary>
-        /// 获取从起点到终点直线经过的所有大小为1的瓦片
-        /// </summary>
-        /// <param name="ignoreArguments">0: 无忽略, 1: 忽略头, 2: 忽略尾, 3: 忽略头尾</param>
-        private static List<Tile> GetTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments = 0)
-        {
-            var tiles = new List<Tile>();
-
-            var fromTile = from.GetTile(tileSize);
-            var toTile = to.GetTile(tileSize);
-            
-            int startX = (int)fromTile.X;
-            int startY = (int)fromTile.Y;
-            int endX = (int)toTile.X;
-            int endY = (int)toTile.Y;
-            
-            int dx = Math.Abs(endX - startX);
-            int dy = Math.Abs(endY - startY);
-            int sx = (startX < endX) ? 1 : -1;
-            int sy = (startY < endY) ? 1 : -1;
-            int err = dx - dy;
-            
-            int x = startX, y = startY;
-            
-            while (true)
-            {
-                if (ignoreArguments is 0 or 2)
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
-                
-                int e2 = 2 * err;
-                if (e2 >= -dx)
-                {
-                    x += sx;
-                    err -= dy;
-                }
-                if (e2 <= dy)
-                {
-                    err += dx;
-                    y += sy;
-                }
-                
-                if (ignoreArguments == 1)
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
-                
-                if (x == endX && y == endY)
-                {
-                    if (ignoreArguments == 0)
-                        tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
-                    break;
-                } 
-                if (ignoreArguments == 3)
-                {
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
-                }
-            }
-
-            return tiles;
-        }
-
-        private static bool MaybeCross(Position from, Position to, PositionRange range)
-        {
-            uint fromX = from.X, fromY = from.Y, toX = to.X, toY = to.Y;
-            var min = range.Min;
-            var max = range.Max;
-            if (Math.Max(fromX, toX) < min.X)
-                return false;
-            if (Math.Max(fromY, toY) < min.Y)
-                return false;
-            if (Math.Min(fromX, toX) > max.X)
-                return false;
-            if (Math.Min(fromY, toY) > max.Y)
-                return false;
-            return true;
-        }
         
         public static void Initialize()
         {
@@ -136,6 +60,8 @@ namespace TaxiManager.Structure
                 _task?.Wait();
             }
 
+            var service = IServiceCommon.Instance;
+
             byte tileSize = 1;
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
             var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
@@ -159,7 +85,7 @@ namespace TaxiManager.Structure
                 if (range.IsIn(toPos)) continue;
                 
                 var fromPos = entry.Value;
-                var passed = GetTilesOnLine(tileSize, fromPos, toPos, 1);
+                var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 1);
                 if (passed.Count == 0) continue;
                 
                 var flowDensity = 1.0f / passed.Count;
@@ -191,6 +117,8 @@ namespace TaxiManager.Structure
                 _task?.Wait();
             }
             
+            var service = IServiceCommon.Instance;
+            
             byte tileSize = 1;
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
             var unitNextMap = _positions.GetValueOrDefault(timeUnit + 1, _emptyMap);
@@ -212,7 +140,7 @@ namespace TaxiManager.Structure
                 if (to.IsIn(fromPos)) continue;
                 
                 var toPos = entry.Value;
-                var passed = GetTilesOnLine(tileSize, fromPos, toPos, 2);
+                var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 2);
                 if (passed.Count == 0)
                     continue;
                 var flowDensity = 1.0f / passed.Count;
@@ -228,6 +156,13 @@ namespace TaxiManager.Structure
             return flows;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rangeA"></param>
+        /// <param name="rangeB"></param>
+        /// <param name="timeUnit"></param>
+        /// <returns></returns>
         public static (float fromAtoB, float fromBtoA) GetFlowFromTo(PositionRange rangeA, PositionRange rangeB,
             int timeUnit)
         {
@@ -236,7 +171,7 @@ namespace TaxiManager.Structure
                 MessageBox.Show("数据未完成预处理");
                 _task?.Wait();
             }
-
+            
             var service = IServiceCommon.Instance;
             
             var unitMap = _positions.GetValueOrDefault(timeUnit, _emptyMap);
@@ -253,7 +188,7 @@ namespace TaxiManager.Structure
                 var flowDensity = 1f;
                 if (isAtoB || isBtoA)
                 {
-                    var passed = GetTilesOnLine(1, fromPos, toPos, 1);
+                    var passed = service.GetTilesOnLine(1, fromPos, toPos, 1);
                     if (passed.Count == 0) continue;
                     var toRange = isAtoB? rangeB : rangeA;
                     var passedInTo = passed.Count(toTile => toRange.IsIn(toTile.Index));
@@ -267,7 +202,15 @@ namespace TaxiManager.Structure
             return (fromAtoB, fromBtoA);
         }
 
-        public static (int fromAtoB, int fromBtoA) GetFlow(PositionRange rangeA, PositionRange rangeB, 
+        /// <summary>
+        /// 获取时段内，两个区域往返的流量
+        /// </summary>
+        /// <param name="rangeA"></param>
+        /// <param name="rangeB"></param>
+        /// <param name="unitFrom"></param>
+        /// <param name="unitTo"></param>
+        /// <returns></returns>
+        public static (int fromAtoB, int fromBtoA) GetFlowPeriod(PositionRange rangeA, PositionRange rangeB, 
             int unitFrom, int unitTo)
         {
             if (!Loaded)
@@ -276,7 +219,7 @@ namespace TaxiManager.Structure
                 _task?.Wait();
             }
             
-            var service = ServiceCommon.Instance;
+            var service = IServiceCommon.Instance;
             int fromAtoB = 0;
             int fromBtoA = 0;
             
@@ -294,11 +237,9 @@ namespace TaxiManager.Structure
                 nextMap = _positions.GetValueOrDefault(unit, _emptyMap);
                 if (currMap.Count == 0 || nextMap.Count == 0) continue;
                 
-                foreach (var entry in currMap)
+                foreach (var (driver, fromPos) in currMap)
                 {
-                    var driver = entry.Key;
                     if (!nextMap.TryGetValue(driver, out var toPos)) continue;
-                    var fromPos = entry.Value;
                     if (fromPos.GetTile() == toPos.GetTile()) continue;
                     
                     // 如果广义范围都和A、B范围不相交，就跳过
@@ -314,26 +255,28 @@ namespace TaxiManager.Structure
                     switch (result)
                     {
                         case 3: // 先经过range1(A)，再经过range2(B)
-                            if (state is 0 or 1)
-                            {
+                            if (state is 1)
                                 fromAtoB++;
-                                state = 2; // 标记已完成A->B
-                            }
+                            else if (state is 2)
+                                fromBtoA++;
+                            state = 2;
                             break;
                         case 4: // 先经过range2(B)，再经过range1(A)
-                            if (state is 0 or 2)
-                            {
+                            if (state is 1)
+                                fromAtoB++;
+                            if (state is  2)
                                 fromBtoA++;
-                                state = 1; // 标记已完成B->A
-                            }
+                            state = 1;
                             break;
                         case 1: // 只经过rangeA
-                            if (state == 0)
-                                state = 1;
+                            if (state == 2)
+                                fromBtoA++;
+                            state = 1;
                             break;
                         case 2: // 只经过rangeB
-                            if (state == 0)
-                                state = 2;
+                            if (state == 1)
+                                fromAtoB++;
+                            state = 2;
                             break;
                         // case 0: 不经过任何范围，不做处理
                     }
@@ -344,7 +287,41 @@ namespace TaxiManager.Structure
             }
             return (fromAtoB, fromBtoA);
         }
-        
+
+        /// <summary>
+        /// 这个操作的开销非常高，在满功率状态下也需要1s
+        /// </summary>
+        /// <param name="tileSize"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static Dictionary<Tile, float> GetFlows(byte tileSize, int unit)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            
+            var flows = new Dictionary<Tile, float>();
+            
+            var service = IServiceCommon.Instance;
+            
+            var unitMap = _positions.GetValueOrDefault(unit, _emptyMap);
+            var unitNextMap = _positions.GetValueOrDefault(unit + 1, _emptyMap);
+
+            foreach (var (driver, fromPos) in unitMap)
+            {
+                if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
+                if (fromPos.GetTile(tileSize) == toPos.GetTile(tileSize)) continue;
+                
+                var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 0);
+                var flowDensity = 1f / passed.Count;
+                foreach (var tile in passed)
+                    flows[tile] = flows.GetValueOrDefault(tile, 0f) + flowDensity;
+            }
+
+            return flows;
+        }
         
     }
 }

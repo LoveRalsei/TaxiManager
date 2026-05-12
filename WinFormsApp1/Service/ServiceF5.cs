@@ -12,7 +12,7 @@ public class ServiceF5 : IServiceF5
         var unitFrom = TimeUnit.GetUnit(timeFrom);
         var unitTo = TimeUnit.GetUnit(timeTo);
         
-        var flow = Flows.GetFlow(rangeA, rangeB, unitFrom, unitTo);
+        var flow = Flows.GetFlowPeriod(rangeA, rangeB, unitFrom, unitTo);
 
         return (flow.fromAtoB, flow.fromBtoA);
     }
