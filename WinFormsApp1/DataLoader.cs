@@ -254,6 +254,7 @@ namespace TaxiManager
             Density.Initialize();
             Flows.Initialize();
             Paths.Initialize();
+            Speeds.Initialize();
         }
         public static Task ExecuteAfterLoaded(Action action)
         {

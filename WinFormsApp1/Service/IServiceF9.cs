@@ -7,5 +7,5 @@ public interface IServiceF9
 {
     public static IServiceF9 Instance => ServiceF9.Instance;
 
-    public (MapRoute path, DateTime time)? GetShortestPath(PositionRange rangeA, PositionRange rangeB, DateTime timeFrom, DateTime timeTo);
+    public (MapRoute path, double distance, TimeSpan time)? GetShortestPath(PositionRange rangeA, PositionRange rangeB, DateTime time);
 }

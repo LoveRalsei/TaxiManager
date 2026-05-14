@@ -206,7 +206,12 @@ namespace TaxiManager.Service
         public List<Tile> GetTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments = 0)
         {
             var tiles = new List<Tile>();
+            ForTilesOnLine(tileSize, from, to, ignoreArguments, tiles.Add);
+            return tiles;
+        }
 
+        public void ForTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments, Action<Tile> action)
+        {
             var fromTile = from.GetTile(tileSize);
             var toTile = to.GetTile(tileSize);
             
@@ -226,7 +231,7 @@ namespace TaxiManager.Service
             while (true)
             {
                 if (ignoreArguments is 0 or 2)
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                    action(Tile.From(tileSize, (uint)x, (uint)y));
                 
                 int e2 = 2 * err;
                 if (e2 >= -dx)
@@ -241,21 +246,19 @@ namespace TaxiManager.Service
                 }
                 
                 if (ignoreArguments == 1)
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                    action(Tile.From(tileSize, (uint)x, (uint)y));
                 
                 if (x == endX && y == endY)
                 {
                     if (ignoreArguments == 0)
-                        tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                        action(Tile.From(tileSize, (uint)x, (uint)y));
                     break;
                 } 
                 if (ignoreArguments == 3)
                 {
-                    tiles.Add(Tile.From(tileSize, (uint)x, (uint)y));
+                    action(Tile.From(tileSize, (uint)x, (uint)y));
                 }
             }
-
-            return tiles;
         }
     }
 }

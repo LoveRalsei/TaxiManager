@@ -1,4 +1,4 @@
-﻿using GMap.NET;
+using GMap.NET;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
@@ -11,20 +11,16 @@ namespace TaxiManager.Structure
     /// <summary>
     /// 以1米（等价于1e5经纬度）为一单位的坐标
     /// </summary>
-    public readonly record struct Position
+    public readonly record struct Position(uint X, uint Y)
     {
         public const double MinLongitude = 115.3, MaxLongitude = 117.6, MinLatitude = 39.4, MaxLatitude = 41.1;
-        public const uint MinX = 11530000, MaxX = 11760000, MinY = 3940000, MaxY = 4110000;
+        public const uint MinX = (uint)(MinLongitude * 1e5), MaxX = (uint)(MaxLongitude * 1e5), 
+            MinY = (uint)(MinLatitude * 1e5), MaxY = (uint)(MaxLatitude * 1e5);
         public static readonly Position Min = new(MinX, MinY);
         public static readonly Position Max = new(MaxX, MaxY);
-        public readonly uint X;
-        public readonly uint Y;
+        public readonly uint X = X;
+        public readonly uint Y = Y;
 
-        public Position(uint x, uint y) : this()
-        {
-            X = x; 
-            Y = y;
-        }
         public Position? Lerp(Position? target, float scale)
         {
             return Lerp(this, target, scale);
@@ -38,10 +34,18 @@ namespace TaxiManager.Structure
             if (from == null && to == null) return null;
             if (from == null) return to;
             if (to == null) return from;
-            return FromRaw(
-                from.Value.X + (to.Value.X - from.Value.X) * scale,
-                from.Value.Y + (to.Value.Y - from.Value.Y) * scale
-                );
+            // 修复：先将uint转换为double进行计算，避免uint下溢
+            double x = (double)from.Value.X + ((double)to.Value.X - (double)from.Value.X) * scale;
+            double y = (double)from.Value.Y + ((double)to.Value.Y - (double)from.Value.Y) * scale;
+            // 四舍五入并转换为uint
+            uint xUint = (uint)Math.Round(x);
+            uint yUint = (uint)Math.Round(y);
+            // 确保结果在有效范围内
+            if (xUint < MinX) xUint = MinX;
+            if (xUint > MaxX) xUint = MaxX;
+            if (yUint < MinY) yUint = MinY;
+            if (yUint > MaxY) yUint = MaxY;
+            return From(xUint, yUint);
         }
         public static Position FromRaw(double longitude, double latitude) => new((uint)Math.Round(longitude * 1e5), (uint)Math.Round(latitude * 1e5));
         public static Position FromRaw(PositionRaw raw) => FromRaw(raw.Longitude, raw.Latitude);
@@ -64,6 +68,15 @@ namespace TaxiManager.Structure
             return From(x, y);
         }
         public Tile GetTile(byte size = 1) => Tile.From(size, this);
+        public double DistanceSquaredTo(Position? target)
+        {
+            if (target == null) return 0;
+            var dx = X - target.Value.X;
+            var dy = Y - target.Value.Y;
+            return dx * dx + dy * dy;
+        }
+        public double DistanceTo(Position? target)
+            => target == null ? 0 : Math.Sqrt(DistanceSquaredTo(target));
         public static implicit operator Position(PositionRaw raw) => FromRaw(raw);
         public static implicit operator Position(PointLatLng point) => FromGmap(point);
         public static implicit operator PointLatLng(Position position) => position.ToGmap();

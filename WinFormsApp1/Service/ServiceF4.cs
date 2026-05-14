@@ -7,15 +7,6 @@ namespace TaxiManager.Service
     public class ServiceF4 : IServiceF4
     {
         public static readonly ServiceF4 Instance = new();
-        
-        private byte GetTileSize(RectLatLng viewArea, Size gmapSize)
-        {
-            if (gmapSize.Width == 0 || gmapSize.Height == 0)
-                return 1;
-            double meterWidthPixel = viewArea.WidthLng * 1e5 / gmapSize.Width;
-            double meterHeightPixel = viewArea.HeightLat * 1e5 / gmapSize.Height;
-            return (byte)Math.Max(1, Math.Min(255, Math.Min(meterHeightPixel, meterWidthPixel) * 15 / 100));
-        }
 
         /// <summary>
         /// 获取密度变化的热力图
@@ -28,32 +19,15 @@ namespace TaxiManager.Service
         {
             const float maxDensity = 0.02f;
             var service = IServiceCommon.Instance;
-            Dictionary<Tile, Color> map = [];
             
             var viewRange = PositionRange.FromGmap(viewArea);
-            var unit = TimeUnit.GetUnit(time);
-            var nextUnit = TimeUnit.GetNextUnit(unit);
-            var densityMap = Density.GetDensity(tileSize, unit);
-            var densityMapNext = Density.GetDensity(tileSize, nextUnit);
-            foreach (var (tile, density) in densityMap)
-            {
-                if (!viewRange.IsIn(tile.Index)) continue;
-                if (!densityMapNext.TryGetValue(tile, out var densityNext)) continue;
-                var densityChange = Math.Abs(density - densityNext);
-                densityChange /= maxDensity;
-                if (densityChange > 0)
-                    map.Add(tile, service.GetHotColor(densityChange, 0.2f));
-            }
-            /*
-            //临时 Debug 显示路径点用
-            map.Clear();
-            foreach (var (tile, flow) in Paths.FlowsTotal)
-            {
-                if (flow > 1.2)
-                    map.Add(tile, service.GetHotColor(flow / 3f, 0.2f));
-            }
-            */
-            return map;
+            var unitFrom = TimeUnit.GetUnit(time);
+            var unitTo = unitFrom + 3;
+            var densityChanges =
+                Density.GetDensityChange(tileSize, unitFrom, unitTo, (tile, f) => viewRange.IsIn(tile.Index));
+
+            //return Speeds.GetSpeeds(time).Select(pair => (pair.Key, service.GetHotColor(pair.Value / maxDensity, 0.2f))).ToDictionary();
+            return densityChanges.Select(pair => (pair.Key, service.GetHotColor(pair.Value / maxDensity, 0.2f))).ToDictionary();
         }
     }
 }

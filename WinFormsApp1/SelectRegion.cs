@@ -59,7 +59,7 @@ namespace TaxiManager
             if (!_gmap.Overlays.Contains(_selectionOverlay))
                 _gmap.Overlays.Add(_selectionOverlay);
 
-            try { _savedCanDragMap = _gmap.CanDragMap; _gmap.CanDragMap = false; } catch { }
+            //try { _savedCanDragMap = _gmap.CanDragMap; _gmap.CanDragMap = false; } catch { }
 
             SubscribeEvents();
 
@@ -87,7 +87,7 @@ namespace TaxiManager
             if (!_gmap.Overlays.Contains(_selectionOverlay))
                 _gmap.Overlays.Add(_selectionOverlay);
 
-            try { _savedCanDragMap = _gmap.CanDragMap; _gmap.CanDragMap = false; } catch { }
+            //try { _savedCanDragMap = _gmap.CanDragMap; _gmap.CanDragMap = false; } catch { }
 
             SubscribeEvents();
 
@@ -99,17 +99,9 @@ namespace TaxiManager
 
         public void EndSelectRegion()
         {
-            if (_gmap != null)
-            {
-                UnsubscribeEvents();
-
-                try
-                {
-                    if (_savedCanDragMap.HasValue)
-                        _gmap.CanDragMap = _savedCanDragMap.Value;
-                }
-                catch { }
-            }
+            UnsubscribeEvents();
+            _gmap.CanDragMap = true;
+            
 
             _isSelecting = false;
             _isDragging = false;
@@ -162,7 +154,7 @@ namespace TaxiManager
         {
             if (!_isSelecting) return;
             if (e.Button != MouseButtons.Left) return;
-
+            _gmap.CanDragMap = false;
             switch (_mode)
             {
                 case SelectionMode.Raw: HandleRawMouseDown(e); break;
@@ -185,7 +177,8 @@ namespace TaxiManager
         {
             if (!_isSelecting || !_isDragging) return;
             if (e.Button != MouseButtons.Left) return;
-
+            _gmap.CanDragMap = true;
+            
             switch (_mode)
             {
                 case SelectionMode.Raw: HandleRawMouseUp(e); break;

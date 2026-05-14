@@ -43,6 +43,19 @@ namespace TaxiManager.Structure
                 Console.WriteLine($"Flows Initialized in {sw.ElapsedMilliseconds}ms");
             });
         }
+        
+        public static Task ExecuteAfterLoaded(Action action)
+            => _task!.ContinueWith(_ => action());
+
+        public static Dictionary<Driver, Position> GetPositions(int unit)
+        {
+            if (!Loaded)
+            {
+                MessageBox.Show("数据未完成预处理");
+                _task?.Wait();
+            }
+            return _positions.GetValueOrDefault(unit, _emptyMap);
+        }
 
         /// <summary>
         /// 获得某个时间点，从 from Tile 出发的所有流
@@ -311,6 +324,10 @@ namespace TaxiManager.Structure
             {
                 if (!unitNextMap.TryGetValue(driver, out var toPos)) continue;
                 if (fromPos.GetTile(tileSize) == toPos.GetTile(tileSize)) continue;
+                // 检查速度过快的不合理节点
+                var deltaSize = toPos - fromPos;
+                if (Math.Abs(deltaSize.HeightLat * 1e5) > 200 || Math.Abs(deltaSize.WidthLng * 1e5) > 200) 
+                    continue;
                 
                 var passed = service.GetTilesOnLine(tileSize, fromPos, toPos, 0);
                 var flowDensity = 1f / passed.Count;

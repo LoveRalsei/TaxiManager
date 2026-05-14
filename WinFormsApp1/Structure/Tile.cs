@@ -18,7 +18,7 @@ namespace TaxiManager.Structure
         private uint _data = 0;
         public byte Size {
             readonly get => (byte)(_data >> 24);
-            set => _data = _data & 0x00ffffff | (uint) value << 24;
+            set => _data = _data & 0x00ffffff | (uint) (value & 0xff) << 24;
         }
         public readonly uint SizeMeter => (uint)Size * 100;
         public uint X
@@ -29,7 +29,7 @@ namespace TaxiManager.Structure
         public uint Y
         {
             readonly get => (ushort)(_data & 0xFFF);
-            set => _data = _data & 0xfffff000 | value & 0xfff;
+            set => _data = _data & 0xfffff000 | (value & 0xfff);
         }
 
         public Position Index {

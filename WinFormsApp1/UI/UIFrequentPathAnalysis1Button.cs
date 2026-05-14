@@ -98,7 +98,7 @@ namespace TaxiManager.UI
                 }
                 
                 // UI反馈
-                try { _resultLabel.SetValue("F7: 正在分析频繁路径..."); } catch { }
+                try { _resultLabel.SetValue("正在分析频繁路径..."); } catch { }
 
                 // 调用服务获取前K个频繁路径
                 var frequentPaths = IServiceF7.Instance.GetTopKFrequentPaths(k, minDistance);

@@ -76,7 +76,7 @@ namespace TaxiManager.UI
                         overlay.Routes.Add(gmapRoute);
                         var position = driver.GetPosition(time);
                         if (position != null)
-                            overlay.Markers.Add(new GMarkerDot(position.Value, 10, Color.LightBlue));
+                            overlay.Markers.Add(new GMarkerDot(position.Value, 10, Color.MediumVioletRed));
                     }
                 });
             }

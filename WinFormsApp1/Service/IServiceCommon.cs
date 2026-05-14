@@ -37,5 +37,10 @@ namespace TaxiManager.Service
         /// </summary>
         /// <param name="ignoreArguments">0: 无忽略, 1: 忽略头, 2: 忽略尾, 3: 忽略头尾</param>
         public abstract List<Tile> GetTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments = 0);
+        /// <summary>
+        /// 遍历从起点到终点直线经过的所有大小为1的瓦片
+        /// </summary>
+        /// <param name="ignoreArguments">0: 无忽略, 1: 忽略头, 2: 忽略尾, 3: 忽略头尾</param>
+        public abstract void ForTilesOnLine(byte tileSize, Position from, Position to, int ignoreArguments, Action<Tile> action);
     }
 }

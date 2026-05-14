@@ -105,6 +105,30 @@ namespace TaxiManager.Structure
             return _countMap.GetValueOrDefault(timeUnit, []);
         }
 
+        public static Dictionary<Tile, float> GetDensityChange(byte tileSize, int unitFrom, int unitTo, 
+            Func<Tile, float, bool>? predicate = null
+            )
+        {
+            Dictionary<Tile, float> densityChange = [];
+            
+            var currDensity = GetDensity(tileSize, unitFrom);
+            var nextDensity = currDensity;
+            for (var unit = unitFrom; unit <= unitTo; unit++, currDensity = nextDensity)
+            {
+                nextDensity = GetDensity(tileSize, unit + 1);
+                foreach (var (tile, densityCurr) in currDensity)
+                {
+                    if (!nextDensity.TryGetValue(tile, out var densityNext)) continue;
+                    var change = Math.Abs(densityCurr - densityNext);
+                    if ((!predicate?.Invoke(tile, change)) ?? false) continue;
+                    if (change > 0)
+                        densityChange[tile] = densityChange.GetValueOrDefault(tile, 0) + change;
+                }
+            }
+
+            return densityChange;
+        }
+
         public static bool IsEmpty(Tile tile)
             => tile.Size == 1 ? _emptyTiles.Contains(tile) : tile.SubTiles.All(IsEmpty);
     }
