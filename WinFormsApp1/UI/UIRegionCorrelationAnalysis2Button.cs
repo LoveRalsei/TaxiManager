@@ -89,6 +89,12 @@ namespace TaxiManager.UI
                     return;
                 }
 
+                if (!Flows.Loaded)
+                {
+                    try { _resultLabel.SetValue("数据未完成预处理，请等待1~2秒"); } catch { }
+                    return;
+                }
+
                 float flow = IServiceF6.Instance.GetFlowTo(region.Value, time.Value);
 
                 _mapForm.ControlPanel.ModifyOverlay((overlay) =>

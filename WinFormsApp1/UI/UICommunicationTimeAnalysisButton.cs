@@ -91,6 +91,12 @@ namespace TaxiManager.UI
                     return;
                 }
 
+                if (!Speeds.Loaded || !Paths.Loaded)
+                {
+                    try { _resultLabel.SetValue("数据尚未完成预处理，请等待大约1~5秒"); } catch { }
+                    return;
+                }
+
                 // UI反馈
                 try { _resultLabel.SetValue("F9: 正在计算最短通行时间路径..."); } catch { }
 

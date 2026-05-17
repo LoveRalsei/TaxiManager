@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace TaxiManager.Structure
 {
@@ -23,26 +24,32 @@ namespace TaxiManager.Structure
                 HashSet<Tile> existTiles = [];
                 foreach (var driver in drivers)
                 {
-                    HashSet<(Tile tile, int unit)> passed = [];
+                    Dictionary<int, List<Tile>> map = [];
                     foreach (var node in driver.Nodes)
                     {
-                        passed.Add((node.Position.GetTile(), TimeUnit.GetUnit(node.Time)));
+                        ref var passed = ref CollectionsMarshal.GetValueRefOrAddDefault(map, TimeUnit.GetUnit(node.Time), out var exists);
+                        passed ??= [];
+                        passed.Add(node.Position.GetTile());
                     }
-                    var eachDensity = 1.0f / passed.Count;
-                    foreach (var entry in passed)
+
+                    foreach (var (unit, passed) in map)
                     {
-                        existTiles.Add(entry.tile);
-                        if (!_countMap.TryGetValue(entry.unit, out var tileMap))
+                        var eachDensity = 1.0f / passed.Count;
+                        foreach (var tile in passed)
                         {
-                            tileMap = [];
-                            _countMap[entry.unit] = tileMap;
-                        }
+                            existTiles.Add(tile);
+                            if (!_countMap.TryGetValue(unit, out var tileMap))
+                            {
+                                tileMap = [];
+                                _countMap[unit] = tileMap;
+                            }
                         
-                        if (!tileMap.TryGetValue(entry.tile, out float density))
-                            density = 0;
-                        density += eachDensity;
-                        MaxDensity = Math.Max(MaxDensity, density);
-                        tileMap[entry.tile] = density;
+                            if (!tileMap.TryGetValue(tile, out float density))
+                                density = 0;
+                            density += eachDensity;
+                            MaxDensity = Math.Max(MaxDensity, density);
+                            tileMap[tile] = density;
+                        }
                     }
                 }
                 _countMap.TrimExcess();

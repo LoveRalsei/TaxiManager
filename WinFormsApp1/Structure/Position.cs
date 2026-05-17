@@ -11,15 +11,15 @@ namespace TaxiManager.Structure
     /// <summary>
     /// 以1米（等价于1e5经纬度）为一单位的坐标
     /// </summary>
-    public readonly record struct Position(uint X, uint Y)
+    public readonly record struct Position(int X, int Y)
     {
         public const double MinLongitude = 115.3, MaxLongitude = 117.6, MinLatitude = 39.4, MaxLatitude = 41.1;
-        public const uint MinX = (uint)(MinLongitude * 1e5), MaxX = (uint)(MaxLongitude * 1e5), 
-            MinY = (uint)(MinLatitude * 1e5), MaxY = (uint)(MaxLatitude * 1e5);
+        public const int MinX = (int)(MinLongitude * 1e5), MaxX = (int)(MaxLongitude * 1e5), 
+            MinY = (int)(MinLatitude * 1e5), MaxY = (int)(MaxLatitude * 1e5);
         public static readonly Position Min = new(MinX, MinY);
         public static readonly Position Max = new(MaxX, MaxY);
-        public readonly uint X = X;
-        public readonly uint Y = Y;
+        public readonly int X = X;
+        public readonly int Y = Y;
 
         public Position? Lerp(Position? target, float scale)
         {
@@ -28,29 +28,29 @@ namespace TaxiManager.Structure
         public bool IsValid() => IsValid(this);
         public static bool IsValid(Position? position) => position != null && IsValid(position.Value.X, position.Value.Y);
         public static bool IsValid(double longitude, double latitude) => IsValid(FromRaw(longitude, latitude));
-        public static bool IsValid(uint x, uint y) => x is >= MinX and <= MaxX && y is >= MinY and <= MaxY;
+        public static bool IsValid(int x, int y) => x is >= MinX and <= MaxX && y is >= MinY and <= MaxY;
         public static Position? Lerp(Position? from, Position? to, float scale)
         {
             if (from == null && to == null) return null;
             if (from == null) return to;
             if (to == null) return from;
-            // 修复：先将uint转换为double进行计算，避免uint下溢
-            double x = (double)from.Value.X + ((double)to.Value.X - (double)from.Value.X) * scale;
-            double y = (double)from.Value.Y + ((double)to.Value.Y - (double)from.Value.Y) * scale;
+            // 避免下溢
+            double dx = (double)from.Value.X + ((double)to.Value.X - (double)from.Value.X) * scale;
+            double dy = (double)from.Value.Y + ((double)to.Value.Y - (double)from.Value.Y) * scale;
             // 四舍五入并转换为uint
-            uint xUint = (uint)Math.Round(x);
-            uint yUint = (uint)Math.Round(y);
+            int x = (int)Math.Round(dx);
+            int y = (int)Math.Round(dy);
             // 确保结果在有效范围内
-            if (xUint < MinX) xUint = MinX;
-            if (xUint > MaxX) xUint = MaxX;
-            if (yUint < MinY) yUint = MinY;
-            if (yUint > MaxY) yUint = MaxY;
-            return From(xUint, yUint);
+            if (x < MinX) x = MinX;
+            if (x > MaxX) x = MaxX;
+            if (y < MinY) y = MinY;
+            if (y > MaxY) y = MaxY;
+            return From(x, y);
         }
-        public static Position FromRaw(double longitude, double latitude) => new((uint)Math.Round(longitude * 1e5), (uint)Math.Round(latitude * 1e5));
+        public static Position FromRaw(double longitude, double latitude) => new((int)Math.Round(longitude * 1e5), (int)Math.Round(latitude * 1e5));
         public static Position FromRaw(PositionRaw raw) => FromRaw(raw.Longitude, raw.Latitude);
         public static Position FromGmap(PointLatLng point) => FromRaw(point.Lng, point.Lat);
-        public static Position From(uint x, uint y) => new(x, y);
+        public static Position From(int x, int y) => new(x, y);
         /// <summary>
         /// 转换成经纬度格式
         /// </summary>

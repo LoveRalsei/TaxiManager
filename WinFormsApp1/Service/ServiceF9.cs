@@ -87,7 +87,7 @@ public class ServiceF9 : IServiceF9
 
         // 创建地图路线
         var route = new MapRoute(points, "F9_CommunicationPath");
-        
+
         return (route, totalDistance, TimeSpan.FromHours(totalTime));
     }
 
@@ -187,7 +187,7 @@ public class ServiceF9 : IServiceF9
         var path = ReconstructPath(prev, foundEndTile.Value);
         
         // 计算实际通行时间（小时）
-        var (totalTime, totalDistance) = CalculateTravel(path, speedsMap, tileSize);
+        var (totalDistance, totalTime) = CalculateTravel(path, speedsMap, tileSize);
         
         return (path, totalDistance, totalTime);
     }
@@ -256,10 +256,10 @@ public class ServiceF9 : IServiceF9
             if (speed > 0)
             {
                 totalDistance += distance;
-                totalTime += distance / speed; // 时间（小时）
+                totalTime += (distance / speed); // 时间（小时）
+                //Console.WriteLine($"{distance}:{speed}");
             }
         }
-        
         return (totalDistance, totalTime);
     }
 

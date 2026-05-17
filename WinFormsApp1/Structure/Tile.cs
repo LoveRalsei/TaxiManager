@@ -35,7 +35,7 @@ namespace TaxiManager.Structure
         public Position Index {
             get
             {
-                uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
+                int length = (int)SizeMeter, x = (int)(X * length + Position.MinX), y = (int)(Y * length + Position.MinY);
                 return Position.From(x, y);
             }
         }
@@ -44,7 +44,7 @@ namespace TaxiManager.Structure
         {
             get
             {
-                uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
+                int length = (int)SizeMeter, x = (int)(X * length + Position.MinX), y = (int)(Y * length + Position.MinY);
                 return Position.From(x + length, y + length);
             }
         }
@@ -52,7 +52,7 @@ namespace TaxiManager.Structure
         {
             get
             {
-                uint length = SizeMeter, x = X * length + Position.MinX, y = Y * length + Position.MinY;
+                int length = (int)SizeMeter, x = (int)(X * length + Position.MinX), y = (int)(Y * length + Position.MinY);
                 return PositionRange.From(
                     Position.From(x, y),
                     Position.From(x + length, y + length)
@@ -104,7 +104,7 @@ namespace TaxiManager.Structure
         {
             uint length = (uint)(size * 100);
             if (length == 0) throw new ArgumentException("The size of Tile can't be zero!");
-            return From(size, (position.X - Position.MinX) / length, (position.Y - Position.MinY) / length);
+            return From(size, (uint)(Math.Max(0, position.X - Position.MinX) / length), (uint)(Math.Max(0, position.Y - Position.MinY) / length));
         }
 
         public static List<Tile> GetTilesIn(byte tileSize, PositionRange range)

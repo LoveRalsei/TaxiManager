@@ -3,6 +3,7 @@ using GMap.NET.WindowsForms;
 using System.Diagnostics;
 using TaxiManager.BasicComponent;
 using TaxiManager.Service;
+using TaxiManager.Structure;
 
 namespace TaxiManager.UI
 {
@@ -78,6 +79,12 @@ namespace TaxiManager.UI
             var regions = SelectRegion.Instance.GetRegions();
             if (regions.Count != 2)
                 return;
+            
+            if (!Flows.Loaded)
+            {
+                try { _resultLabel.SetValue("数据未完成预处理，请等待1~2秒"); } catch { }
+                return;
+            }
 
             var time = ((ValueTuple<DateTime, DateTime>?)_mapForm.ControlPanel.GetItemValue(KeyChooseTimePeriod))!.Value;
             

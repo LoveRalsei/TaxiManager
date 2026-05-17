@@ -15,6 +15,7 @@ namespace TaxiManager.Service
             if (from > to)
                 throw new ArgumentException("The arg from should not be greater than the arg to.");
             uint count = 0;
+            range = range.ToValid();
             foreach (var driver in DataLoader.Drivers)
             {
                 if (driver.IsEmpty)

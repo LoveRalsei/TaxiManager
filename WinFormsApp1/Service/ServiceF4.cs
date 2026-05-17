@@ -17,7 +17,6 @@ namespace TaxiManager.Service
         /// <returns></returns>
         Dictionary<Tile, Color> IServiceF4.GetDensityChange(byte tileSize, RectLatLng viewArea, DateTime time)
         {
-            const float maxDensity = 0.02f;
             var service = IServiceCommon.Instance;
             
             var viewRange = PositionRange.FromGmap(viewArea);
@@ -26,7 +25,7 @@ namespace TaxiManager.Service
             var densityChanges =
                 Density.GetDensityChange(tileSize, unitFrom, unitTo, (tile, f) => viewRange.IsIn(tile.Index));
 
-            //return Speeds.GetSpeeds(time).Select(pair => (pair.Key, service.GetHotColor(pair.Value / maxDensity, 0.2f))).ToDictionary();
+            var maxDensity = Density.MaxDensity / 3;
             return densityChanges.Select(pair => (pair.Key, service.GetHotColor(pair.Value / maxDensity, 0.2f))).ToDictionary();
         }
     }
